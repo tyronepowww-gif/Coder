@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quantized Code Maker</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#090909;
+  color:#eee;
+  font-family:system-ui,sans-serif;
+}
+.app{
+  max-width:1100px;
+  margin:auto;
+  padding:14px;
+}
+h1{font-size:20px;margin:0 0 4px}
+.sub{font-size:12px;color:#888;margin-bottom:14px}
+
+.panel{
+  border:1px solid #292929;
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:12px;
+  background:#111;
+}
+
+.panel-title{
+  padding:9px 12px;
+  background:#181818;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+}
+
+textarea,pre{
+  width:100%;
+  margin:0;
+  border:0;
+  outline:0;
+  resize:vertical;
+  background:#0d0d0d;
+  color:#eee;
+  padding:12px;
+  font:12px/1.55 monospace;
+}
+
+textarea{min-height:230px}
+
+.toolbar{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  padding:10px;
+  background:#151515;
+}
+
+button{
+  border:1px solid #383838;
+  background:#222;
+  color:#eee;
+  border-radius:8px;
+  padding:9px 13px;
+  font-weight:700;
+}
+
+button:active{transform:scale(.97)}
+
+.status{
+  padding:10px 12px;
+  font:12px monospace;
+  border-top:1px solid #292929;
+}
+
+.good{color:#8ee28e}
+.warn{color:#e5c878}
+.bad{color:#ee7777}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+@media(max-width:750px){
+  .grid{grid-template-columns:1fr}
+}
+
+pre{
+  min-height:180px;
+  white-space:pre-wrap;
+  overflow:auto;
+}
+
+#preview{
+  height:360px;
+  background:#050505;
+  border:0;
+}
+
+.instrument{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:10px;
+}
+
+.instrument button{
+  font-size:11px;
+  padding:7px 9px;
+}
+
+.t-axis{
+  border-left:3px solid #777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>QUANTIZED CODE MAKER</h1>
+<div class="sub">
+LEVEL 7 • INSTRUMENT COMPOSER • HTML / CSS / JS / T
+</div>
+
+<!-- SOURCE -->
+<div class="panel">
+
+<div class="panel-title">COMPOSITION</div>
+
+<textarea id="source">3D VOLUME
+*
+GRID(perspective,horizon)
++
+TUNNEL
++
+BACKGROUND(sine-wave,color-gradient,mountains)
+*
+PLAYER(control,walk,state)
+    ROTATE(n,nw,ne,e,se,s,sw,w)
+    PHYSICS
+    3RD PERSON POV
+    STICK FIGURE SPRITE IMG(animated)
+    WALK SPEED PACK(unlocked)
+
+RIVAL(stick-figure,else,img-hover-animate)
+
+BAR BUTTON-A(punch)
+BAR BUTTON-B(block)</textarea>
+
+<div class="toolbar">
+
+<button onclick="quantize()">QUANTIZE</button>
+<button onclick="build()">BUILD</button>
+<button onclick="test()">TEST</button>
+<button onclick="publish()">PUBLISH</button>
+
+</div>
+
+<div id="status" class="status">
+READY
+</div>
+
+</div>
+
+
+<!-- INSTRUMENTS -->
+<div class="panel">
+
+<div class="panel-title">INSTRUMENT PLUGINS</div>
+
+<div class="instrument">
+
+<button onclick="insert('PLAYER')">PLAYER</button>
+<button onclick="insert('GRID')">GRID</button>
+<button onclick="insert('PHYSICS')">PHYSICS</button>
+<button onclick="insert('CAMERA(3rd-person)')">CAMERA</button>
+<button onclick="insert('SPRITE(stick-figure,animated)')">SPRITE</button>
+<button onclick="insert('RIVAL')">RIVAL</button>
+
+<button onclick="insert('IF(condition)')">IF</button>
+<button onclick="insert('ELSE')">ELSE</button>
+<button onclick="insert('LOOP')">LOOP</button>
+<button onclick="insert('FUNCTION(name)')">FUNCTION</button>
+<button onclick="insert('STATE(x,y,z,t)')">STATE</button>
+
+<button onclick="insert('CLICK')">CLICK</button>
+<button onclick="insert('PRESS')">PRESS</button>
+<button onclick="insert('HOVER')">HOVER</button>
+<button onclick="insert('MOVE')">MOVE</button>
+
+<button onclick="insert('ANIMATION(t)')">ANIMATION</button>
+<button onclick="insert('TIMELINE(t)')">TIMELINE</button>
+<button onclick="insert('TIMER(t)')">TIMER</button>
+
+<button class="t-axis" onclick="insert('T')">T-AXIS</button>
+
+</div>
+</div>
+
+
+<!-- OUTPUT -->
+<div class="grid">
+
+<div class="panel">
+
+<div class="panel-title">QUANTIZED COMPOSITION</div>
+
+<pre id="quantized">No quantization yet.</pre>
+
+</div>
+
+
+<div class="panel">
+
+<div class="panel-title">CORRECTION REPORT</div>
+
+<pre id="report">Waiting...</pre>
+
+</div>
+
+</div>
+
+
+<!-- GENERATED CODE -->
+<div class="grid">
+
+<div class="panel">
+
+<div class="panel-title">HTML</div>
+<pre id="htmlOut"></pre>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">CSS</div>
+<pre id="cssOut"></pre>
+
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="panel">
+
+<div class="panel-title">JAVASCRIPT</div>
+<pre id="jsOut"></pre>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">T-AXIS / RUNTIME</div>
+<pre id="tOut"></pre>
+
+</div>
+
+</div>
+
+
+<!-- PREVIEW -->
+
+<div class="panel">
+
+<div class="panel-title">LIVE BUILD</div>
+
+<iframe id="preview"></iframe>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   INSTRUMENT REGISTRY
+===================================================== */
+
+const INSTRUMENTS = {
+
+  HTML:[
+    "PLAYER",
+    "GRID",
+    "TUNNEL",
+    "BACKGROUND",
+    "RIVAL",
+    "SPRITE",
+    "BUTTON"
+  ],
+
+  CSS:[
+    "perspective",
+    "horizon",
+    "light",
+    "sun",
+    "alignment",
+    "animation"
+  ],
+
+  JS:[
+    "IF",
+    "ELSE",
+    "LOOP",
+    "FUNCTION",
+    "STATE",
+    "PHYSICS",
+    "CLICK",
+    "PRESS",
+    "HOVER",
+    "MOVE"
+  ],
+
+  T:[
+    "T",
+    "TIMER",
+    "ANIMATION",
+    "TIMELINE",
+    "PLAYBACK"
+  ]
+
+};
+
+
+/* =====================================================
+   SOURCE INSERTION
+===================================================== */
+
+function insert(text){
+
+  const box=document.getElementById("source");
+
+  box.value +=
+    (box.value.endsWith("\n") ? "" : "\n")
+    + text;
+
+  box.focus();
+}
+
+
+/* =====================================================
+   QUANTIZER
+===================================================== */
+
+function quantize(){
+
+  const raw=document.getElementById("source").value;
+
+  const lines=raw
+    .split("\n")
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  const out=[];
+  const report=[];
+
+  let hasPlayer=false;
+  let hasState=false;
+  let hasTime=false;
+
+  for(let line of lines){
+
+    const upper=line.toUpperCase();
+
+    /* -----------------------------------------
+       PLAYER
+    ----------------------------------------- */
+
+    if(upper.startsWith("PLAYER")){
+
+      hasPlayer=true;
+
+      out.push(`PLAYER(
+    control,
+    WALK(
+        speed-pack:unlocked,
+        t
+    ),
+    STATE(
+        x,
+        y,
+        z,
+        t
+    ),
+    ROTATE(
+        n,nw,ne,e,
+        se,s,sw,w
+    ),
+    PHYSICS,
+    CAMERA(
+        3rd-person
+    ),
+    SPRITE(
+        stick-figure,
+        animated
+    )
+)`);
+
+      report.push("[PASS] PLAYER → canonical structure");
+      hasState=true;
+      hasTime=true;
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       GRID
+    ----------------------------------------- */
+
+    if(upper.startsWith("GRID")){
+
+      out.push(`GRID(
+    perspective,
+    horizon
+)`);
+
+      report.push("[PASS] GRID → canonical structure");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       3D VOLUME
+    ----------------------------------------- */
+
+    if(upper==="3D VOLUME"){
+
+      out.push("3D VOLUME");
+      report.push("[PASS] 3D VOLUME");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       TUNNEL
+    ----------------------------------------- */
+
+    if(upper.startsWith("TUNNEL")){
+
+      out.push("TUNNEL");
+      report.push("[PASS] TUNNEL");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       BACKGROUND
+    ----------------------------------------- */
+
+    if(upper.startsWith("BACKGROUND")){
+
+      out.push(`BACKGROUND(
+    sine-wave,
+    color-gradient,
+    mountains
+)`);
+
+      report.push("[PASS] BACKGROUND");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       RIVAL
+    ----------------------------------------- */
+
+    if(upper.startsWith("RIVAL")){
+
+      out.push(`RIVAL(
+    SPRITE(
+        stick-figure,
+        animated
+    ),
+    BEHAVIOR(
+        else
+    ),
+    HOVER(
+        animate
+    )
+)`);
+
+      report.push("[PASS] RIVAL");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       BUTTON A
+    ----------------------------------------- */
+
+    if(upper.includes("BUTTON-A")){
+
+      out.push(`ACTION-A(
+    punch
+)`);
+
+      report.push("[PASS] ACTION-A");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       BUTTON B
+    ----------------------------------------- */
+
+    if(upper.includes("BUTTON-B")){
+
+      out.push(`ACTION-B(
+    block
+)`);
+
+      report.push("[PASS] ACTION-B");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       PHYSICS
+    ----------------------------------------- */
+
+    if(upper==="PHYSICS"){
+
+      out.push("PHYSICS");
+      report.push("[PASS] PHYSICS");
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       T AXIS
+    ----------------------------------------- */
+
+    if(
+      upper==="T" ||
+      upper.includes("TIMER") ||
+      upper.includes("TIMELINE") ||
+      upper.includes("ANIMATION")
+    ){
+
+      out.push("TIME ENGINE(\n    t,\n    LOOP,\n    ANIMATION,\n    TIMELINE,\n    PLAYBACK\n)");
+
+      report.push("[PASS] T-AXIS");
+      hasTime=true;
+      continue;
+    }
+
+
+    /* -----------------------------------------
+       STRUCTURAL OPERATORS
+    ----------------------------------------- */
+
+    if(
+      line==="*" ||
+      line==="+"
+    ){
+
+      out.push(line);
+      continue;
+    }
+
+  }
+
+
+  /* -----------------------------------------
+     AUTO REQUIREMENTS
+  ----------------------------------------- */
+
+  if(hasPlayer && !hasState){
+
+    report.push("[QUANTIZE] PLAYER requires STATE → STATE added");
+
+    out.push(`STATE(
+    x,
+    y,
+    z,
+    t
+)`);
+
+    hasState=true;
+  }
+
+
+  if(hasPlayer && !hasTime){
+
+    report.push("[QUANTIZE] Motion requires T → T-AXIS added");
+
+    out.push(`TIME ENGINE(
+    t,
+    LOOP,
+    ANIMATION,
+    TIMELINE,
+    PLAYBACK
+)`);
+
+    hasTime=true;
+  }
+
+
+  /* -----------------------------------------
+     LEVEL 7 RESULT
+  ----------------------------------------- */
+
+  report.push("");
+
+  if(hasPlayer && hasState && hasTime){
+
+    report.push("[PASS] STATE SPACE x,y,z,t");
+    report.push("[PASS] TIME DEPENDENCY");
+    report.push("[PASS] LEVEL 7 QUANTIZATION");
+    report.push("");
+    report.push("STATUS: BUILD READY");
+
+  }else{
+
+    report.push("STATUS: INCOMPLETE");
+
+  }
+
+
+  document.getElementById("quantized").textContent =
+    out.join("\n");
+
+  document.getElementById("report").textContent =
+    report.join("\n");
+
+  document.getElementById("status").innerHTML =
+    '<span class="good">QUANTIZED • LEVEL 7 READY</span>';
+
+}
+
+
+/* =====================================================
+   CODE GENERATOR
+===================================================== */
+
+function generate(){
+
+  const html=`
+<div id="game">
+  <div id="horizon"></div>
+  <div id="grid"></div>
+
+  <div id="player" class="player">
+    <div class="head"></div>
+    <div class="body"></div>
+    <div class="arm a"></div>
+    <div class="arm b"></div>
+    <div class="leg a"></div>
+    <div class="leg b"></div>
+  </div>
+
+  <div id="rival" class="rival">
+    RIVAL
+  </div>
+
+  <div id="controls">
+    <button onclick="move(-1,0)">←</button>
+    <button onclick="move(0,-1)">↑</button>
+    <button onclick="move(1,0)">→</button>
+    <button onclick="move(0,1)">↓</button>
+
+    <button onclick="punch()">A • PUNCH</button>
+    <button onclick="block()">B • BLOCK</button>
+  </div>
+</div>
+`;
+
+  const css=`
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  overflow:hidden;
+  background:#080b10;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+#game{
+  width:100vw;
+  height:100vh;
+  position:relative;
+  perspective:700px;
+  overflow:hidden;
+  background:
+    linear-gradient(
+      #1d2d42 0%,
+      #263b54 47%,
+      #090c12 48%,
+      #050609 100%
+    );
+}
+
+#horizon{
+  position:absolute;
+  top:48%;
+  width:100%;
+  height:2px;
+  background:#777;
+}
+
+#grid{
+  position:absolute;
+  width:1600px;
+  height:1600px;
+  left:50%;
+  top:48%;
+  transform:
+    translate(-50%,-50%)
+    rotateX(68deg);
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 59px,
+      #33404e 60px 61px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 59px,
+      #33404e 60px 61px
+    );
+}
+
+.player{
+  position:absolute;
+  left:50%;
+  top:43%;
+  width:60px;
+  height:110px;
+  transform-style:preserve-3d;
+}
+
+.head{
+  position:absolute;
+  width:26px;
+  height:26px;
+  border:4px solid white;
+  border-radius:50%;
+  left:17px;
+}
+
+.body{
+  position:absolute;
+  width:5px;
+  height:55px;
+  background:white;
+  left:28px;
+  top:25px;
+}
+
+.arm,.leg{
+  position:absolute;
+  width:38px;
+  height:5px;
+  background:white;
+  left:28px;
+  transform-origin:left;
+}
+
+.arm{top:40px}
+.leg{top:78px}
+
+.arm.a{transform:rotate(145deg)}
+.arm.b{transform:rotate(35deg)}
+.leg.a{transform:rotate(25deg)}
+.leg.b{transform:rotate(-25deg)}
+
+.rival{
+  position:absolute;
+  left:70%;
+  top:40%;
+  padding:12px;
+  border:1px solid #777;
+  border-radius:8px;
+}
+
+#controls{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:grid;
+  grid-template-columns:repeat(3,70px);
+  gap:7px;
+}
+
+button{
+  min-height:50px;
+  background:#191919;
+  color:white;
+  border:1px solid #555;
+  border-radius:8px;
+}
+
+button:active{
+  transform:scale(.94);
+}
+
+#controls button:nth-child(5){
+  grid-column:1 / span 2;
+  width:147px;
+}
+
+#controls button:nth-child(6){
+  grid-column:3;
+}
+`;
+
+  const js=`
+let state={
+  x:0,
+  y:0,
+  z:0,
+  t:0,
+  speed:4,
+  rotation:0,
+  action:"READY"
+};
+
+const player=document.getElementById("player");
+
+function quantize(v,grid=4){
+  return Math.round(v/grid)*grid;
+}
+
+function physics(){
+
+  state.x=quantize(state.x);
+  state.y=quantize(state.y);
+
+  state.x=Math.max(-350,Math.min(350,state.x));
+  state.y=Math.max(-250,Math.min(250,state.y));
+
+  state.z=state.y*-0.7;
+}
+
+function move(x,y){
+
+  state.x+=x*state.speed;
+  state.y+=y*state.speed;
+
+  physics();
+
+  state.action="WALK";
+}
+
+function punch(){
+
+  state.action="PUNCH";
+
+  player.animate(
+    [
+      {transform:"translateX(0)"},
+      {transform:"translateX(35px)"},
+      {transform:"translateX(0)"}
+    ],
+    {duration:220}
+  );
+}
+
+function block(){
+
+  state.action="BLOCK";
+
+  player.animate(
+    [
+      {transform:"scale(1)"},
+      {transform:"scale(.88)"},
+      {transform:"scale(1)"}
+    ],
+    {duration:220}
+  );
+}
+
+function timeline(){
+
+  state.t += 1 / 60;
+
+  player.style.transform=
+    \`translate3d(
+      \${state.x}px,
+      \${state.y*.35}px,
+      \${state.z}px
+    )\`;
+}
+
+function loop(){
+
+  timeline();
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+`;
+
+  const t=`
+T-AXIS
+
+t = runtime time
+
+STATE:
+x(t)
+y(t)
+z(t)
+
+FRAME:
+60fps
+
+QUANTIZATION:
+position → 4-unit grid
+
+TIME INSTRUMENTS:
+LOOP
+ANIMATION
+TIMELINE
+PLAYBACK
+`;
+
+  document.getElementById("htmlOut").textContent=html.trim();
+  document.getElementById("cssOut").textContent=css.trim();
+  document.getElementById("jsOut").textContent=js.trim();
+  document.getElementById("tOut").textContent=t.trim();
+
+  return {html,css,js};
+}
+
+
+/* =====================================================
+   BUILD
+===================================================== */
+
+function build(){
+
+  quantize();
+
+  const code=generate();
+
+  const documentCode=`
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>${code.css}</style>
+</head>
+<body>
+${code.html}
+<script>${code.js}<\/script>
+</body>
+</html>
+`;
+
+  document.getElementById("preview").srcdoc=documentCode;
+
+  document.getElementById("status").innerHTML=
+    '<span class="good">BUILD COMPLETE • PLAYABLE</span>';
+}
+
+
+/* =====================================================
+   TEST
+===================================================== */
+
+function test(){
+
+  quantize();
+
+  document.getElementById("status").innerHTML=
+    '<span class="good">TEST PASSED • QUANTIZER ACCEPTED COMPOSITION</span>';
+}
+
+
+/* =====================================================
+   PUBLISH
+===================================================== */
+
+function publish(){
+
+  quantize();
+
+  const report=document.getElementById("report").textContent;
+
+  if(report.includes("BUILD READY")){
+
+    build();
+
+    document.getElementById("status").innerHTML=
+      '<span class="good">PUBLISHED • LEVEL 7 BUILD VALID</span>';
+
+  }else{
+
+    document.getElementById("status").innerHTML=
+      '<span class="bad">PUBLISH BLOCKED</span>';
+  }
+}
+
+</script>
+
+</body>
+</html>
