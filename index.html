@@ -3,932 +3,824 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Quantized Code Maker</title>
+<title>Code Maker</title>
 
 <style>
-*{box-sizing:border-box}
-
-:root{
-  --header-height:58px;
-  --toolbar-height:58px;
-  --panel-padding:12px;
-  --border:#333;
-  --panel:#151515;
-  --input:#090909;
+* {
+  box-sizing: border-box;
 }
 
-html,
-body{
-  margin:0;
-  min-height:100%;
-  background:#111;
-  color:#eee;
-  font-family:system-ui,sans-serif;
+:root {
+  --bg: #0b0d10;
+  --panel: #12161b;
+  --panel2: #181e25;
+  --line: #303943;
+  --text: #edf2f7;
+  --muted: #8995a3;
+  --accent: #63d8ff;
+  --good: #78e08f;
+  --warn: #ffd166;
 }
 
-body{
-  overflow-x:hidden;
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-header{
-  min-height:var(--header-height);
-  padding:12px 18px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
+.app {
+  width: min(1200px, 100%);
+  margin: auto;
+  padding: 12px;
 }
 
-header h1{
-  margin:0;
-  font-size:18px;
+/* HEADER */
+
+header {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 14px;
 }
 
-button{
-  border:1px solid #444;
-  background:#1c1c1c;
-  color:#eee;
-  padding:9px 12px;
-  border-radius:7px;
-  cursor:pointer;
+.logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: .08em;
 }
 
-button:hover{
-  background:#292929;
+.sub {
+  color: var(--muted);
+  font-size: .75rem;
+  margin-top: 3px;
 }
 
-.toolbar{
-  min-height:var(--toolbar-height);
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
-  padding:10px;
-  border-bottom:1px solid var(--border);
+/* TABS */
+
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  overflow-x: auto;
 }
 
-.workspace{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:1px;
-  background:var(--border);
-  min-height:calc(100vh - var(--header-height) - var(--toolbar-height));
+.tab {
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.panel{
-  background:var(--panel);
-  padding:var(--panel-padding);
-  min-width:0;
+.tab.active {
+  color: var(--text);
+  border-color: var(--accent);
 }
 
-.panel h2{
-  font-size:13px;
-  margin:0 0 8px;
-  color:#aaa;
-  text-transform:uppercase;
-  letter-spacing:.08em;
+/* EDITOR */
+
+.editor {
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  background: #080a0d;
 }
 
-textarea,
-.code{
-  display:block;
-  width:100%;
-  min-height:260px;
-  resize:vertical;
-  background:var(--input);
-  color:#d7d7d7;
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:12px;
-  font-family:monospace;
-  font-size:13px;
-  line-height:1.5;
-  white-space:pre;
-  overflow:auto;
+textarea {
+  width: 100%;
+  height: 230px;
+  resize: vertical;
+  border: 0;
+  outline: none;
+  padding: 16px;
+  background: transparent;
+  color: #dce7ef;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.55;
 }
 
-.code{
-  min-height:230px;
+/* CONTROLS */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 9px 0;
 }
 
-#preview{
-  display:block;
-  width:100%;
-  height:420px;
-  border:1px solid var(--border);
-  border-radius:8px;
-  background:white;
+button {
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  color: var(--text);
+  padding: 9px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
 }
 
-.report{
-  background:var(--input);
-  border:1px solid var(--border);
-  border-radius:8px;
-  padding:10px;
-  font-family:monospace;
-  font-size:12px;
-  line-height:1.6;
-  white-space:pre-wrap;
+button:hover {
+  border-color: var(--accent);
 }
 
-.pass{color:#79d279}
-.warn{color:#e6c56a}
-.fail{color:#e27777}
-
-.status{
-  font-size:12px;
-  color:#aaa;
-  white-space:nowrap;
+#testBtn {
+  border-color: var(--good);
 }
 
-.live-preview{
-  grid-column:1 / -1;
-  grid-row:1;
-  min-width:0;
-  background:#151515;
-  padding:var(--panel-padding);
+#publishBtn {
+  border-color: var(--warn);
 }
 
-.live-preview #preview{
-  height:clamp(260px,42vw,520px);
-  min-height:260px;
+/* PREVIEW */
+
+.preview {
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  background: white;
+  color: black;
+  min-height: 260px;
 }
 
-.source-panel{
-  grid-column:1;
-  grid-row:2;
+.preview-title {
+  background: var(--panel);
+  color: var(--muted);
+  padding: 8px 12px;
+  font-size: .72rem;
+  letter-spacing: .08em;
 }
 
-.output-panel{
-  grid-column:2;
-  grid-row:2;
+iframe {
+  width: 100%;
+  height: 280px;
+  border: 0;
+  display: block;
 }
 
-@media (max-width:900px){
-  .workspace{
-    grid-template-columns:minmax(0,1fr);
+/* LOWER GRID */
+
+.lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  min-height: 310px;
+}
+
+.panel-title {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+/* KEYBOARD */
+
+.keyboard {
+  padding: 18px;
+  text-align: center;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 55px);
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 18px;
+}
+
+.key {
+  height: 48px;
+  border: 1px solid var(--line);
+  background: #202730;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.key:active,
+.key.active {
+  border-color: var(--accent);
+  transform: translateY(1px);
+}
+
+.blank {
+  visibility: hidden;
+}
+
+.ab {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.ab .key {
+  width: 65px;
+}
+
+.target {
+  border-top: 1px solid var(--line);
+  padding-top: 15px;
+  color: var(--muted);
+}
+
+.target span {
+  display: inline-block;
+  margin: 5px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+}
+
+/* T ENGINE */
+
+.engine {
+  position: relative;
+  height: 255px;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.axis {
+  position: absolute;
+  opacity: .45;
+  pointer-events: none;
+}
+
+.axis.x {
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px dashed var(--accent);
+}
+
+.axis.y {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed var(--accent);
+}
+
+.stick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42px;
+  height: 85px;
+  transform: translate(-50%, -50%);
+  transition: left .08s linear, top .08s linear;
+}
+
+.head {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  margin: auto;
+}
+
+.body {
+  width: 2px;
+  height: 28px;
+  background: var(--accent);
+  margin: auto;
+}
+
+.arm,
+.leg {
+  position: absolute;
+  width: 25px;
+  height: 2px;
+  background: var(--accent);
+  left: 8px;
+  transform-origin: left center;
+}
+
+.arm {
+  top: 31px;
+}
+
+.arm.left {
+  transform: rotate(150deg);
+}
+
+.arm.right {
+  transform: rotate(30deg);
+}
+
+.leg {
+  top: 58px;
+}
+
+.leg.left {
+  transform: rotate(115deg);
+}
+
+.leg.right {
+  transform: rotate(65deg);
+}
+
+.engine-label {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  color: var(--muted);
+  font: 11px monospace;
+}
+
+/* STATUS */
+
+.status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font: 12px monospace;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .lower {
+    grid-template-columns: 1fr;
   }
 
-  .live-preview,
-  .source-panel,
-  .output-panel{
-    grid-column:1;
+  textarea {
+    height: 190px;
   }
 
-  .live-preview{grid-row:1}
-  .source-panel{grid-row:2}
-  .output-panel{grid-row:3}
-}
-
-@media (max-width:600px){
-  :root{
-    --panel-padding:9px;
-  }
-
-  header{
-    padding:11px 12px;
-  }
-
-  header h1{
-    font-size:15px;
-  }
-
-  .toolbar{
-    padding:8px;
-    gap:6px;
-  }
-
-  button{
-    padding:8px 9px;
-    font-size:12px;
-  }
-
-  textarea,
-  .code{
-    min-height:210px;
-    font-size:12px;
-  }
-
-  .live-preview #preview{
-    height:clamp(240px,70vw,360px);
+  .preview iframe {
+    height: 240px;
   }
 }
 </style>
 </head>
 
 <body>
+
+<div class="app">
 
 <header>
-  <h1>QUANTIZED CODE MAKER</h1>
-  <span class="status" id="status">READY</span>
+  <div class="logo">CODE MAKER</div>
+  <div class="sub">CODE AS INSTRUMENT • LOCAL BUILD ENVIRONMENT</div>
+
+  <div class="tabs">
+    <button class="tab active" data-lang="html">HTML</button>
+    <button class="tab" data-lang="css">CSS</button>
+    <button class="tab" data-lang="js">JS</button>
+    <button class="tab" data-lang="theory">CODE THEORY</button>
+  </div>
 </header>
 
-<div class="toolbar">
-  <button data-plugin="IF(condition)">IF</button>
-  <button data-plugin="Keyboard(move up down left right, A, B)">Keyboard</button>
-  <button data-plugin="PLAYER(control,walk,state)">Player</button>
-  <button data-plugin="GRID(perspective,horizon)">Grid</button>
-  <button data-plugin="PHYSICS">Physics</button>
-  <button data-plugin="3RD PERSON POV">3rd Person</button>
-  <button data-plugin="STATE(x,y,z,t)">State</button>
-  <button data-plugin="TIME ENGINE">T Engine</button>
-  <button data-plugin="-quantize to html">Target HTML</button>
-  <button id="quantizeButton">QUANTIZE</button>
-  <button id="buildButton">BUILD</button>
-  <button id="testButton">TEST</button>
+<section class="editor">
+<textarea id="editor" spellcheck="false"></textarea>
+</section>
+
+<div class="controls">
+  <button id="quantizeBtn">QUANTIZE</button>
+  <button id="buildBtn">BUILD</button>
+  <button id="testBtn">TEST</button>
+  <button id="publishBtn">PUBLISH</button>
 </div>
 
-<div class="workspace">
+<section class="preview">
+  <div class="preview-title">MAIN PREVIEW • YOUR APP</div>
+  <iframe id="preview"></iframe>
+</section>
 
-  <section class="panel live-preview">
-    <h2>Live Preview</h2>
-    <iframe id="preview" title="Generated live preview"></iframe>
-  </section>
+<section class="lower">
 
-  <section class="panel source-panel">
-    <h2>Source</h2>
+  <!-- KEYBOARD -->
 
-    <textarea id="source">IF(condition)
-Keyboard(move up down left right, A, B)
--quantize to html</textarea>
+  <div class="panel">
+    <div class="panel-title">KEYBOARD PREVIEW</div>
 
-    <h2>Quantized Composition</h2>
-    <textarea id="quantized" readonly></textarea>
+    <div class="keyboard">
 
-    <h2>Correction Report</h2>
-    <div id="report" class="report">READY</div>
-  </section>
+      <div class="dpad">
+        <div class="key blank"></div>
+        <div class="key" data-key="ArrowUp">↑</div>
+        <div class="key blank"></div>
 
-  <section class="panel output-panel">
-    <h2>HTML</h2>
-    <textarea id="htmlCode" class="code" readonly></textarea>
-
-    <h2>CSS</h2>
-    <textarea id="cssCode" class="code" readonly></textarea>
-
-    <h2>JavaScript</h2>
-    <textarea id="jsCode" class="code" readonly></textarea>
-
-    <h2>T — Time Engine</h2>
-    <textarea id="tCode" class="code" readonly></textarea>
-  </section>
-
-</div>
-
-<script>
-const KNOWN_INSTRUMENTS = new Set([
-  "IF",
-  "ELSE",
-  "KEYBOARD",
-  "PLAYER",
-  "GRID",
-  "PHYSICS",
-  "3RD PERSON POV",
-  "STATE",
-  "TIME ENGINE",
-  "TIMER",
-  "DELAY",
-  "INTERVAL",
-  "ANIMATION",
-  "SEQUENCE",
-  "TIMELINE",
-  "PLAYBACK"
-]);
-
-const elements = {
-  source: document.getElementById("source"),
-  quantized: document.getElementById("quantized"),
-  report: document.getElementById("report"),
-  htmlCode: document.getElementById("htmlCode"),
-  cssCode: document.getElementById("cssCode"),
-  jsCode: document.getElementById("jsCode"),
-  tCode: document.getElementById("tCode"),
-  preview: document.getElementById("preview"),
-  status: document.getElementById("status")
-};
-
-function insertPlugin(text){
-  const current = elements.source.value.trim();
-
-  elements.source.value =
-    current ? `${elements.source.value}\n${text}` : text;
-
-  elements.source.focus();
-}
-
-function parseSource(source){
-  const lines = source
-    .split(/\r?\n/)
-    .map(line => line.trim())
-    .filter(Boolean);
-
-  const result = {
-    instruments: [],
-    target: null
-  };
-
-  lines.forEach(line => {
-    const targetMatch =
-      line.match(/^-\s*quantize\s+to\s+(.+)$/i);
-
-    if(targetMatch){
-      result.target = targetMatch[1].trim().toLowerCase();
-      return;
-    }
-
-    const match =
-      line.match(/^([A-Za-z0-9 \-]+?)(?:\((.*)\))?$/);
-
-    if(!match){
-      result.instruments.push({
-        name: line.toUpperCase(),
-        args: "",
-        valid: false
-      });
-      return;
-    }
-
-    const name = match[1].trim().toUpperCase();
-
-    result.instruments.push({
-      name,
-      args: match[2] || "",
-      valid: KNOWN_INSTRUMENTS.has(name)
-    });
-  });
-
-  return result;
-}
-
-function quantize(){
-  const parsed = parseSource(elements.source.value);
-  const canonical = [];
-  const report = [];
-  const names = parsed.instruments.map(item => item.name);
-
-  parsed.instruments.forEach(item => {
-    if(!item.valid){
-      report.push(`[FAIL] UNKNOWN INSTRUMENT: ${item.name}`);
-      return;
-    }
-
-    if(item.name === "KEYBOARD"){
-      canonical.push(
-`KEYBOARD(
-    ${normalizeKeyboardArgs(item.args)}
-)`
-      );
-    }else if(item.name === "IF"){
-      canonical.push(
-`IF(
-    ${item.args || "condition"}
-)`
-      );
-    }else if(item.name === "STATE"){
-      canonical.push(
-`STATE(
-    ${item.args || "x,y,z,t"}
-)`
-      );
-    }else{
-      canonical.push(formatInstrument(item));
-    }
-
-    report.push(`[PASS] ${item.name}`);
-  });
-
-  if(names.includes("KEYBOARD")){
-    canonical.push(
-`DEPENDENCY(
-    HTML,
-    CSS,
-    JS
-)`
-    );
-
-    report.push("[PASS] KEYBOARD DEPENDENCIES");
-  }
-
-  const target = parsed.target || "html";
-
-  canonical.push(
-`TARGET(
-    ${target.toUpperCase()}
-)`
-  );
-
-  report.push(
-    parsed.target
-      ? `[PASS] TARGET = ${target.toUpperCase()}`
-      : "[WARN] No target specified → TARGET(HTML)"
-  );
-
-  if(names.includes("IF")){
-    report.push(
-      "[WARN] IF condition is explicit input; no hidden condition is created"
-    );
-  }
-
-  if(names.includes("STATE") && !names.includes("TIME ENGINE")){
-    report.push("[PASS] STATE uses finite runtime state updates");
-  }
-
-  report.push("");
-  report.push("QUANTIZATION: COMPLETE");
-
-  elements.quantized.value = canonical.join("\n\n");
-  elements.report.innerHTML = report
-    .map(formatReportLine)
-    .join("\n");
-
-  generate(parsed);
-  setStatus("QUANTIZED");
-}
-
-function normalizeKeyboardArgs(args){
-  if(!args.trim()){
-    return "move(up,down,left,right), A, B";
-  }
-
-  const clean = args.replace(/\s+/g, " ").trim();
-
-  const directions = clean.match(
-    /move\s+((?:(?:up|down|left|right)\s*)+)/i
-  );
-
-  if(!directions){
-    return clean;
-  }
-
-  const values = directions[1]
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(value => value.toLowerCase());
-
-  const remainder = clean
-    .replace(directions[0], "")
-    .replace(/^,\s*/, "")
-    .trim();
-
-  return `move(${values.join(",")})` +
-    (remainder ? `, ${remainder}` : "");
-}
-
-function formatInstrument(item){
-  return item.args
-    ? `${item.name}(${item.args})`
-    : item.name;
-}
-
-function generate(parsed){
-  const names = parsed.instruments.map(item => item.name);
-  const output = createOutput(names);
-
-  elements.htmlCode.value = output.html.trim();
-  elements.cssCode.value = output.css.trim();
-  elements.jsCode.value = output.js.trim();
-  elements.tCode.value = output.t.trim();
-
-  updatePreview(output.html, output.css, output.js);
-}
-
-function createOutput(names){
-  const hasKeyboard = names.includes("KEYBOARD");
-  const hasPlayer = names.includes("PLAYER");
-  const hasGrid = names.includes("GRID");
-  const hasIf = names.includes("IF");
-  const hasTime = names.includes("TIME ENGINE") || names.includes("STATE");
-
-  const html = createHTML(hasKeyboard, hasPlayer, hasGrid);
-  const css = createCSS();
-  const js = createJavaScript({
-    hasKeyboard,
-    hasPlayer,
-    hasIf,
-    hasTime
-  });
-  const t = hasTime ? createTimeDescription() : "";
-
-  return {html, css, js, t};
-}
-
-function createHTML(hasKeyboard, hasPlayer, hasGrid){
-  let html = `<div id="app">\n`;
-
-  if(hasKeyboard){
-    html += `
-  <section class="keyboard-system" data-instrument="KEYBOARD">
-    <div class="movement">
-      <button data-action="up" aria-label="Move up">↑</button>
-      <div>
-        <button data-action="left" aria-label="Move left">←</button>
-        <button data-action="down" aria-label="Move down">↓</button>
-        <button data-action="right" aria-label="Move right">→</button>
+        <div class="key" data-key="ArrowLeft">←</div>
+        <div class="key" data-key="ArrowDown">↓</div>
+        <div class="key" data-key="ArrowRight">→</div>
       </div>
+
+      <div class="ab">
+        <div class="key" data-key="a">A</div>
+        <div class="key" data-key="b">B</div>
+      </div>
+
+      <div class="target">
+        TARGET:
+        <br>
+        <span>T ENGINE</span>
+        <span>MAIN</span>
+      </div>
+
     </div>
-
-    <div class="action-bar">
-      <button data-action="A">A</button>
-      <button data-action="B">B</button>
-    </div>
-
-    <div id="output">READY</div>
-  </section>
-`;
-  }
-
-  if(hasPlayer){
-    html += `
-  <div id="player" data-instrument="PLAYER">
-    PLAYER
   </div>
-`;
-  }
 
-  if(hasGrid){
-    html += `
-  <div id="grid-layer" data-instrument="GRID" aria-hidden="true"></div>
-`;
-  }
+  <!-- T ENGINE -->
 
-  return `${html}</div>`;
+  <div class="panel">
+    <div class="panel-title">T ENGINE</div>
+
+    <div class="engine" id="engine">
+
+      <div class="axis x"></div>
+      <div class="axis y"></div>
+
+      <div class="stick" id="stick">
+        <div class="head"></div>
+        <div class="body"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+
+      <div class="engine-label">
+        X Y Z T
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<div class="status" id="status">
+READY • LOCAL MODE
+</div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   CODE MAKER DATA
+   ========================================================= */
+
+const code = {
+
+html: `<div id="app">
+  <h1>My App</h1>
+  <p>Build something.</p>
+  <button onclick="hello()">PRESS</button>
+</div>`,
+
+css: `body {
+  font-family: system-ui;
+  padding: 30px;
 }
 
-function createCSS(){
-  return `
-*{
-  box-sizing:border-box;
-}
+h1 {
+  letter-spacing: 2px;
+}`,
 
-html,
-body{
-  width:100%;
-  min-height:100%;
-}
+js: `function hello() {
+  alert("Hello from Code Maker");
+}`,
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  overflow:hidden;
-  background:#111;
-  color:white;
-  font-family:system-ui,sans-serif;
-}
+theory: `// CODE THEORY
 
-#app{
-  position:relative;
-  width:min(600px,94vw);
-  max-width:100%;
-  min-height:220px;
-  padding:clamp(14px,4vw,28px);
-  overflow:hidden;
-}
+// HTML = structure
+// CSS  = appearance
+// JS   = behavior
 
-.keyboard-system{
-  position:relative;
-  z-index:2;
-  display:grid;
-  gap:clamp(14px,4vw,20px);
-  justify-items:center;
-  width:100%;
-}
+// INPUT
+// ↓
+// FUNCTION
+// ↓
+// OUTPUT
 
-.movement{
-  display:grid;
-  gap:6px;
-  text-align:center;
-}
-
-.movement button,
-.action-bar button{
-  width:clamp(52px,14vw,70px);
-  height:clamp(44px,12vw,55px);
-  border:1px solid #555;
-  background:#222;
-  color:white;
-  border-radius:8px;
-  font-size:clamp(17px,4vw,20px);
-  cursor:pointer;
-}
-
-.movement button:active,
-.action-bar button:active{
-  transform:scale(.94);
-}
-
-.action-bar{
-  display:flex;
-  gap:clamp(8px,3vw,12px);
-  max-width:100%;
-}
-
-.action-bar button{
-  width:clamp(90px,28vw,120px);
-}
-
-#output{
-  width:min(100%,360px);
-  min-height:30px;
-  padding:10px 14px;
-  border:1px solid #333;
-  border-radius:8px;
-  text-align:center;
-  overflow-wrap:anywhere;
-}
-
-#player{
-  position:relative;
-  z-index:3;
-  margin:clamp(20px,5vw,30px) auto;
-  width:clamp(70px,18vw,100px);
-  height:clamp(70px,18vw,100px);
-  display:grid;
-  place-items:center;
-  border:2px solid white;
-  border-radius:50%;
-}
-
-#grid-layer{
-  position:absolute;
-  inset:0;
-  z-index:1;
-  pointer-events:none;
-  opacity:.22;
-  background-image:
-    linear-gradient(#777 1px,transparent 1px),
-    linear-gradient(90deg,#777 1px,transparent 1px);
-  background-size:
-    clamp(24px,7vw,42px)
-    clamp(24px,7vw,42px);
-}
-
-@media (max-width:420px){
-  #app{
-    width:100%;
-    padding:12px;
-  }
-
-  #output{
-    font-size:12px;
-  }
-}
-`;
-}
-
-function createJavaScript(options){
-  const sections = [];
-
-  if(options.hasKeyboard || options.hasPlayer){
-    sections.push(createRuntimeState());
-  }
-
-  if(options.hasKeyboard){
-    sections.push(createKeyboardBehavior());
-  }
-
-  if(options.hasIf){
-    sections.push(createConditionBehavior());
-  }
-
-  if(options.hasTime){
-    sections.push(createTimeBehavior());
-  }
-
-  return sections.join("\n\n");
-}
-
-function createRuntimeState(){
-  return `
-const output = document.getElementById("output");
-
-const state = {
-  x: 0,
-  y: 0,
-  z: 0,
-  t: 0
+// T ENGINE = movement / interaction anchor
+// KEYBOARD  = instrument layer
+// MAIN      = application layer
+`
 };
 
-function renderPlayer(){
-  const player = document.getElementById("player");
+let currentLanguage = "html";
 
-  if(!player){
-    return;
-  }
+/* =========================================================
+   EDITOR
+   ========================================================= */
 
-  player.style.transform =
-    "translate(" + state.x + "px," + state.y + "px)";
+const editor = document.getElementById("editor");
+const status = document.getElementById("status");
+
+function loadEditor() {
+  editor.value = code[currentLanguage];
 }
 
-function showOutput(message){
-  if(output){
-    output.textContent = message;
-  }
-}
-`;
+function saveEditor() {
+  code[currentLanguage] = editor.value;
 }
 
-function createKeyboardBehavior(){
-  return `
-function move(direction){
-  const speed = 10;
+document.querySelectorAll(".tab").forEach(tab => {
 
-  if(direction === "up"){
-    state.y -= speed;
-  }
+  tab.addEventListener("click", () => {
 
-  if(direction === "down"){
-    state.y += speed;
-  }
+    saveEditor();
 
-  if(direction === "left"){
-    state.x -= speed;
-  }
+    document
+      .querySelectorAll(".tab")
+      .forEach(t => t.classList.remove("active"));
 
-  if(direction === "right"){
-    state.x += speed;
-  }
+    tab.classList.add("active");
 
-  renderPlayer();
+    currentLanguage = tab.dataset.lang;
 
-  showOutput(
-    "MOVE " +
-    direction.toUpperCase() +
-    " | X:" + state.x +
-    " Y:" + state.y
+    loadEditor();
+
+    status.textContent =
+      "EDITOR • " + currentLanguage.toUpperCase();
+  });
+
+});
+
+loadEditor();
+
+/* =========================================================
+   BUILD ENGINE
+   ========================================================= */
+
+function build() {
+
+  saveEditor();
+
+  const html = code.html;
+  const css = `<style>${code.css}</style>`;
+  const js = `<script>${code.js.replace(/<\/script>/gi, "<\\/script>")}<\/script>`;
+
+  const documentString = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      ${css}
+    </head>
+    <body>
+      ${html}
+      ${js}
+    </body>
+    </html>
+  `;
+
+  document.getElementById("preview").srcdoc = documentString;
+
+  localStorage.setItem(
+    "codeMakerProject",
+    JSON.stringify(code)
   );
+
+  status.textContent =
+    "BUILD COMPLETE • PROJECT SAVED LOCALLY";
 }
 
-function action(key){
-  showOutput("ACTION " + key);
-}
-
-function handleKeyboardKey(key){
-  const actions = {
-    arrowup: () => move("up"),
-    arrowdown: () => move("down"),
-    arrowleft: () => move("left"),
-    arrowright: () => move("right"),
-    a: () => action("A"),
-    b: () => action("B")
-  };
-
-  const selectedAction = actions[key];
-
-  if(selectedAction){
-    selectedAction();
-  }
-}
-
-window.addEventListener("keydown", event => {
-  handleKeyboardKey(event.key.toLowerCase());
-});
-
-document.querySelectorAll("[data-action]").forEach(button => {
-  button.addEventListener("click", () => {
-    const actionName = button.dataset.action;
-
-    if(["up","down","left","right"].includes(actionName)){
-      move(actionName);
-      return;
-    }
-
-    action(actionName);
-  });
-});
-`;
-}
-
-function createConditionBehavior(){
-  return `
-function evaluateCondition(){
-  const conditionInput = "condition";
-
-  return conditionInput.trim().length > 0;
-}
-
-if(evaluateCondition()){
-  showOutput("IF condition satisfied");
-}
-`;
-}
-
-function createTimeBehavior(){
-  return `
-let previousTime = performance.now();
-
-function updateTime(currentTime){
-  const deltaTime = (currentTime - previousTime) / 1000;
-
-  previousTime = currentTime;
-  state.t += deltaTime;
-
-  requestAnimationFrame(updateTime);
-}
-
-requestAnimationFrame(updateTime);
-`;
-}
-
-function createTimeDescription(){
-  return `
-TIME ENGINE
-
-T = elapsed runtime
-
-STATE SPACE
-
-X = horizontal
-Y = vertical
-Z = depth
-T = time
-
-Each animation frame performs one finite update:
-
-state.t += deltaTime
-`;
-}
-
-function build(){
-  quantize();
-  setStatus("BUILD COMPLETE");
-}
-
-function testBuild(){
-  quantize();
-  setStatus("TEST PASSED");
-}
-
-function updatePreview(html, css, js){
-  const documentText = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-${css}
-</style>
-</head>
-<body>
-${html}
-<script>
-${js}
-<\/script>
-</body>
-</html>
-`;
-
-  elements.preview.srcdoc = documentText;
-}
-
-function setStatus(text){
-  elements.status.textContent = text;
-}
-
-function formatReportLine(line){
-  const escaped = escapeHTML(line);
-
-  if(line.includes("[PASS]")){
-    return `<span class="pass">${escaped}</span>`;
-  }
-
-  if(line.includes("[WARN]")){
-    return `<span class="warn">${escaped}</span>`;
-  }
-
-  if(line.includes("[FAIL]")){
-    return `<span class="fail">${escaped}</span>`;
-  }
-
-  return escaped;
-}
-
-function escapeHTML(text){
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-document.querySelectorAll("[data-plugin]").forEach(button => {
-  button.addEventListener("click", () => {
-    insertPlugin(button.dataset.plugin);
-  });
-});
-
-document.getElementById("quantizeButton")
-  .addEventListener("click", quantize);
-
-document.getElementById("buildButton")
+document.getElementById("buildBtn")
   .addEventListener("click", build);
 
-document.getElementById("testButton")
-  .addEventListener("click", testBuild);
+/* =========================================================
+   QUANTIZE
+   ========================================================= */
 
-quantize();
+function quantize() {
+
+  saveEditor();
+
+  let value = editor.value;
+
+  /*
+    Quantize is intentionally conservative.
+    It does not rewrite the programmer's logic.
+    It normalizes whitespace and indentation.
+  */
+
+  value = value
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/\n{3,}/g, "\n\n");
+
+  editor.value = value;
+  code[currentLanguage] = value;
+
+  status.textContent =
+    "QUANTIZED • SYNTAX PRESERVED";
+}
+
+document.getElementById("quantizeBtn")
+  .addEventListener("click", quantize);
+
+/* =========================================================
+   TEST
+   ========================================================= */
+
+function test() {
+
+  saveEditor();
+
+  try {
+
+    if (currentLanguage === "js") {
+      new Function(editor.value);
+    }
+
+    if (currentLanguage === "html") {
+      const parser = new DOMParser();
+      const result = parser.parseFromString(
+        editor.value,
+        "text/html"
+      );
+
+      if (result.querySelector("parsererror")) {
+        throw new Error("HTML parse error");
+      }
+    }
+
+    status.textContent =
+      "TEST PASSED • NO BASIC SYNTAX ERROR DETECTED";
+
+  } catch (error) {
+
+    status.textContent =
+      "TEST ERROR • " + error.message;
+  }
+}
+
+document.getElementById("testBtn")
+  .addEventListener("click", test);
+
+/* =========================================================
+   PUBLISH
+   ========================================================= */
+
+document.getElementById("publishBtn")
+  .addEventListener("click", () => {
+
+    saveEditor();
+
+    const project = JSON.stringify(code, null, 2);
+
+    const blob = new Blob(
+      [project],
+      { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "code-maker-project.json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    status.textContent =
+      "PUBLISHED • PROJECT CARTRIDGE EXPORTED";
+  });
+
+/* =========================================================
+   T ENGINE
+   ========================================================= */
+
+const engine = document.getElementById("engine");
+const stick = document.getElementById("stick");
+
+let x = 50;
+let y = 50;
+
+function move(dx, dy) {
+
+  x += dx;
+  y += dy;
+
+  x = Math.max(8, Math.min(92, x));
+  y = Math.max(12, Math.min(88, y));
+
+  stick.style.left = x + "%";
+  stick.style.top = y + "%";
+}
+
+function activateKey(key) {
+
+  const button =
+    document.querySelector(`[data-key="${key}"]`);
+
+  if (button) {
+    button.classList.add("active");
+
+    setTimeout(() => {
+      button.classList.remove("active");
+    }, 100);
+  }
+
+  switch (key) {
+
+    case "ArrowUp":
+      move(0, -5);
+      break;
+
+    case "ArrowDown":
+      move(0, 5);
+      break;
+
+    case "ArrowLeft":
+      move(-5, 0);
+      break;
+
+    case "ArrowRight":
+      move(5, 0);
+      break;
+
+    case "a":
+      status.textContent = "T ENGINE • A ACTION";
+      break;
+
+    case "b":
+      status.textContent = "T ENGINE • B ACTION";
+      break;
+  }
+}
+
+document.addEventListener("keydown", event => {
+
+  const allowed = [
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "a",
+    "b"
+  ];
+
+  if (allowed.includes(event.key)) {
+
+    event.preventDefault();
+
+    activateKey(event.key);
+  }
+
+});
+
+document.querySelectorAll("[data-key]")
+  .forEach(button => {
+
+    button.addEventListener("pointerdown", () => {
+      activateKey(button.dataset.key);
+    });
+
+  });
+
+/* =========================================================
+   LOAD LOCAL PROJECT
+   ========================================================= */
+
+const saved =
+  localStorage.getItem("codeMakerProject");
+
+if (saved) {
+
+  try {
+
+    const parsed = JSON.parse(saved);
+
+    Object.assign(code, parsed);
+
+    loadEditor();
+
+    status.textContent =
+      "LOCAL PROJECT RESTORED";
+
+  } catch {
+
+    status.textContent =
+      "READY • NEW LOCAL PROJECT";
+  }
+}
+
 </script>
 
 </body>
