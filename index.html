@@ -1,1279 +1,593 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Code Maker + Chibi TAP</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#0b0d10">
+<title>Code Maker | Chibi TAP</title>
 <style>
-:root {
-  --bg:#0b0d10;
-  --panel:#12161b;
-  --panel2:#1b222b;
-  --line:#303943;
-  --text:#edf2f7;
-  --muted:#8995a3;
-  --blue:#63d8ff;
-  --green:#78e08f;
-  --yellow:#ffd166;
-  --screen:#9bbc0f;
-  --ink:#0f380f;
+:root{
+  --bg:#0b0d10;--panel:#12161b;--panel2:#191f27;
+  --line:#303943;--text:#edf2f7;--muted:#8995a3;
+  --accent:#63d8ff;--good:#78e08f;--warn:#ffd166;
 }
-
-* { box-sizing:border-box; }
-
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font:14px/1.45 system-ui,sans-serif;
-}
-
-button,input,textarea,select { font:inherit; }
-
-button {
-  border:1px solid var(--line);
-  background:var(--panel2);
-  color:var(--text);
-  padding:9px 12px;
-  border-radius:6px;
-  cursor:pointer;
-  font-weight:700;
-}
-
-button:hover,button.active {
-  border-color:var(--blue);
-}
-
-button:active { transform:translateY(1px); }
-
-input,textarea,select {
-  width:100%;
-  background:#080a0d;
-  color:var(--text);
-  border:1px solid var(--line);
-  padding:10px;
-  border-radius:6px;
-}
-
-textarea {
-  min-height:180px;
-  resize:vertical;
-  font:13px/1.5 ui-monospace,monospace;
-  tab-size:2;
-}
-
-.app {
-  width:min(1200px,100%);
-  margin:auto;
-  padding:12px;
-}
-
-header,.panel,.card {
-  border:1px solid var(--line);
-  background:var(--panel);
-  border-radius:8px;
-}
-
-header { padding:15px; }
-
-.logo {
-  font-size:20px;
-  font-weight:900;
-  letter-spacing:2px;
-}
-
-.sub,.muted {
-  color:var(--muted);
-  font-size:12px;
-}
-
-.nav,.row,.actions {
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:7px;
-}
-
-.nav { margin-top:12px; }
-
-.nav button { flex:1; }
-
-.section { margin-top:10px; }
-
-.panel-title {
-  padding:10px 12px;
-  border-bottom:1px solid var(--line);
-  font-weight:800;
-  letter-spacing:1px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-.content { padding:12px; }
-
-.grid {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:10px;
-}
-
-.editor {
-  width:100%;
-  min-height:260px;
-  border-radius:0;
-  border:0;
-}
-
-.preview {
-  width:100%;
-  height:320px;
-  background:white;
-  border:0;
-  display:block;
-}
-
-.pill {
-  display:inline-block;
-  border:1px solid var(--line);
-  border-radius:5px;
-  padding:5px 8px;
-  font-size:11px;
-  color:var(--muted);
-}
-
-.good { color:var(--green); }
-.blue { color:var(--blue); }
-.yellow { color:var(--yellow); }
-
-.hidden { display:none!important; }
-
-.card {
-  padding:12px;
-  min-width:0;
-}
-
-.card h3 { margin:0 0 6px; }
-
-.list {
-  display:grid;
-  gap:7px;
-}
-
-.item {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  border:1px solid var(--line);
-  border-radius:6px;
-  padding:10px;
-  overflow-wrap:anywhere;
-}
-
-.item .actions { flex-shrink:0; }
-
-.item button { padding:6px 8px; }
-
-.device {
-  max-width:430px;
-  margin:auto;
-  padding:14px;
-  border:3px solid #53616b;
-  border-radius:22px 22px 38px 22px;
-  background:#c5cbd0;
-  color:#20252b;
-  box-shadow:inset 0 0 0 3px #e3e6e8;
-}
-
-.device-brand {
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:3px;
-  margin:2px 0 10px;
-}
-
-.device-screen {
-  background:var(--screen);
-  color:var(--ink);
-  border:5px solid #343c43;
-  border-radius:7px;
-  min-height:245px;
-  padding:12px;
-  font:13px/1.4 ui-monospace,monospace;
-  overflow:auto;
-}
-
-.device-screen button {
-  background:#306230;
-  color:#d9f0a0;
-  border-color:#0f380f;
-  padding:7px;
-}
-
-.device-screen input,.device-screen textarea {
-  background:#d0e68a;
-  color:var(--ink);
-  border-color:#306230;
-}
-
-.device-screen .item {
-  border-color:#306230;
-}
-
-.dpad {
-  display:grid;
-  grid-template-columns:repeat(3,44px);
-  gap:4px;
-  justify-content:center;
-}
-
-.key {
-  height:40px;
-  display:grid;
-  place-items:center;
-  background:#343c43;
-  color:white;
-  border-radius:6px;
-  font-weight:900;
-  user-select:none;
-  touch-action:manipulation;
-}
-
-.key.blank { visibility:hidden; }
-
-.device-controls {
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-  align-items:center;
-  margin:16px 0;
-}
-
-.ab {
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  transform:rotate(-18deg);
-}
-
-.ab .key {
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  background:#8e3047;
-}
-
-.device-foot {
-  display:flex;
-  justify-content:space-around;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:1px;
-}
-
-.component {
-  border:1px solid var(--line);
-  border-radius:7px;
-  padding:10px;
-}
-
-.component h3 { margin:0 0 5px; }
-
-.status {
-  padding:10px;
-  margin-top:10px;
-  background:#10151a;
-  border:1px solid var(--line);
-  border-radius:6px;
-  color:var(--green);
-  font:12px ui-monospace,monospace;
-  overflow-wrap:anywhere;
-}
-
-@media(max-width:650px) {
-  .grid { grid-template-columns:1fr; }
-  .editor { min-height:220px; }
-  .preview { height:260px; }
-  .app { padding:7px; }
-  header { padding:11px; }
-  .nav button { flex:1 0 28%; }
-  .item { align-items:flex-start; }
-}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font:14px/1.45 system-ui,-apple-system,sans-serif}
+button,input,select,textarea{font:inherit}
+button,select,input,textarea{color:var(--text)}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{width:min(1450px,100%);margin:auto;padding:10px}
+header,.panel,.editorbox,.previewbox,.status{
+border:1px solid var(--line);background:var(--panel)}
+header{padding:14px}
+.brand{font-weight:900;font-size:1.35rem;letter-spacing:.12em}
+.sub,.muted{color:var(--muted);font-size:.78rem}
+.topline,.row,.toolbar,.tabs,.actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.topline{justify-content:space-between}
+.tabs{margin-top:12px;overflow-x:auto;flex-wrap:nowrap}
+.tab,.btn,select,.field{
+border:1px solid var(--line);background:var(--panel2);
+padding:8px 11px;border-radius:5px}
+.tab{white-space:nowrap;color:var(--muted)}
+.tab.active{border-color:var(--accent);color:var(--text)}
+.btn:hover,.tab:hover{border-color:var(--accent)}
+.btn.good{border-color:var(--good)}
+.btn.warn{border-color:var(--warn)}
+.btn.danger{border-color:#e87979}
+.btn.small{padding:5px 8px;font-size:.78rem}
+main{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);
+gap:9px;margin-top:9px}
+.workspace,.sidebar{min-width:0;display:flex;flex-direction:column;gap:9px}
+.sectionhead,.panel-title,.preview-title{
+padding:9px 12px;border-bottom:1px solid var(--line);
+font-size:.72rem;letter-spacing:.09em;font-weight:800;color:var(--muted);
+display:flex;justify-content:space-between;gap:8px;align-items:center}
+.editorbox{background:#080a0d}
+#editor{width:100%;height:320px;display:block;resize:vertical;border:0;
+outline:none;padding:14px;background:transparent;color:#dce7ef;
+font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;
+tab-size:2;white-space:pre;overflow:auto}
+.controls{padding:8px;display:flex;gap:6px;flex-wrap:wrap}
+.previewbox{background:#fff;color:#111}
+iframe{display:block;width:100%;height:340px;border:0;background:#fff}
+.status{padding:9px 12px;font:12px ui-monospace,monospace;color:var(--good)}
+.panel{min-width:0}
+.pad{padding:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{width:100%;min-width:0}
+textarea.field{resize:vertical;min-height:110px;font:12px/1.5 ui-monospace,monospace}
+label{display:block;color:var(--muted);font-size:.76rem;margin-bottom:5px}
+.fieldgroup{min-width:0;margin-bottom:9px}
+.list{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto}
+.item{border:1px solid var(--line);background:#0d1116;padding:9px;
+display:flex;gap:8px;justify-content:space-between;align-items:center;min-width:0}
+.item-name{overflow-wrap:anywhere;font-weight:700;font-size:.82rem}
+.item-meta{font-size:.7rem;color:var(--muted)}
+.item-actions{display:flex;gap:4px;flex-shrink:0;flex-wrap:wrap}
+.empty{padding:14px;color:var(--muted);font-size:.8rem;text-align:center}
+.engine{height:245px;position:relative;overflow:hidden;
+background-color:#0a0e13;
+background-image:linear-gradient(#26303b 1px,transparent 1px),
+linear-gradient(90deg,#26303b 1px,transparent 1px);
+background-size:25px 25px;touch-action:pan-y}
+.axis{position:absolute;pointer-events:none;opacity:.6}
+.axis.x{top:50%;left:0;right:0;border-top:1px dashed var(--accent)}
+.axis.y{left:50%;top:0;bottom:0;border-left:1px dashed var(--accent)}
+.stick{position:absolute;left:50%;top:50%;width:50px;height:92px;
+transform:translate(-50%,-50%);transform-origin:center;
+transition:left .08s,top .08s,transform .12s}
+.head{position:absolute;top:0;left:15px;width:20px;height:20px;
+border:2px solid var(--accent);border-radius:50%}
+.torso{position:absolute;top:21px;left:24px;height:32px;width:2px;background:var(--accent)}
+.limb{position:absolute;height:2px;width:25px;background:var(--accent);
+left:25px;transform-origin:left center}
+.armL{top:29px;transform:rotate(150deg)}
+.armR{top:29px;transform:rotate(30deg)}
+.legL{top:52px;transform:rotate(115deg)}
+.legR{top:52px;transform:rotate(65deg)}
+.engine-label{position:absolute;bottom:6px;right:8px;color:var(--muted);
+font:10px monospace}
+.engine.front .stick{transform:translate(-50%,-50%)}
+.engine.side .stick{transform:translate(-50%,-50%) scaleX(.55)}
+.engine.top .stick{transform:translate(-50%,-50%) rotate(90deg) scale(.85)}
+.engine.iso .stick{transform:translate(-50%,-50%) rotate(-25deg) skew(-8deg) scale(.9)}
+.engine.top .head{border-radius:35%;background:#12232c}
+.engine.side .armR,.engine.side .legR{opacity:.25}
+.engine.side .armL{transform:rotate(190deg)}
+.engine.side .legL{transform:rotate(100deg)}
+.engine.iso .armL{transform:rotate(180deg)}
+.engine.iso .armR{transform:rotate(5deg)}
+.engine.iso .legL{transform:rotate(130deg)}
+.engine.iso .legR{transform:rotate(40deg)}
+.dpad{display:grid;grid-template-columns:repeat(3,48px);gap:5px;justify-content:center}
+.key{height:43px;border:1px solid #394450;background:#202730;border-radius:7px;
+display:grid;place-items:center;font-weight:900;user-select:none;touch-action:manipulation}
+.key.active,.key:active{border-color:var(--accent);color:var(--accent)}
+.blank{visibility:hidden}
+.ab{display:flex;justify-content:center;gap:10px;margin:12px}
+.ab .key{width:58px;border-radius:50%;height:48px}
+.viewtabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.viewtabs button{padding:7px 2px;font-size:.75rem}
+.help{font-size:.77rem;color:var(--muted);margin-top:7px}
+.component-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.component{padding:9px;border:1px solid var(--line);background:#0d1116;border-radius:4px}
+.component strong{display:block;font-size:.8rem}
+.component p{margin:4px 0 8px;color:var(--muted);font-size:.72rem}
+.component .btn{width:100%;font-size:.73rem}
+details summary{cursor:pointer;color:var(--muted);padding:8px}
+.hide{display:none!important}
+hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+@media(max-width:850px){main{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr}
+#editor{height:250px}iframe{height:280px}}
+@media(max-width:440px){.app{padding:6px}.grid2{grid-template-columns:1fr}
+.component-grid{grid-template-columns:1fr 1fr}.engine{height:215px}
+#editor{height:220px}.brand{font-size:1.15rem}}
 </style>
 </head>
-
 <body>
 <div class="app">
-
 <header>
-  <div class="logo">CODE MAKER <span class="blue">+</span> TAP</div>
-  <div class="sub">LOCAL DEVELOPMENT DEVICE · COMPONENT LIBRARY · CARTRIDGE SYSTEM</div>
-
-  <div class="nav">
-    <button class="active" data-view="maker">CODE MAKER</button>
-    <button data-view="tap">CHIBI TAP</button>
-    <button data-view="library">LIBRARY</button>
-    <button data-view="install">INSTALL</button>
+  <div class="topline">
+    <div><div class="brand">CODE MAKER</div>
+      <div class="sub">CODE AS INSTRUMENT · CHIBI TAP RUNTIME</div></div>
+    <button class="btn small" id="newProject">NEW PROJECT</button>
+  </div>
+  <div class="tabs" id="languageTabs">
+    <button class="tab active" data-lang="html">HTML</button>
+    <button class="tab" data-lang="css">CSS</button>
+    <button class="tab" data-lang="js">JS</button>
+    <button class="tab" data-lang="theory">THEORY</button>
   </div>
 </header>
 
-<!-- CODE MAKER -->
-
-<section id="view-maker" class="section">
-
-  <div class="panel">
-    <div class="panel-title">CODE EDITOR</div>
-    <div class="content">
-      <div class="row" id="languageTabs">
-        <button class="active" data-lang="html">HTML</button>
-        <button data-lang="css">CSS</button>
-        <button data-lang="js">JS</button>
-        <button data-lang="theory">THEORY</button>
-      </div>
-
-      <textarea id="editor" class="editor"
-        spellcheck="false" autocapitalize="off"
-        autocomplete="off"></textarea>
-
-      <div class="actions section">
-        <button id="quantizeBtn">QUANTIZE</button>
-        <button id="buildBtn">BUILD</button>
-        <button id="testBtn">TEST</button>
-        <button id="saveBtn">SAVE PROJECT</button>
-        <button id="exportBtn">EXPORT</button>
-      </div>
+<main>
+<section class="workspace">
+  <div class="editorbox">
+    <div class="sectionhead"><span id="editorLabel">HTML EDITOR</span><span>LOCAL WORKSPACE</span></div>
+    <textarea id="editor" spellcheck="false" autocapitalize="off"
+      autocomplete="off" aria-label="Code editor"></textarea>
+    <div class="controls">
+      <button class="btn" id="quantize">QUANTIZE</button>
+      <button class="btn good" id="build">BUILD</button>
+      <button class="btn" id="test">TEST</button>
+      <button class="btn warn" id="exportProject">EXPORT PROJECT</button>
+      <button class="btn" id="importProject">IMPORT JSON</button>
+      <input class="hide" type="file" id="projectFile" accept=".json,application/json">
     </div>
   </div>
 
-  <div class="panel section">
-    <div class="panel-title">MAIN PREVIEW</div>
-    <iframe id="preview" class="preview"
-      title="Application preview"
-      sandbox="allow-scripts allow-forms"></iframe>
+  <div class="previewbox">
+    <div class="preview-title"><span>MAIN PREVIEW</span><span id="previewLabel">NOT BUILT</span></div>
+    <iframe id="preview" title="App preview" sandbox="allow-scripts"></iframe>
   </div>
 
-  <div class="panel section">
-    <div class="panel-title">COMPONENT LIBRARY</div>
-    <div class="content">
-      <p class="muted">
-        Insert reusable HTML, CSS, or JavaScript into the current editor.
-        JavaScript components can use the TAP API.
-      </p>
-      <div id="components" class="grid"></div>
+  <div class="panel">
+    <div class="panel-title"><span>COMPONENT LIBRARY</span><span>INSERT INTO EDITOR</span></div>
+    <div class="pad">
+      <div class="row" style="margin-bottom:9px">
+        <input class="field" id="componentSearch" placeholder="Search components…">
+        <select class="field" id="componentFilter" style="width:auto">
+          <option value="all">All</option><option value="html">HTML</option>
+          <option value="css">CSS</option><option value="js">JavaScript</option>
+        </select>
+      </div>
+      <div class="component-grid" id="componentList"></div>
+      <p class="help">Insert adds a component to its matching language editor. Build to test the combined app.</p>
     </div>
   </div>
-</section>
 
-<!-- CHIBI TAP -->
-
-<section id="view-tap" class="section hidden">
   <div class="panel">
-    <div class="panel-title">CHIBI TAP · DEVICE HOME</div>
-    <div class="content">
-      <div class="device">
-        <div class="device-brand">CHIBI TAP · LOCAL SYSTEM</div>
-        <div class="device-screen" id="tapScreen"></div>
-
-        <div class="device-controls">
-          <div class="dpad">
-            <div class="key blank"></div>
-            <div class="key" data-key="ArrowUp">▲</div>
-            <div class="key blank"></div>
-            <div class="key" data-key="ArrowLeft">◀</div>
-            <div class="key" data-key="ArrowDown">▼</div>
-            <div class="key" data-key="ArrowRight">▶</div>
-          </div>
-          <div class="ab">
-            <div class="key" data-key="b">B</div>
-            <div class="key" data-key="a">A</div>
-          </div>
-        </div>
-        <div class="device-foot">
-          <span>SELECT</span><span>START</span>
-        </div>
+    <div class="panel-title"><span>CARTRIDGE WORKBENCH</span><span>LOCAL INSTALLER</span></div>
+    <div class="pad">
+      <div class="grid2">
+        <div class="fieldgroup"><label for="cartName">CARTRIDGE NAME</label>
+          <input class="field" id="cartName" placeholder="e.g. Korin Training"></div>
+        <div class="fieldgroup"><label for="cartType">FORMAT</label>
+          <select class="field" id="cartType">
+            <option value="js">JavaScript (.js)</option>
+            <option value="html">HTML (.html)</option>
+            <option value="css">CSS (.css)</option>
+            <option value="json">JSON (.json)</option>
+            <option value="txt">Plain text (.txt)</option>
+            <option value="md">Markdown (.md)</option>
+          </select></div>
       </div>
-
-      <div class="actions section">
-        <button id="tapHome">HOME</button>
-        <button id="tapRun">RUN CURRENT</button>
-        <button id="tapInstall">INSTALL CODE</button>
-        <button id="tapLibrary">CARTRIDGES</button>
+      <div class="fieldgroup"><label for="cartText">CARTRIDGE SOURCE / TEXT</label>
+        <textarea class="field" id="cartText" rows="7" placeholder="Paste cartridge code or any text format here…"></textarea></div>
+      <div class="controls" style="padding:0">
+        <button class="btn good" id="saveCart">SAVE CARTRIDGE</button>
+        <button class="btn" id="installCart">INSTALL TO EDITOR</button>
+        <button class="btn" id="downloadCart">DOWNLOAD FILE</button>
+        <button class="btn" id="clearCartInput">CLEAR</button>
       </div>
+      <p class="help">HTML, CSS, and JS install into their respective editors. Other formats remain saved as files and are not executed.</p>
+    </div>
+    <hr>
+    <div class="pad">
+      <div class="topline" style="margin-bottom:9px">
+        <strong>CARTRIDGE SHELF</strong>
+        <span class="muted" id="cartCount">0 cartridges</span>
+      </div>
+      <div class="list" id="cartList"></div>
     </div>
   </div>
 </section>
 
-<!-- CARTRIDGE LIBRARY -->
-
-<section id="view-library" class="section hidden">
+<aside class="sidebar">
   <div class="panel">
-    <div class="panel-title">CARTRIDGE LIBRARY</div>
-    <div class="content">
+    <div class="panel-title"><span>CHIBI TAP</span><span>INPUT DEVICE</span></div>
+    <div class="pad">
+      <div class="dpad">
+        <div class="key blank"></div><button class="key" data-key="ArrowUp">↑</button><div class="key blank"></div>
+        <button class="key" data-key="ArrowLeft">←</button>
+        <button class="key" data-key="ArrowDown">↓</button>
+        <button class="key" data-key="ArrowRight">→</button>
+      </div>
+      <div class="ab">
+        <button class="key" data-key="a">A</button>
+        <button class="key" data-key="b">B</button>
+      </div>
+      <div class="help">Arrows move the T Engine. A = action. B = reset position. Keyboard and touch supported.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title"><span>T ENGINE</span><span id="coord">X 50 · Y 50</span></div>
+    <div class="pad">
+      <div class="viewtabs">
+        <button class="btn small active" data-view="front">FRONT</button>
+        <button class="btn small" data-view="side">SIDE</button>
+        <button class="btn small" data-view="top">TOP</button>
+        <button class="btn small" data-view="iso">ISO</button>
+      </div>
+    </div>
+    <div class="engine front" id="engine">
+      <div class="axis x"></div><div class="axis y"></div>
+      <div class="stick" id="stick">
+        <div class="head"></div><div class="torso"></div>
+        <div class="limb armL"></div><div class="limb armR"></div>
+        <div class="limb legL"></div><div class="limb legR"></div>
+      </div>
+      <div class="engine-label" id="engineLabel">T ENGINE / FRONT / XY</div>
+    </div>
+    <div class="pad">
       <div class="row">
-        <input id="cartName" placeholder="Cartridge name">
-        <button id="saveCart">SAVE CARTRIDGE</button>
+        <button class="btn small" id="centerEngine">CENTER</button>
+        <button class="btn small" id="moveDemo">DEMO MOVE</button>
       </div>
-      <p class="muted">
-        Save the current HTML, CSS and JavaScript together as one cartridge.
-      </p>
-      <div id="cartList" class="list"></div>
-      <div class="actions section">
-        <button id="exportLibrary">EXPORT LIBRARY</button>
-        <button id="importLibrary">IMPORT JSON</button>
-        <input type="file" id="libraryFile" accept=".json,application/json"
-          class="hidden">
-      </div>
+      <div class="help">Perspective changes the representation of the same movement coordinates. ISO is a stylized 2.5D view, not a full 3D renderer.</div>
     </div>
   </div>
-</section>
 
-<!-- TEXT INSTALLER -->
-
-<section id="view-install" class="section hidden">
   <div class="panel">
-    <div class="panel-title">TEXT INSTALLER</div>
-    <div class="content">
-      <label for="installName">Cartridge name</label>
-      <input id="installName" value="My Cartridge"
-        placeholder="Name this cartridge">
-
-      <div class="row section" id="installTabs">
-        <button class="active" data-install="html">HTML INSTALL</button>
-        <button data-install="css">CSS INSTALL</button>
-        <button data-install="js">JS INSTALL</button>
+    <div class="panel-title"><span>T ENGINE SIGNAL</span><span>LIVE</span></div>
+    <div class="pad">
+      <div class="grid2">
+        <div><div class="muted">POSITION X</div><strong id="xRead">50%</strong></div>
+        <div><div class="muted">POSITION Y</div><strong id="yRead">50%</strong></div>
+        <div><div class="muted">PERSPECTIVE</div><strong id="viewRead">FRONT</strong></div>
+        <div><div class="muted">LAST INPUT</div><strong id="inputRead">NONE</strong></div>
       </div>
-
-      <p class="muted" id="installDescription">
-        Paste HTML markup below, then install it into the current project.
-      </p>
-
-      <textarea id="installText" spellcheck="false"
-        autocapitalize="off" placeholder="Paste code here..."></textarea>
-
-      <div class="actions section">
-        <button id="installToEditor">INSTALL TO EDITOR</button>
-        <button id="installAsCart">INSTALL AS CARTRIDGE</button>
-        <button id="clearInstall">CLEAR</button>
-      </div>
-
-      <div class="card section">
-        <h3>Cartridge API</h3>
-        <p class="muted">A JavaScript cartridge can register itself with
-          <code>TAP_CARTRIDGE(metadata, function(tap) {...})</code>.
-          Standalone HTML/CSS/JS cartridges can also be imported separately.</p>
-        <button id="insertTemplate">INSERT TAP JS TEMPLATE</button>
-      </div>
+      <hr>
+      <div class="help">T = time / transition. Input → movement function → rendered output.</div>
     </div>
   </div>
-</section>
-
-<div id="status" class="status">READY · LOCAL MODE</div>
+  <div class="status" id="status" role="status" aria-live="polite">READY · LOCAL MODE</div>
+</aside>
+</main>
 </div>
 
 <script>
+(() => {
 "use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const STORAGE = "codemaker.chibitap.v2";
+const CARTS = "codemaker.cartridges.v2";
 
-/* =====================================================
-   PROJECT DATA
-   ===================================================== */
-
-const DEFAULT_CODE = {
-  html: `<main id="app">
+const defaults = {
+ html:`<main class="demo">
+  <p class="eyebrow">CHIBI TAP / PROJECT 001</p>
   <h1>My App</h1>
-  <p>A new cartridge begins here.</p>
-  <button id="hello">PRESS</button>
+  <p>Build something that moves.</p>
+  <button id="helloButton">PRESS TO TEST</button>
+  <p id="message">READY.</p>
 </main>`,
-  css: `body {
-  font-family: system-ui, sans-serif;
-  padding: 24px;
-  color: #20252b;
-}
-button { padding: 10px 16px; cursor: pointer; }`,
-  js: `document.getElementById("hello")?.addEventListener("click", () => {
-  document.querySelector("p").textContent = "App is running!";
+ css:`body{font-family:system-ui,sans-serif;padding:24px;background:#f2f5f7;color:#15202a}
+.demo{max-width:520px;margin:20px auto;padding:24px;border:1px solid #cad3db;border-radius:12px}
+.eyebrow{font-size:11px;letter-spacing:2px;color:#667785}
+h1{letter-spacing:2px}
+button{padding:10px 15px;border:0;border-radius:6px;background:#15202a;color:white;cursor:pointer}`,
+ js:`document.getElementById("helloButton")?.addEventListener("click",()=>{
+ const message=document.getElementById("message");
+ if(message) message.textContent="INPUT RECEIVED · BUILD SUCCESSFUL";
 });`,
-  theory: `HTML = structure
-CSS = appearance
-JavaScript = behavior
-
-COMPONENT -> INPUT -> FUNCTION -> OUTPUT
-
-CODE MAKER = development environment
-CHIBI TAP = device interface
-CARTRIDGE = installed application`
+ theory:`// CODE THEORY
+// HTML = structure
+// CSS  = appearance
+// JS   = behavior
+//
+// INPUT -> FUNCTION -> OUTPUT
+// COMPONENT = reusable building block
+// CARTRIDGE = saved source module
+// T ENGINE = movement and interaction anchor
+// PREVIEW = sandboxed test environment`
 };
-
-let code = {...DEFAULT_CODE};
-let language = "html";
-let installLanguage = "html";
+let code = {...defaults};
+let currentLanguage = "html";
 let cartridges = [];
-let activeCartId = null;
-let tapPage = "home";
-let tapPosition = {x:50,y:50};
-let cartSequence = 0;
+let selectedCart = null;
+let x = 50, y = 50, view = "front";
+let buildTimer = null;
 
-const $ = id => document.getElementById(id);
-const editor = $("editor");
-const status = $("status");
-
-function message(text) {
-  status.textContent = text;
+const editor = $("#editor");
+const status = $("#status");
+function say(message){status.textContent=message}
+function setCode(language,value){
+  if(!Object.hasOwn(code,language)) return;
+  code[language]=value;
 }
-
-function storageRead(key, fallback) {
-  try {
-    const value = localStorage.getItem(key);
-    return value === null ? fallback : JSON.parse(value);
-  } catch {
-    return fallback;
+function saveProject(){
+  try{
+    localStorage.setItem(STORAGE,JSON.stringify({code,currentLanguage}));
+    localStorage.setItem(CARTS,JSON.stringify(cartridges));
+  }catch(e){say("LOCAL SAVE FAILED · STORAGE MAY BE FULL");}
+}
+function restore(){
+  try{
+    const p=JSON.parse(localStorage.getItem(STORAGE)||"null");
+    if(p && p.code){
+      for(const k of Object.keys(code))
+        if(typeof p.code[k]==="string") code[k]=p.code[k];
+      if(Object.hasOwn(code,p.currentLanguage)) currentLanguage=p.currentLanguage;
+    }
+    const c=JSON.parse(localStorage.getItem(CARTS)||"[]");
+    if(Array.isArray(c)) cartridges=c.filter(v=>v&&typeof v.content==="string");
+  }catch(e){say("RESTORE WARNING · STARTING WITH AVAILABLE DATA");}
+}
+function loadEditor(){
+  editor.value=code[currentLanguage];
+  $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.lang===currentLanguage));
+  $("#editorLabel").textContent=currentLanguage.toUpperCase()+" EDITOR";
+}
+function saveEditor(){setCode(currentLanguage,editor.value);}
+function switchLanguage(lang){
+  saveEditor();currentLanguage=lang;loadEditor();saveProject();
+  say("EDITOR · "+lang.toUpperCase());
+}
+$$(".tab").forEach(t=>t.addEventListener("click",()=>switchLanguage(t.dataset.lang)));
+editor.addEventListener("input",()=>{saveEditor();saveProject();});
+editor.addEventListener("keydown",e=>{
+  if(e.key==="Tab"){
+    e.preventDefault();
+    const a=editor.selectionStart,b=editor.selectionEnd;
+    editor.setRangeText("  ",a,b,"end");
   }
-}
-
-function storageWrite(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch {
-    message("STORAGE ERROR · EXPORT YOUR PROJECT");
-    return false;
-  }
-}
-
-function saveProject() {
-  code[language] = editor.value;
-  storageWrite("cm.tap.project", code);
-}
-
-function loadEditor() {
-  editor.value = code[language] || "";
-}
-
-function setLanguage(next) {
-  saveProject();
-  language = next;
-
-  document.querySelectorAll("[data-lang]").forEach(button =>
-    button.classList.toggle("active", button.dataset.lang === next)
-  );
-
-  loadEditor();
-  message("EDITOR · " + next.toUpperCase());
-}
-
-document.querySelectorAll("[data-lang]").forEach(button => {
-  button.addEventListener("click", () => setLanguage(button.dataset.lang));
 });
 
-editor.addEventListener("input", () => {
-  code[language] = editor.value;
-});
-
-/* =====================================================
-   SAFE PREVIEW BUILD
-   ===================================================== */
-
-function build() {
-  saveProject();
-
-  // Avoid closing the generated script element.
-  const safeJS = code.js.replace(/<\/script/gi, "<\\/script");
-
-  const output = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>${code.css}</style>
-</head>
-<body>
-${code.html}
-<script>
-try {
-${safeJS}
-} catch (error) {
-  document.body.insertAdjacentHTML(
-    "beforeend",
-    '<pre style="color:red">Runtime error: ' +
-      String(error.message).replace(/[&<>]/g, c =>
-        ({"&":"&amp;","<":"&lt;",">":"&gt;"})[c]
-      ) +
-    '</pre>'
-  );
+function build(){
+  saveEditor();
+  // Closing-script sequences are escaped before source is placed in the preview.
+  const safeJS=code.js.replace(/<\/script/gi,"<\\/script");
+  const safeCSS=code.css.replace(/<\/style/gi,"<\\/style");
+  const doc='<!doctype html><html><head><meta charset="utf-8">'+
+  '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+  '<style>'+safeCSS+'</style></head><body>'+code.html+
+  '<script>'+safeJS+'<\/script></body></html>';
+  $("#preview").srcdoc=doc;
+  $("#previewLabel").textContent="BUILT";
+  saveProject();say("BUILD COMPLETE · PROJECT SAVED LOCALLY");
 }
-<\/script>
-</body>
-</html>`;
-
-  $("preview").srcdoc = output;
-  message("BUILD COMPLETE · PROJECT SAVED");
-}
-
-$("buildBtn").addEventListener("click", build);
-
-$("quantizeBtn").addEventListener("click", () => {
-  editor.value = editor.value
-    .replace(/\r\n/g, "\n")
-    .replace(/[ \t]+$/gm, "")
-    .replace(/\n{3,}/g, "\n\n");
-
-  code[language] = editor.value;
-  saveProject();
-  message("QUANTIZED · WHITESPACE NORMALIZED");
+$("#build").addEventListener("click",build);
+$("#quantize").addEventListener("click",()=>{
+  saveEditor();
+  editor.value=editor.value.replace(/\r\n/g,"\n").replace(/[ \t]+$/gm,"").replace(/\n{3,}/g,"\n\n");
+  saveEditor();saveProject();say("QUANTIZED · WHITESPACE NORMALIZED");
 });
-
-$("testBtn").addEventListener("click", () => {
-  saveProject();
-
-  try {
-    if (language === "js") {
-      // Syntax check only. Does not execute the code.
-      new Function(editor.value);
-    } else if (language === "html") {
-      const parsed = new DOMParser().parseFromString(
-        editor.value, "text/html"
-      );
-      if (!parsed.documentElement) throw new Error("Invalid HTML");
-    } else if (language === "css") {
-      const sheet = new CSSStyleSheet();
+$("#test").addEventListener("click",()=>{
+  saveEditor();
+  try{
+    if(currentLanguage==="js") new Function(editor.value);
+    else if(currentLanguage==="html"){
+      const p=new DOMParser().parseFromString(editor.value,"text/html");
+      if(!p.documentElement) throw Error("Unable to parse HTML");
+    }else if(currentLanguage==="css"){
+      const sheet=new CSSStyleSheet();
       sheet.replaceSync(editor.value);
     }
-    message("TEST PASSED · BASIC SYNTAX CHECK");
-  } catch (error) {
-    message("TEST ERROR · " + error.message);
-  }
+    say("TEST PASSED · BASIC SYNTAX CHECK ONLY");
+  }catch(e){say("TEST ERROR · "+e.message);}
 });
 
-$("saveBtn").addEventListener("click", () => {
-  saveProject();
-  message("PROJECT SAVED LOCALLY");
-});
-
-function downloadJSON(filename, data) {
-  const blob = new Blob(
-    [JSON.stringify(data, null, 2)],
-    {type:"application/json"}
-  );
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-$("exportBtn").addEventListener("click", () => {
-  saveProject();
-  downloadJSON("code-maker-project.json", {
-    type:"code-maker-project",
-    version:1,
-    code
-  });
-  message("PROJECT EXPORTED");
-});
-
-/* =====================================================
-   COMPONENT LIBRARY
-   ===================================================== */
-
-const componentLibrary = [
-  {
-    name:"HTML Button",
-    type:"html",
-    description:"Reusable action button",
-    content:'<button id="tapAction">ACTION</button>'
-  },
-  {
-    name:"HTML Status",
-    type:"html",
-    description:"Status readout",
-    content:'<div id="appStatus" role="status">READY</div>'
-  },
-  {
-    name:"HTML Panel",
-    type:"html",
-    description:"Simple app panel",
-    content:'<section class="app-panel"><h2>Panel</h2><p>Content goes here.</p></section>'
-  },
-  {
-    name:"CSS Panel",
-    type:"css",
-    description:"Panel styling",
-    content:'.app-panel { padding:16px; border:1px solid #bbb; border-radius:8px; margin:10px 0; }'
-  },
-  {
-    name:"CSS Pixel",
-    type:"css",
-    description:"Pixel-console typography",
-    content:'body { font-family:monospace; image-rendering:pixelated; }'
-  },
-  {
-    name:"JS Action",
-    type:"js",
-    description:"Button interaction",
-    content:`document.getElementById("tapAction")?.addEventListener("click", () => {
-  const output = document.getElementById("appStatus");
-  if (output) output.textContent = "ACTION COMPLETE";
-});`
-  },
-  {
-    name:"JS TAP Cartridge",
-    type:"js",
-    description:"TAP cartridge starter",
-    content:`TAP_CARTRIDGE({
-  name: "MY CARTRIDGE",
-  description: "Custom TAP application",
-  version: "1.0",
-  group: "UTILITY"
-}, function(tap) {
-  tap.onLaunch(function() {
-    tap.ui.screen(
-      "<h2>MY CARTRIDGE</h2><p>Ready.</p>"
-    );
-  });
-});`
-  }
+const components=[
+ {name:"Heading + Text",type:"html",desc:"Simple content block",
+ content:'<section class="cm-card">\\n  <h2>Section title</h2>\\n  <p>Your content goes here.</p>\\n</section>'},
+ {name:"Action Button",type:"html",desc:"Button with a stable ID",
+ content:'<button id="cmAction" type="button">ACTION</button>\\n<p id="cmOutput">READY</p>'},
+ {name:"Status HUD",type:"html",desc:"Compact status display",
+ content:'<section class="cm-hud">\\n <strong>SCOUTER / STATUS</strong>\\n <p id="cmStatus">SYSTEM READY</p>\\n</section>'},
+ {name:"Two-Column Grid",type:"html",desc:"Responsive content layout",
+ content:'<div class="cm-grid">\\n <section>MODULE A</section>\\n <section>MODULE B</section>\\n</div>'},
+ {name:"Panel Theme",type:"css",desc:"Dark reusable panel",
+ content:'.cm-card,.cm-hud{padding:16px;border:1px solid #303943;border-radius:8px;background:#12161b;color:#edf2f7}\\n.cm-card h2{margin-top:0}'},
+ {name:"Responsive Grid",type:"css",desc:"Two columns to one on mobile",
+ content:'.cm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}\\n.cm-grid>section{padding:16px;border:1px solid #cbd5df;border-radius:8px}\\n@media(max-width:520px){.cm-grid{grid-template-columns:1fr}}'},
+ {name:"Button Feedback",type:"js",desc:"Add a click response",
+ content:'document.getElementById("cmAction")?.addEventListener("click",()=>{\\n const out=document.getElementById("cmOutput");\\n if(out) out.textContent="ACTION RECEIVED";\\n});'},
+ {name:"Status Clock",type:"js",desc:"Update a status element",
+ content:'const cmStatus=document.getElementById("cmStatus");\\nif(cmStatus) cmStatus.textContent="MODULE ONLINE";'}
 ];
-
-function renderComponents() {
-  $("components").replaceChildren();
-
-  componentLibrary.forEach(component => {
-    const card = document.createElement("div");
-    card.className = "component";
-
-    const title = document.createElement("h3");
-    title.textContent = component.name;
-
-    const description = document.createElement("p");
-    description.className = "muted";
-    description.textContent = component.description;
-
-    const button = document.createElement("button");
-    button.textContent = "INSERT " + component.type.toUpperCase();
-    button.addEventListener("click", () => {
-      if (language !== component.type) setLanguage(component.type);
-      const separator = editor.value.trim() ? "\n\n" : "";
-      editor.value += separator + component.content;
-      code[language] = editor.value;
-      saveProject();
-      message("COMPONENT INSERTED · " + component.name);
-    });
-
-    card.append(title, description, button);
-    $("components").append(card);
+function renderComponents(){
+ const q=$("#componentSearch").value.toLowerCase();
+ const filter=$("#componentFilter").value;
+ const filtered=components.filter(c=>(filter==="all"||c.type===filter)&&
+ (c.name+" "+c.desc+" "+c.type).toLowerCase().includes(q));
+ $("#componentList").innerHTML="";
+ filtered.forEach(c=>{
+  const div=document.createElement("div");div.className="component";
+  const title=document.createElement("strong");title.textContent=c.name;
+  const desc=document.createElement("p");desc.textContent=c.type.toUpperCase()+" · "+c.desc;
+  const btn=document.createElement("button");btn.className="btn";btn.textContent="INSERT";
+  btn.addEventListener("click",()=>{
+   saveEditor();const existing=code[c.type];
+   code[c.type]=(existing.trim()?existing.trimEnd()+"\n\n":"")+c.content.replace(/\\n/g,"\n");
+   switchLanguage(c.type);saveProject();say("COMPONENT INSERTED · "+c.name);
   });
+  div.append(title,desc,btn);$("#componentList").append(div);
+ });
+ if(!filtered.length) $("#componentList").innerHTML='<div class="empty">No matching components.</div>';
 }
+$("#componentSearch").addEventListener("input",renderComponents);
+$("#componentFilter").addEventListener("change",renderComponents);
 
-/* =====================================================
-   NAVIGATION
-   ===================================================== */
-
-function showView(view) {
-  document.querySelectorAll("[id^='view-']").forEach(section => {
-    section.classList.toggle("hidden", section.id !== "view-" + view);
+function ext(type){return ({js:"js",html:"html",css:"css",json:"json",txt:"txt",md:"md"})[type]||"txt";}
+function download(name,content,mime="text/plain"){
+ const blob=new Blob([content],{type:mime});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download=name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function currentCartData(){
+ return {id:selectedCart||("cart-"+Date.now()),name:$("#cartName").value.trim()||"Untitled Cartridge",
+ type:$("#cartType").value,content:$("#cartText").value,updated:new Date().toISOString()};
+}
+function renderCartridges(){
+ $("#cartCount").textContent=cartridges.length+" cartridge"+(cartridges.length===1?"":"s");
+ const list=$("#cartList");list.innerHTML="";
+ if(!cartridges.length){list.innerHTML='<div class="empty">No cartridges saved yet.</div>';return;}
+ cartridges.forEach(c=>{
+  const item=document.createElement("div");item.className="item";
+  const info=document.createElement("div");info.style.minWidth="0";
+  const name=document.createElement("div");name.className="item-name";name.textContent=c.name;
+  const meta=document.createElement("div");meta.className="item-meta";meta.textContent=c.type.toUpperCase()+" · "+c.content.length+" chars";
+  info.append(name,meta);
+  const actions=document.createElement("div");actions.className="item-actions";
+  const load=document.createElement("button");load.className="btn small";load.textContent="LOAD";
+  load.addEventListener("click",()=>loadCartridge(c.id));
+  const exp=document.createElement("button");exp.className="btn small";exp.textContent="SAVE";
+  exp.addEventListener("click",()=>download(c.name.replace(/[^\w-]+/g,"-")+"."+ext(c.type),c.content));
+  const del=document.createElement("button");del.className="btn small danger";del.textContent="×";del.title="Delete cartridge";
+  del.addEventListener("click",()=>{
+   if(!confirm("Delete cartridge '"+c.name+"'?"))return;
+   cartridges=cartridges.filter(v=>v.id!==c.id);
+   if(selectedCart===c.id)selectedCart=null;
+   saveProject();renderCartridges();say("CARTRIDGE DELETED");
   });
-
-  document.querySelectorAll("[data-view]").forEach(button => {
-    button.classList.toggle("active", button.dataset.view === view);
-  });
-
-  if (view === "tap") renderTap();
-  if (view === "library") renderLibrary();
-
-  message("MODE · " + view.toUpperCase());
+  actions.append(load,exp,del);item.append(info,actions);list.append(item);
+ });
 }
-
-document.querySelectorAll("[data-view]").forEach(button => {
-  button.addEventListener("click", () => showView(button.dataset.view));
-});
-
-/* =====================================================
-   CARTRIDGE LIBRARY
-   ===================================================== */
-
-function makeId() {
-  cartSequence += 1;
-  return "cart-" + Date.now().toString(36) + "-" + cartSequence;
+function loadCartridge(id){
+ const c=cartridges.find(v=>v.id===id);if(!c)return;
+ selectedCart=c.id;$("#cartName").value=c.name;$("#cartType").value=c.type;
+ $("#cartText").value=c.content;say("CARTRIDGE LOADED · "+c.name);
 }
+$("#saveCart").addEventListener("click",()=>{
+ const c=currentCartData();
+ if(!c.content.trim()){say("CARTRIDGE EMPTY · ADD SOURCE OR TEXT FIRST");return;}
+ const i=cartridges.findIndex(v=>v.id===c.id);
+ if(i>=0)cartridges[i]=c;else cartridges.unshift(c);
+ selectedCart=c.id;saveProject();renderCartridges();say("CARTRIDGE SAVED LOCALLY · "+c.name);
+});
+$("#installCart").addEventListener("click",()=>{
+ const type=$("#cartType").value;
+ const text=$("#cartText").value;
+ if(!text.trim()){say("INSTALL CANCELLED · SOURCE IS EMPTY");return;}
+ if(!["html","css","js"].includes(type)){
+  say("FILE CARTRIDGE SAVED AS TEXT · NOT AN EDITOR LANGUAGE");return;
+ }
+ saveEditor();
+ code[type]=(code[type].trimEnd()?(code[type].trimEnd()+"\n\n"):"")+text;
+ switchLanguage(type);saveProject();say(type.toUpperCase()+" CARTRIDGE INSTALLED · BUILD TO TEST");
+});
+$("#downloadCart").addEventListener("click",()=>{
+ const c=currentCartData();
+ if(!c.content){say("NO CARTRIDGE CONTENT TO DOWNLOAD");return;}
+ download(c.name.replace(/[^\w-]+/g,"-")+"."+ext(c.type),c.content,
+ c.type==="json"?"application/json":"text/plain");
+ say("CARTRIDGE FILE EXPORTED");
+});
+$("#clearCartInput").addEventListener("click",()=>{
+ selectedCart=null;$("#cartName").value="";$("#cartText").value="";say("CARTRIDGE WORKBENCH CLEARED");
+});
 
-function validProject(project) {
-  return project &&
-    typeof project === "object" &&
-    ["html","css","js"].every(key =>
-      typeof project[key] === "string"
-    );
+$("#exportProject").addEventListener("click",()=>{
+ saveEditor();
+ download("code-maker-project.json",JSON.stringify({format:"CodeMakerProject",version:2,code,cartridges},null,2),"application/json");
+ say("PROJECT EXPORTED · CODE AND CARTRIDGES");
+});
+$("#importProject").addEventListener("click",()=>$("#projectFile").click());
+$("#projectFile").addEventListener("change",async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  const p=JSON.parse(await file.text());
+  const incoming=p.code||p;
+  for(const k of Object.keys(code))if(typeof incoming[k]==="string")code[k]=incoming[k];
+  if(Array.isArray(p.cartridges))cartridges=p.cartridges.filter(c=>c&&typeof c.content==="string");
+  saveProject();loadEditor();renderCartridges();build();say("PROJECT IMPORTED");
+ }catch(err){say("IMPORT ERROR · "+err.message);}
+ e.target.value="";
+});
+$("#newProject").addEventListener("click",()=>{
+ if(!confirm("Start a new project? Export first if you want a backup."))return;
+ code={...defaults};currentLanguage="html";saveProject();loadEditor();build();say("NEW PROJECT CREATED");
+});
+
+function updateEngine(){
+ $("#stick").style.left=x+"%";$("#stick").style.top=y+"%";
+ $("#coord").textContent="X "+Math.round(x)+" · Y "+Math.round(y);
+ $("#xRead").textContent=Math.round(x)+"%";$("#yRead").textContent=Math.round(y)+"%";
 }
-
-function saveCartridge(name, project, id) {
-  if (!validProject(project)) {
-    message("INSTALL ERROR · INVALID PROJECT");
-    return null;
-  }
-
-  const cart = {
-    id: id || makeId(),
-    name: String(name || "Untitled Cartridge").slice(0,80),
-    html: project.html,
-    css: project.css,
-    js: project.js,
-    created: new Date().toISOString()
-  };
-
-  const index = cartridges.findIndex(item => item.id === cart.id);
-
-  if (index >= 0) cartridges[index] = cart;
-  else cartridges.unshift(cart);
-
-  if (!storageWrite("cm.tap.cartridges", cartridges)) return null;
-
-  renderLibrary();
-  return cart;
+function setView(v){
+ view=v;$("#engine").className="engine "+v;
+ $$(".viewtabs button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+ $("#viewRead").textContent=v.toUpperCase();
+ $("#engineLabel").textContent="T ENGINE / "+v.toUpperCase()+" / "+(v==="top"?"XZ":v==="side"?"ZY":"XY");
 }
-
-function loadCartridge(cart) {
-  code.html = cart.html;
-  code.css = cart.css;
-  code.js = cart.js;
-  activeCartId = cart.id;
-  saveProject();
-  setLanguage("html");
-  build();
-  message("CARTRIDGE LOADED · " + cart.name);
+$$("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+function move(dx,dy,key){
+ x=Math.max(8,Math.min(92,x+dx));y=Math.max(12,Math.min(88,y+dy));
+ updateEngine();$("#inputRead").textContent=key.toUpperCase();
+ say("T ENGINE · "+key.toUpperCase()+" · X "+Math.round(x)+" Y "+Math.round(y));
 }
-
-function renderLibrary() {
-  $("cartList").replaceChildren();
-
-  if (!cartridges.length) {
-    const empty = document.createElement("p");
-    empty.className = "muted";
-    empty.textContent = "No cartridges installed yet.";
-    $("cartList").append(empty);
-    return;
-  }
-
-  cartridges.forEach(cart => {
-    const item = document.createElement("div");
-    item.className = "item";
-
-    const info = document.createElement("div");
-    const title = document.createElement("strong");
-    title.textContent = cart.name;
-
-    const detail = document.createElement("div");
-    detail.className = "muted";
-    detail.textContent = "HTML + CSS + JS";
-
-    info.append(title, detail);
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    const load = document.createElement("button");
-    load.textContent = "LOAD";
-    load.addEventListener("click", () => loadCartridge(cart));
-
-    const remove = document.createElement("button");
-    remove.textContent = "DELETE";
-    remove.addEventListener("click", () => {
-      cartridges = cartridges.filter(c => c.id !== cart.id);
-      storageWrite("cm.tap.cartridges", cartridges);
-      renderLibrary();
-      message("CARTRIDGE DELETED");
-    });
-
-    actions.append(load, remove);
-    item.append(info, actions);
-    $("cartList").append(item);
-  });
+function activateKey(key){
+ const button=$(`[data-key="${key}"]`);
+ if(button){button.classList.add("active");setTimeout(()=>button.classList.remove("active"),130);}
+ switch(key){
+  case "ArrowUp":move(0,-5,"UP");break;
+  case "ArrowDown":move(0,5,"DOWN");break;
+  case "ArrowLeft":move(-5,0,"LEFT");break;
+  case "ArrowRight":move(5,0,"RIGHT");break;
+  case "a":$("#inputRead").textContent="A ACTION";say("CHIBI TAP · A ACTION");break;
+  case "b":x=50;y=50;updateEngine();$("#inputRead").textContent="B RESET";say("CHIBI TAP · POSITION RESET");break;
+ }
 }
-
-$("saveCart").addEventListener("click", () => {
-  saveProject();
-  const cart = saveCartridge(
-    $("cartName").value || "My Cartridge", code, activeCartId
-  );
-  if (cart) {
-    activeCartId = cart.id;
-    $("cartName").value = cart.name;
-    message("CARTRIDGE SAVED · " + cart.name);
-  }
+$$("[data-key]").forEach(b=>{
+ b.addEventListener("pointerdown",e=>{e.preventDefault();activateKey(b.dataset.key);});
+});
+document.addEventListener("keydown",e=>{
+ if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName))return;
+ const k=["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)?e.key:e.key.toLowerCase();
+ if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","a","b"].includes(k)){
+  e.preventDefault();activateKey(k);
+ }
+});
+$("#centerEngine").addEventListener("click",()=>{x=50;y=50;updateEngine();say("T ENGINE CENTERED");});
+$("#moveDemo").addEventListener("click",()=>{
+ const points=[[60,40],[70,55],[55,70],[35,60],[40,35],[50,50]];
+ let i=0;
+ if(buildTimer)clearInterval(buildTimer);
+ buildTimer=setInterval(()=>{
+  [x,y]=points[i++];updateEngine();
+  if(i>=points.length){clearInterval(buildTimer);buildTimer=null;say("DEMO MOVE COMPLETE");}
+ },250);
 });
 
-$("exportLibrary").addEventListener("click", () => {
-  downloadJSON("chibi-tap-library.json", {
-    type:"chibi-tap-library",
-    version:1,
-    cartridges
-  });
-  message("LIBRARY EXPORTED");
-});
-
-$("importLibrary").addEventListener("click", () => $("libraryFile").click());
-
-$("libraryFile").addEventListener("change", async event => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  try {
-    const data = JSON.parse(await file.text());
-    let imported = 0;
-
-    const entries = data.type === "chibi-tap-library"
-      ? data.cartridges
-      : [data];
-
-    if (!Array.isArray(entries)) throw new Error("No cartridge list");
-
-    entries.forEach(entry => {
-      if (validProject(entry)) {
-        saveCartridge(entry.name || "Imported Cartridge", entry, entry.id);
-        imported++;
-      } else if (validProject(entry.code)) {
-        saveCartridge(entry.name || "Imported Cartridge", entry.code);
-        imported++;
-      }
-    });
-
-    message("IMPORT COMPLETE · " + imported + " CARTRIDGES");
-  } catch (error) {
-    message("IMPORT ERROR · " + error.message);
-  }
-
-  event.target.value = "";
-});
-
-/* =====================================================
-   THREE TEXT INSTALL MODES
-   ===================================================== */
-
-const installDescriptions = {
-  html:"Paste HTML markup. This replaces the project's HTML component.",
-  css:"Paste CSS rules. This replaces the project's CSS component.",
-  js:"Paste JavaScript. This replaces the project's JavaScript component."
-};
-
-function setInstallLanguage(next) {
-  installLanguage = next;
-  document.querySelectorAll("[data-install]").forEach(button =>
-    button.classList.toggle("active", button.dataset.install === next)
-  );
-  $("installDescription").textContent = installDescriptions[next];
-  $("installText").value = code[next] || "";
-}
-
-document.querySelectorAll("[data-install]").forEach(button => {
-  button.addEventListener("click", () =>
-    setInstallLanguage(button.dataset.install)
-  );
-});
-
-$("installToEditor").addEventListener("click", () => {
-  const text = $("installText").value;
-  code[installLanguage] = text;
-  setLanguage(installLanguage);
-  editor.value = text;
-  saveProject();
-  message(installLanguage.toUpperCase() + " INSTALLED INTO EDITOR");
-});
-
-$("installAsCart").addEventListener("click", () => {
-  const project = {...code};
-  project[installLanguage] = $("installText").value;
-
-  // Preserve the other components as a complete cartridge.
-  const cart = saveCartridge($("installName").value, project);
-
-  if (cart) {
-    activeCartId = cart.id;
-    message(installLanguage.toUpperCase() + " COMPONENT INSTALLED AS CARTRIDGE");
-  }
-});
-
-$("clearInstall").addEventListener("click", () => {
-  $("installText").value = "";
-  message("INSTALL BUFFER CLEARED");
-});
-
-$("insertTemplate").addEventListener("click", () => {
-  setInstallLanguage("js");
-  $("installText").value = `TAP_CARTRIDGE({
-  name: "MY CARTRIDGE",
-  description: "Installed from Code Maker",
-  version: "1.0",
-  group: "UTILITY"
-}, function(tap) {
-  tap.onLaunch(function() {
-    tap.ui.screen("<h2>MY CARTRIDGE</h2><p>Ready.</p>");
-  });
-});`;
-  message("TAP JS TEMPLATE READY");
-});
-
-/* =====================================================
-   CHIBI TAP DEVICE
-   ===================================================== */
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;",
-    '"':"&quot;", "'":"&#39;"
-  })[char]);
-}
-
-function renderTap() {
-  const screen = $("tapScreen");
-  screen.replaceChildren();
-
-  const title = document.createElement("div");
-  title.innerHTML = "<strong>CHIBI TAP OS</strong><hr>";
-  screen.append(title);
-
-  if (tapPage === "home") {
-    const menu = [
-      ["CODE MAKER", "maker"],
-      ["CARTRIDGES", "library"],
-      ["INSTALLER", "install"],
-      ["T ENGINE", "engine"]
-    ];
-
-    menu.forEach(([label, page], index) => {
-      const button = document.createElement("button");
-      button.style.width = "100%";
-      button.style.textAlign = "left";
-      button.style.marginBottom = "6px";
-      button.textContent = (index + 1) + ". " + label;
-      button.addEventListener("click", () => {
-        if (page === "engine") {
-          tapPage = "engine";
-          renderTap();
-        } else {
-          showView(page);
-        }
-      });
-      screen.append(button);
-    });
-
-    const info = document.createElement("p");
-    info.textContent = cartridges.length + " CARTRIDGES INSTALLED";
-    screen.append(info);
-  }
-
-  if (tapPage === "engine") {
-    const instructions = document.createElement("p");
-    instructions.textContent = "T ENGINE · D-PAD MOVEMENT";
-    screen.append(instructions);
-
-    const marker = document.createElement("div");
-    marker.style.height = "110px";
-    marker.style.position = "relative";
-    marker.style.border = "1px solid #306230";
-    marker.style.backgroundImage =
-      "linear-gradient(#30623033 1px,transparent 1px),linear-gradient(90deg,#30623033 1px,transparent 1px)";
-    marker.style.backgroundSize = "15px 15px";
-
-    const avatar = document.createElement("div");
-    avatar.textContent = "●";
-    avatar.style.position = "absolute";
-    avatar.style.left = tapPosition.x + "%";
-    avatar.style.top = tapPosition.y + "%";
-    avatar.style.transform = "translate(-50%,-50%)";
-    avatar.style.fontSize = "22px";
-
-    marker.append(avatar);
-    screen.append(marker);
-
-    const hint = document.createElement("p");
-    hint.textContent = "Use arrow keys or D-pad.";
-    screen.append(hint);
-  }
-}
-
-function moveTap(key) {
-  if (tapPage !== "engine") return;
-
-  const delta = 8;
-
-  if (key === "ArrowUp") tapPosition.y -= delta;
-  if (key === "ArrowDown") tapPosition.y += delta;
-  if (key === "ArrowLeft") tapPosition.x -= delta;
-  if (key === "ArrowRight") tapPosition.x += delta;
-
-  tapPosition.x = Math.max(5, Math.min(95, tapPosition.x));
-  tapPosition.y = Math.max(10, Math.min(90, tapPosition.y));
-
-  renderTap();
-}
-
-$("tapHome").addEventListener("click", () => {
-  tapPage = "home";
-  renderTap();
-});
-
-$("tapRun").addEventListener("click", () => {
-  build();
-  showView("maker");
-});
-
-$("tapInstall").addEventListener("click", () => showView("install"));
-$("tapLibrary").addEventListener("click", () => showView("library"));
-
-document.querySelectorAll(".key[data-key]").forEach(button => {
-  button.addEventListener("pointerdown", () => {
-    const key = button.dataset.key;
-
-    if (key.startsWith("Arrow")) {
-      moveTap(key);
-    } else if (key === "a") {
-      if (tapPage === "home") {
-        tapPage = "engine";
-        renderTap();
-      } else {
-        tapPage = "home";
-        renderTap();
-      }
-    } else if (key === "b") {
-      tapPage = "home";
-      renderTap();
-    }
-  });
-});
-
-document.addEventListener("keydown", event => {
-  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)) {
-    if (!$("view-tap").classList.contains("hidden")) {
-      event.preventDefault();
-      moveTap(event.key);
-    }
-  }
-});
-
-/* =====================================================
-   BASIC TAP CARTRIDGE REGISTRY
-   ===================================================== */
-
-// This is a lightweight compatibility layer for the included
-// TAP_CARTRIDGE registration style. It is not a complete clone
-// of every Chibi TAP runtime version.
-
-const TapRuntime = {
-  registry: [],
-  active: null,
-
-  install(source) {
-    let registration = null;
-
-    const register = (metadata, factory) => {
-      if (typeof factory !== "function") {
-        throw new Error("Cartridge factory must be a function");
-      }
-      registration = {metadata: metadata || {}, factory};
-    };
-
-    try {
-      // Cartridge code is executable code. Only install code you trust.
-      new Function("TAP_CARTRIDGE", source)(register);
-
-      if (!registration) {
-        throw new Error("No TAP_CARTRIDGE registration found");
-      }
-
-      this.registry.push(registration);
-      return registration;
-    } catch (error) {
-      throw new Error("Cartridge install failed: " + error.message);
-    }
-  },
-
-  launch(registration) {
-    const host = this;
-    const screen = $("tapScreen");
-
-    const api = {
-      onLaunch(callback) {
-        if (typeof callback === "function") callback();
-      },
-
-      ui: {
-        screen(markup) {
-          // Cartridge output is trusted executable-app content.
-          // Do not install untrusted cartridge code.
-          screen.innerHTML = String(markup);
-        },
-        html(markup) {
-          screen.innerHTML = String(markup);
-        }
-      },
-
-      storage: {
-        get(key) {
-          return storageRead("cart." + key, null);
-        },
-        set(key, value) {
-          return storageWrite("cart." + key, value);
-        },
-        remove(key) {
-          localStorage.removeItem("cart." + key);
-        }
-      },
-
-      message(text) {
-        message(String(text));
-      },
-
-      navigation: {
-        home() {
-          tapPage = "home";
-          renderTap();
-        }
-      },
-
-      util: {
-        random(min, max) {
-          return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-      }
-    };
-
-    host.active = registration;
-    registration.factory(api);
-    return api;
-  }
-};
-
-// Optional public registration hook for compatible cartridge snippets.
-// The installer evaluates the source with its own isolated registration
-// callback, rather than exposing arbitrary globals to the editor.
-
-window.TAP_CARTRIDGE = function(metadata, factory) {
-  return TapRuntime.install(
-    "TAP_CARTRIDGE(" +
-    JSON.stringify(metadata || {}) +
-    ", function(tap) { (" + factory.toString() + ")(tap); });"
-  );
-};
-
-/* =====================================================
-   LOAD AND INITIALIZE
-   ===================================================== */
-
-const savedProject = storageRead("cm.tap.project", null);
-if (validProject(savedProject)) {
-  code = {...DEFAULT_CODE, ...savedProject};
-}
-
-cartridges = storageRead("cm.tap.cartridges", []);
-if (!Array.isArray(cartridges)) cartridges = [];
-
-loadEditor();
-renderComponents();
-renderLibrary();
-renderTap();
-build();
-
-setInstallLanguage("html");
-message("READY · LOCAL MODE · CODE MAKER + CHIBI TAP");
+restore();loadEditor();renderComponents();renderCartridges();setView(view);updateEngine();build();
+})();
 </script>
 </body>
 </html>
