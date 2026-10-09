@@ -1,843 +1,718 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TAP + Code Maker</title>
+<title>Code Maker + TAP</title>
 <style>
-:root{
-  --bg:#15171b;--panel:#22252b;--panel2:#2b3038;
-  --ink:#f2f3f5;--muted:#9ca5b2;--line:#414752;
-  --green:#a8ff60;--greenDark:#18391e;--red:#ff7474;
-}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font:14px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
-button,input,textarea,select{font:inherit}
-button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
-  padding:10px 12px;border-radius:7px;cursor:pointer}
-button:active{transform:scale(.98)}
-button.primary{background:var(--green);color:#101510;border-color:var(--green);font-weight:800}
-button.danger{color:#ffaaaa}
-input,textarea,select{width:100%;background:#111317;color:var(--ink);
-  border:1px solid var(--line);border-radius:7px;padding:10px;min-width:0}
-textarea{resize:vertical}
-label{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
-header{position:sticky;top:0;z-index:10;background:#17191e;
-  border-bottom:1px solid var(--line);padding:12px;display:flex;
-  justify-content:space-between;align-items:center;gap:10px}
-.brand{font-size:16px;font-weight:900;letter-spacing:1px}
-.brand span{color:var(--green)}
-#saveStatus{font-size:11px;color:var(--green)}
-nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;
-  background:#1b1e23;position:sticky;top:54px;z-index:9}
-nav button{font-weight:800}
-nav button.active{background:var(--greenDark);color:var(--green);border-color:#527a48}
-main{max-width:1100px;margin:auto;padding:12px}
-.view{display:none}.view.active{display:block}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;
-  padding:12px;margin-bottom:12px;min-width:0}
-h2{font-size:15px;margin:0 0 10px}
-h3{font-size:12px;margin:0 0 8px;color:var(--green)}
-.muted{color:var(--muted);font-size:12px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.row>*{flex:1}
-.row .fixed{flex:0 0 auto}
-.grid{display:grid;grid-template-columns:1fr;gap:12px}
-.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
-.toolbar button{flex:1}
-.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px}
-.tabs button{flex:1;min-width:68px;padding:8px}
-.editor{min-height:300px;font-size:12px;line-height:1.55;tab-size:2}
-#projectList,#cartList{display:grid;gap:7px;margin-top:10px}
-.item{display:flex;gap:8px;align-items:center;text-align:left;width:100%;
-  padding:10px;background:#191c21}
-.item.selected{border-color:var(--green);background:var(--greenDark)}
-.item .itemText{flex:1;min-width:0}
-.item strong{display:block;overflow-wrap:anywhere}
-.item small{display:block;color:var(--muted);font-size:10px}
-#preview{width:100%;height:350px;background:white;border:1px solid var(--line);
-  border-radius:7px}
-#tapShell{max-width:440px;margin:0 auto;background:#b9bcb3;color:#172016;
-  border:5px solid #72776f;border-radius:24px;padding:13px;
-  box-shadow:inset 0 0 0 2px #e1e2da}
-#tapTop{display:flex;justify-content:space-between;align-items:center;
-  font-weight:900;font-size:12px;margin-bottom:9px}
-#screen{height:240px;background:#9bbc0f;color:#0f380f;border:5px solid #313b2c;
-  box-shadow:inset 0 0 0 3px #829d0c;padding:12px;overflow:auto;
-  font-size:12px;white-space:normal}
-#screen h2,#screen h3{color:#0f380f}
-#screen button{background:#8bac0f;color:#0f380f;border:2px solid #306230;
-  border-radius:2px;font-size:11px;padding:7px}
-#screen input,#screen textarea{background:#c7df52;color:#0f380f;border:1px solid #306230}
-#tapControls{display:grid;grid-template-columns:1fr 1fr;gap:22px;
-  align-items:center;padding:18px 6px 5px}
-.dpad{display:grid;grid-template-columns:40px 40px 40px;grid-template-rows:38px 38px 38px;
-  justify-content:center;align-items:center}
-.dpad button{padding:0;background:#353a42;color:white;border:0;border-radius:5px;font-weight:900}
-.dpad .up{grid-column:2;grid-row:1}.dpad .left{grid-column:1;grid-row:2}
-.dpad .center{grid-column:2;grid-row:2;background:#4a5059}
-.dpad .right{grid-column:3;grid-row:2}.dpad .down{grid-column:2;grid-row:3}
-.ab{display:flex;justify-content:center;gap:12px;transform:rotate(-18deg)}
-.ab button{border-radius:50%;width:52px;height:52px;background:#6d243d;color:white;
-  border:3px solid #8e4960;font-weight:900}
-#tapFooter{display:flex;justify-content:center;gap:15px;color:#555d51;
-  font-size:10px;font-weight:900;margin-top:12px}
-#cartEditor{min-height:260px}
-#toast{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);
-  background:var(--green);color:#101510;padding:10px 15px;border-radius:8px;
-  z-index:30;display:none;max-width:90%;font-weight:800}
-.hidden{display:none!important}
-hr{border:0;border-top:1px solid var(--line);margin:12px 0}
-@media(min-width:760px){
- main{padding:18px}
- .grid.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
- .editor{min-height:420px}
- #preview{height:480px}
- #screen{height:275px}
+:root{
+  --bg:#0b0d10;--panel:#12161b;--panel2:#181e25;
+  --line:#303943;--text:#edf2f7;--muted:#8995a3;
+  --accent:#63d8ff;--good:#78e08f;--warn:#ffd166;
+  --gb:#9bbc0f;--gb-dark:#0f380f
+}
+body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,sans-serif}
+button,input,textarea{font:inherit}
+button{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 12px;border-radius:6px;cursor:pointer;font-weight:700}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:hover{border-color:var(--accent)}
+.app{width:min(1250px,100%);margin:auto;padding:10px}
+header,.panel,.editor,.preview,.library,.status{border:1px solid var(--line);background:var(--panel)}
+header{padding:14px}
+.logo{font-size:1.2rem;font-weight:900;letter-spacing:.1em}
+.sub{font-size:11px;color:var(--muted);margin-top:4px}
+.main-tabs,.tabs,.controls,.categories{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.main-tabs button{flex:1}
+.main-tabs .active{border-color:var(--accent);color:var(--accent)}
+.tabs{overflow-x:auto;flex-wrap:nowrap}
+.tab{white-space:nowrap;color:var(--muted)}
+.tab.active{border-color:var(--accent);color:var(--text)}
+.view[hidden],.library[hidden],.editor[hidden]{display:none}
+.editor{margin-top:8px;background:#080a0d}
+textarea{display:block;width:100%;height:230px;resize:vertical;border:0;outline:none;padding:14px;background:transparent;color:#dce7ef;font:13px/1.55 monospace}
+.controls{padding:8px 0}
+#testBtn{border-color:var(--good)}
+#exportBtn{border-color:var(--warn)}
+.preview{margin-top:8px;background:white;color:black}
+.preview-title,.panel-title{padding:9px 12px;background:var(--panel);color:var(--muted);font-size:11px;letter-spacing:.08em;font-weight:800}
+iframe{display:block;width:100%;height:260px;border:0;background:white}
+.lower{display:grid;grid-template-columns:.8fr 1.2fr;gap:8px;margin-top:8px}
+.panel{min-width:0}
+.keyboard{text-align:center;padding:15px}
+.dpad{display:grid;grid-template-columns:repeat(3,48px);justify-content:center;gap:5px;margin:12px auto}
+.key{height:43px;display:flex;align-items:center;justify-content:center;padding:4px;touch-action:manipulation;user-select:none}
+.blank{visibility:hidden}
+.ab{display:flex;justify-content:center;gap:12px;margin:14px}
+.ab button{width:60px;height:48px;border-radius:50%}
+.small-note{font-size:11px;color:var(--muted)}
+.status{margin-top:8px;padding:9px 12px;color:var(--muted);font:12px monospace;overflow-wrap:anywhere}
+
+/* TAP CONSOLE */
+.tap-shell{padding:10px;background:#d9d9d2;color:#20251b;border-radius:12px;margin:10px}
+.tap-brand{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.12em;font-weight:900;padding:3px 4px 8px}
+.tap-brand span:last-child{color:#596347}
+.tap-screen{background:#11180d;padding:7px;border-radius:4px;box-shadow:inset 0 0 0 2px #6a715d}
+.tap-screen-inner{min-height:260px;background:var(--gb);color:var(--gb-dark);font-family:monospace;padding:12px;position:relative;overflow:hidden}
+.screen-top{display:flex;justify-content:space-between;font-size:10px;border-bottom:1px solid #54701a;padding-bottom:6px;margin-bottom:10px}
+.screen-title{font-size:19px;font-weight:900;letter-spacing:.04em;margin:10px 0}
+.screen-sub{font-size:11px;line-height:1.5}
+.tap-menu{display:grid;gap:5px;margin-top:12px}
+.tap-menu button{background:transparent;border:1px solid #4f681b;color:var(--gb-dark);border-radius:0;text-align:left;font:700 12px monospace;padding:9px}
+.tap-menu button.selected,.tap-menu button:focus{background:var(--gb-dark);color:var(--gb)}
+.tap-footer{display:flex;justify-content:space-between;margin-top:12px;padding-top:7px;border-top:1px solid #54701a;font-size:9px}
+.tap-hardware{display:flex;justify-content:space-between;align-items:center;padding:15px 8px 4px}
+.tap-dpad{width:112px;height:112px;position:relative}
+.tap-dpad button{position:absolute;width:36px;height:36px;padding:0;background:#30343a;color:#e6e6e6;border:0;border-radius:5px;font-size:17px;box-shadow:0 2px 0 #111}
+.tap-dpad .up{top:0;left:38px}
+.tap-dpad .down{bottom:0;left:38px}
+.tap-dpad .left{top:38px;left:0}
+.tap-dpad .right{top:38px;right:0}
+.tap-dpad .center{position:absolute;top:38px;left:38px;width:36px;height:36px;background:#24282d}
+.tap-buttons{display:flex;gap:12px;transform:rotate(-20deg)}
+.tap-buttons button{width:47px;height:47px;border-radius:50%;border:0;background:#8c243b;color:white;box-shadow:0 3px 0 #531326}
+.tap-buttons button:last-child{background:#394d82;box-shadow:0 3px 0 #202d51}
+.tap-button-labels{display:flex;gap:32px;justify-content:flex-end;padding:0 10px;color:#394047;font-size:10px;font-weight:900}
+.console-actions{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 12px}
+.console-actions button{background:#30343a;color:white;font-size:11px}
+
+/* LIBRARY */
+.library{padding:10px;margin-top:8px}
+.library-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.library-head p{font-size:10px;color:var(--muted)}
+#librarySearch{width:100%;padding:11px;margin:8px 0;background:#080a0d;color:var(--text);border:1px solid var(--line);border-radius:5px}
+.categories{margin:5px 0 10px}
+.categories button{font-size:10px;padding:7px}
+.library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.library-item{text-align:left;min-width:0;padding:10px}
+.library-item.selected{border-color:var(--accent)}
+.library-item small{display:block;color:var(--muted);font-weight:400;font-size:10px;margin-top:5px}
+.library-detail{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+#librarySource{white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto;padding:10px;background:#080a0d;color:var(--accent);font:12px/1.5 monospace}
+.detail-actions{display:flex;gap:6px;flex-wrap:wrap}
+#insertComponent,#launchCart{border-color:var(--good)}
+.empty{font-size:12px;color:var(--muted);padding:12px}
+@media(min-width:800px){
+ .tap-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
+ .tap-shell{margin:10px auto;max-width:480px}
+ .library{margin-top:10px}
+}
+@media(max-width:600px){
+ .app{padding:6px}
+ .lower{grid-template-columns:1fr}
+ .tap-screen-inner{min-height:250px}
+ textarea{height:190px}
+ .library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
 <body>
+<div class="app">
 <header>
-  <div class="brand"><span>TAP</span> / CODE MAKER</div>
-  <div id="saveStatus">LOCAL SAVE READY</div>
+  <div class="logo">CODE MAKER <span style="color:var(--accent)">×</span> TAP</div>
+  <div class="sub">LOCAL DEVELOPMENT STATION • PORTABLE CARTRIDGE CONSOLE</div>
+  <div class="main-tabs">
+    <button class="active" data-view="maker">CODE MAKER</button>
+    <button data-view="tap">TAP CONSOLE</button>
+  </div>
 </header>
 
-<nav>
-  <button id="navCode" class="active" onclick="showView('code')">01 / CODE MAKER</button>
-  <button id="navTap" onclick="showView('tap')">02 / TAP CONSOLE</button>
-</nav>
-
-<main>
-<section id="codeView" class="view active">
-  <div class="grid two">
-    <div>
-      <div class="panel">
-        <h2>Project workspace</h2>
-        <label for="projectName">PROJECT NAME</label>
-        <input id="projectName" placeholder="Untitled project" maxlength="100">
-        <div class="toolbar">
-          <button class="primary" onclick="saveProject()">Save</button>
-          <button onclick="newProject()">New</button>
-          <button onclick="duplicateProject()">Duplicate</button>
-        </div>
-        <div class="row">
-          <button onclick="exportProject()">Export project</button>
-          <button class="danger" onclick="deleteProject()">Delete</button>
-        </div>
-        <div id="projectList"></div>
-        <hr>
-        <div class="row">
-          <button onclick="exportBackup()">Backup everything</button>
-          <button onclick="document.getElementById('backupFile').click()">Restore backup</button>
-          <input id="backupFile" type="file" accept=".json,application/json" class="hidden"
-            onchange="importBackup(event)">
-        </div>
-        <p class="muted">Projects and cartridges have separate save records. Backup files can be moved to another device.</p>
-      </div>
-    </div>
-
-    <div>
-      <div class="panel">
-        <h2>Editor</h2>
-        <div class="tabs">
-          <button id="tabHTML" class="active" onclick="setEditor('html')">HTML</button>
-          <button id="tabCSS" onclick="setEditor('css')">CSS</button>
-          <button id="tabJS" onclick="setEditor('js')">JS</button>
-          <button id="tabTheory" onclick="setEditor('theory')">Theory</button>
-        </div>
-        <textarea id="editor" class="editor" spellcheck="false"
-          placeholder="Write your code here..."></textarea>
-        <div class="toolbar">
-          <button class="primary" onclick="buildProject()">Build / Preview</button>
-          <button onclick="saveProject()">Save now</button>
-          <button onclick="clearCurrentEditor()">Clear editor</button>
-        </div>
-        <div class="row">
-          <button onclick="convertProjectToCart()">Make TAP cartridge</button>
-          <button onclick="copyEditor()">Copy editor text</button>
-        </div>
-        <p class="muted" id="editorHint">HTML source for this project.</p>
-      </div>
-    </div>
+<!-- CODE MAKER APP -->
+<main id="makerView" class="view">
+  <div class="tabs">
+    <button class="tab active" data-lang="html">HTML</button>
+    <button class="tab" data-lang="css">CSS</button>
+    <button class="tab" data-lang="js">JS</button>
+    <button class="tab" data-lang="theory">THEORY</button>
+    <button class="tab" data-lang="library">HTML LIBRARY</button>
   </div>
 
-  <div class="panel">
-    <h2>Live preview</h2>
-    <iframe id="preview" title="Project preview" sandbox="allow-scripts"></iframe>
-    <p class="muted">Preview code runs inside a sandboxed frame. Do not enter secrets into untrusted code.</p>
-  </div>
-</section>
+  <section class="editor" id="editorPanel">
+    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea>
+  </section>
 
-<section id="tapView" class="view">
-  <div class="grid two">
-    <div>
-      <div class="panel">
-        <h2>Chibi TAP</h2>
-        <div id="tapShell">
-          <div id="tapTop"><span>TAP CORE</span><span>POWER ●</span></div>
-          <div id="screen">TAP CORE READY</div>
-          <div id="tapControls">
-            <div class="dpad">
-              <button class="up" onclick="tapInput('UP')">▲</button>
-              <button class="left" onclick="tapInput('LEFT')">◀</button>
-              <button class="center" onclick="tapInput('MENU')">●</button>
-              <button class="right" onclick="tapInput('RIGHT')">▶</button>
-              <button class="down" onclick="tapInput('DOWN')">▼</button>
-            </div>
-            <div class="ab">
-              <button onclick="tapInput('B')">B</button>
-              <button onclick="tapInput('A')">A</button>
-            </div>
-          </div>
-          <div id="tapFooter"><span>SELECT</span><span>START</span></div>
-        </div>
-        <div class="toolbar">
-          <button onclick="home()">TAP Home</button>
-          <button onclick="showView('code')">Code Maker</button>
-        </div>
+  <div class="controls" id="editorControls">
+    <button id="quantizeBtn">QUANTIZE</button>
+    <button id="buildBtn">BUILD</button>
+    <button id="testBtn">TEST</button>
+    <button id="exportBtn">EXPORT PROJECT</button>
+  </div>
+
+  <section class="library" id="htmlLibrary" hidden>
+    <div class="library-head">
+      <div><strong>HTML COMPONENT LIBRARY</strong><p>SELECT → PREVIEW → INSERT</p></div>
+      <button id="closeLibrary">CLOSE</button>
+    </div>
+    <input id="librarySearch" type="search" placeholder="Search HTML components...">
+    <div class="categories">
+      <button data-category="all">ALL</button>
+      <button data-category="structure">STRUCTURE</button>
+      <button data-category="interactive">INPUT</button>
+      <button data-category="layout">LAYOUT</button>
+      <button data-category="game">GAME UI</button>
+      <button data-category="tap">TAP UI</button>
+    </div>
+    <div id="libraryCount" class="small-note"></div>
+    <div class="library-grid" id="libraryGrid"></div>
+    <div class="library-detail">
+      <strong id="libraryDetailTitle">SELECT COMPONENT</strong>
+      <iframe id="libraryPreview" title="HTML component preview" sandbox=""></iframe>
+      <pre id="librarySource">Choose a component.</pre>
+      <div class="detail-actions">
+        <button id="insertComponent">INSERT INTO HTML</button>
+        <button id="copyComponent">COPY HTML</button>
       </div>
     </div>
+  </section>
 
-    <div>
-      <div class="panel">
-        <h2>Cartridge library</h2>
-        <div class="row">
-          <input id="cartSearch" placeholder="Search cartridges..." oninput="renderCartList()">
-          <select id="cartFilter" onchange="renderCartList()">
-            <option value="all">All types</option>
-            <option value="system">System</option>
-            <option value="training">Training</option>
-            <option value="game">Games</option>
-            <option value="tools">Tools</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
-        <div class="toolbar">
-          <button class="primary" onclick="newCart()">New cartridge</button>
-          <button onclick="document.getElementById('cartFile').click()">Import JS</button>
-          <input id="cartFile" type="file" accept=".js,.txt" class="hidden"
-            onchange="importCartFile(event)">
-        </div>
-        <div id="cartList"></div>
-        <hr>
-        <p class="muted">Built-in cartridges are preserved. Custom cartridges can be edited, saved, exported and launched.</p>
-      </div>
-
-      <div class="panel">
-        <h2>Cartridge editor</h2>
-        <label for="cartName">CARTRIDGE NAME</label>
-        <input id="cartName" maxlength="100" placeholder="My cartridge">
-        <div class="row" style="margin-top:8px">
-          <div>
-            <label for="cartCategory">CATEGORY</label>
-            <select id="cartCategory">
-              <option value="custom">Custom</option>
-              <option value="game">Game</option>
-              <option value="training">Training</option>
-              <option value="tools">Tools</option>
-              <option value="system">System</option>
-            </select>
-          </div>
-          <div>
-            <label for="cartVersion">VERSION</label>
-            <input id="cartVersion" value="1.0">
-          </div>
-        </div>
-        <label for="cartDescription" style="margin-top:8px">DESCRIPTION</label>
-        <input id="cartDescription" placeholder="What does this cartridge do?">
-        <label for="cartEditor" style="margin-top:8px">JAVASCRIPT SOURCE</label>
-        <textarea id="cartEditor" class="editor" spellcheck="false"></textarea>
-        <div class="toolbar">
-          <button class="primary" onclick="saveCart()">Save cartridge</button>
-          <button onclick="launchEditedCart()">Launch editor</button>
-          <button onclick="exportCart()">Export JS</button>
-        </div>
-        <p class="muted">JavaScript cartridges execute code. Only import and launch code you trust.</p>
-      </div>
-    </div>
-  </div>
-</section>
+  <section class="preview">
+    <div class="preview-title">MAIN PREVIEW • YOUR APP</div>
+    <iframe id="preview" title="Application preview" sandbox="allow-scripts"></iframe>
+  </section>
 </main>
-<div id="toast"></div>
+
+<!-- TAP CONSOLE APP -->
+<main id="tapView" class="view" hidden>
+  <div class="tap-workspace">
+    <section class="panel">
+      <div class="panel-title">TAP CORE • DEVICE INTERFACE</div>
+      <div class="tap-shell">
+        <div class="tap-brand"><span>T A P / CORE</span><span>LOCAL SYSTEM</span></div>
+        <div class="tap-screen">
+          <div class="tap-screen-inner" id="tapScreen">
+            <div class="screen-top"><span>TAP OS 1.0</span><span id="tapClock">READY</span></div>
+            <div class="screen-title">TAP CONSOLE</div>
+            <div class="screen-sub">PORTABLE APPLICATION SYSTEM<br>SELECT A CARTRIDGE TO BEGIN.</div>
+            <div class="tap-menu" id="tapMenu"></div>
+            <div class="tap-footer"><span id="tapFooter">CORE ONLINE</span><span>A: SELECT • B: BACK</span></div>
+          </div>
+        </div>
+        <div class="tap-hardware">
+          <div class="tap-dpad">
+            <button class="up" data-pad="up" aria-label="Up">▲</button>
+            <button class="down" data-pad="down" aria-label="Down">▼</button>
+            <button class="left" data-pad="left" aria-label="Left">◀</button>
+            <button class="right" data-pad="right" aria-label="Right">▶</button>
+            <div class="center"></div>
+          </div>
+          <div class="tap-buttons">
+            <button id="tapB" aria-label="Back button">B</button>
+            <button id="tapA" aria-label="Select button">A</button>
+          </div>
+        </div>
+        <div class="tap-button-labels"><span>B • BACK</span><span>A • SELECT</span></div>
+      </div>
+      <div class="console-actions">
+        <button id="tapHome">HOME</button>
+        <button id="tapReset">RESET APP</button>
+        <button id="tapSave">SAVE STATE</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">CARTRIDGE LIBRARY</div>
+      <div style="padding:10px">
+        <input id="cartSearch" style="width:100%;padding:10px;background:#080a0d;color:var(--text);border:1px solid var(--line);border-radius:5px" placeholder="Search cartridges...">
+        <div class="categories">
+          <button data-cart-category="all">ALL</button>
+          <button data-cart-category="system">SYSTEM</button>
+          <button data-cart-category="game">GAMES</button>
+          <button data-cart-category="training">TRAINING</button>
+          <button data-cart-category="tools">TOOLS</button>
+        </div>
+        <div class="library-grid" id="cartGrid"></div>
+        <div class="library-detail">
+          <strong id="cartDetailTitle">SELECT A CARTRIDGE</strong>
+          <p id="cartDescription" class="small-note">Choose a cartridge to view its details.</p>
+          <div class="detail-actions">
+            <button id="launchCart">INSERT / LAUNCH</button>
+            <button id="cartInfo">DETAILS</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel" style="margin-top:8px">
+    <div class="panel-title">CARTRIDGE DEVELOPER</div>
+    <div style="padding:12px">
+      <p class="small-note">Load a compatible TAP_CARTRIDGE JavaScript definition from a local .js file. Only load code you trust; cartridges execute in this page.</p>
+      <input type="file" id="cartFile" accept=".js,text/javascript" style="max-width:100%">
+      <div class="controls">
+        <button id="importCart">IMPORT JS CARTRIDGE</button>
+        <button id="exportCart">EXPORT SELECTED CARTRIDGE</button>
+      </div>
+      <p class="small-note">Built-in cartridges are available immediately. Imported cartridges are stored locally when browser storage permits.</p>
+    </div>
+  </section>
+</main>
+
+<div class="status" id="status" role="status" aria-live="polite">READY • LOCAL MODE</div>
+</div>
 
 <script>
 "use strict";
 
-const DB_KEY = "tap_code_maker_dual_v1";
+/* SHARED PROJECT DATA */
+const STORAGE_KEY = "codeMakerTap.project.v1";
+const CART_STORAGE = "codeMakerTap.cartridges.v1";
+const STATE_STORAGE = "codeMakerTap.state.v1";
+
+const defaults = {
+html:`<div class="demo">
+  <h1>My App</h1>
+  <p>Built with Code Maker.</p>
+  <button onclick="hello()">PRESS</button>
+</div>`,
+css:`body{font-family:system-ui;padding:24px}
+h1{letter-spacing:2px}`,
+js:`function hello(){alert("Hello from Code Maker");}`,
+theory:`// CODE MAKER + TAP
+// HTML = structure
+// CSS = appearance
+// JS = behavior
+// CARTRIDGE = portable app module
+// INPUT → FUNCTION → OUTPUT`
+};
+
+let code = {...defaults};
+let currentLanguage = "html";
+let libraryCategory = "all";
+let selectedComponent = null;
+let selectedCartId = "welcome";
+let cartCategory = "all";
+let tapSelection = 0;
+let currentCart = null;
+let currentCartCleanup = null;
+let currentCartState = {};
+let customCartridges = [];
+
 const $ = id => document.getElementById(id);
-const uid = prefix => prefix + "_" + Date.now().toString(36) +
-  "_" + Math.random().toString(36).slice(2,7);
+const editor = $("editor");
+const status = $("status");
 
-let data = loadData();
-let currentProjectId = data.projects[0]?.id || null;
-let currentEditor = "html";
-let currentCartId = null;
-let activeCart = null;
-let saveTimer = null;
-let runningCleanup = null;
-
-function starterProject(){
-  return {
-    id:uid("project"),name:"Welcome Project",created:Date.now(),updated:Date.now(),
-    html:'<main><h1>Hello, TAP.</h1><p>Your project is saved locally.</p><button onclick="document.querySelector(\'p\').textContent=\'Button works!\'">Test button</button></main>',
-    css:'body{font-family:system-ui,sans-serif;background:#edf3df;color:#203820;padding:2rem}main{max-width:600px;margin:auto}button{padding:10px 16px;border:0;border-radius:8px;background:#234e32;color:white}',
-    js:'console.log("Welcome to Code Maker");',
-    theory:'Project notes:\\n- Build small experiments.\\n- Save projects independently from TAP cartridges.\\n- Export backups regularly.'
-  };
-}
-
-function starterCartSource(){
-return `TAP_CARTRIDGE({
-  name: "MY CUSTOM CARTRIDGE",
-  description: "A simple editable TAP cartridge",
-  version: "1.0",
-  group: "custom"
-}, function(tap) {
-  tap.onLaunch(function() {
-    let count = 0;
-    function draw() {
-      tap.ui.screen(
-        "<h2>MY CARTRIDGE</h2>" +
-        "<p>Button presses: " + count + "</p>" +
-        "<p>A = increase | B = home</p>"
-      );
-    }
-    tap.input.set([
-      {label:"A / INCREASE", action:function(){count++;draw();}},
-      {label:"B / HOME", action:function(){tap.navigation.home();}}
-    ]);
-    draw();
-  });
-});`;
-}
-
-function builtinCarts(){
-  return [
-    {id:"builtin_home",name:"TAP HOME",description:"Main console menu",category:"system",version:"1.0",builtin:true,source:""},
-    {id:"builtin_scouter",name:"SCOUTER LITE",description:"A compact stat dashboard",category:"tools",version:"1.0",builtin:true,source:""},
-    {id:"builtin_reaction",name:"REACTION LAB",description:"Practice reaction decisions",category:"training",version:"1.0",builtin:true,source:""},
-    {id:"builtin_code",name:"CODE PAD",description:"Open your saved projects",category:"tools",version:"1.0",builtin:true,source:""},
-    {id:"builtin_pixel",name:"PIXEL QUEST",description:"A tiny choice-based RPG",category:"game",version:"1.0",builtin:true,source:""}
-  ];
-}
-
-function loadData(){
-  try{
-    const parsed = JSON.parse(localStorage.getItem(DB_KEY));
-    if(parsed && Array.isArray(parsed.projects) && Array.isArray(parsed.carts)){
-      if(!parsed.projects.length) parsed.projects.push(starterProject());
-      return parsed;
-    }
-  }catch(e){}
-  return {version:1,projects:[starterProject()],carts:[],stats:{launches:0}};
-}
-
-function persist(){
-  try{
-    localStorage.setItem(DB_KEY,JSON.stringify(data));
-    $("saveStatus").textContent = "SAVED " + new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
-  }catch(e){
-    $("saveStatus").textContent = "SAVE FAILED";
-    toast("Could not save. Export a backup or free browser storage.");
-  }
-}
-
-function scheduleSave(){
-  $("saveStatus").textContent = "UNSAVED CHANGES…";
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=>{
-    if(currentProjectId){
-      const p = getProject(currentProjectId);
-      if(p) readEditorInto(p);
-    }
-    persist();
-    renderProjectList();
-  },350);
-}
-
-function toast(message){
-  $("toast").textContent=message;
-  $("toast").style.display="block";
-  clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>$("toast").style.display="none",2200);
-}
-
-function getProject(id){return data.projects.find(p=>p.id===id)}
-function allCarts(){return [...builtinCarts(),...data.carts]}
-function getCart(id){return allCarts().find(c=>c.id===id)}
-
-function showView(view){
-  $("codeView").classList.toggle("active",view==="code");
-  $("tapView").classList.toggle("active",view==="tap");
-  $("navCode").classList.toggle("active",view==="code");
-  $("navTap").classList.toggle("active",view==="tap");
-  if(view==="tap" && !activeCart) home();
-}
-
-function setEditor(type){
-  currentEditor=type;
-  ["html","css","js","theory"].forEach(k=>{
-    $("tab"+(k==="js"?"JS":k[0].toUpperCase()+k.slice(1))).classList.toggle("active",k===type);
-  });
-  const p=getProject(currentProjectId);
-  $("editor").value=p ? (p[type]||"") : "";
-  $("editorHint").textContent={
-    html:"HTML source for this project.",
-    css:"CSS source for this project.",
-    js:"JavaScript source for this project.",
-    theory:"Notes, ideas, specifications, and theory for this project."
-  }[type];
-}
-
-function readEditorInto(p){
-  if(!p)return;
-  p[currentEditor]=$("editor").value;
-  p.updated=Date.now();
-}
+function setStatus(s){status.textContent=s}
+function saveEditor(){if(["html","css","js","theory"].includes(currentLanguage))code[currentLanguage]=editor.value}
+function loadEditor(){editor.value=code[currentLanguage]||""}
 
 function saveProject(){
-  const p=getProject(currentProjectId);
-  if(!p){toast("Create a project first.");return}
-  p.name=$("projectName").value.trim()||"Untitled project";
-  readEditorInto(p);
-  persist();renderProjectList();
-  toast("Project saved");
-}
-
-function loadProject(id){
-  const p=getProject(id);if(!p)return;
-  if(currentProjectId){
-    const old=getProject(currentProjectId);
-    if(old)readEditorInto(old);
-  }
-  currentProjectId=id;
-  $("projectName").value=p.name;
-  setEditor(currentEditor);
-  renderProjectList();
-  buildProject(false);
-}
-
-function newProject(){
-  const p={id:uid("project"),name:"Untitled project",created:Date.now(),updated:Date.now(),
-    html:"",css:"",js:"",theory:""};
-  data.projects.unshift(p);
-  currentProjectId=p.id;
-  $("projectName").value=p.name;
-  ["html","css","js","theory"].forEach(k=>p[k]="");
-  setEditor("html");persist();renderProjectList();buildProject(false);
-  toast("New project created");
-}
-
-function duplicateProject(){
-  const p=getProject(currentProjectId);if(!p)return;
-  readEditorInto(p);
-  const copy={...p,id:uid("project"),name:p.name+" copy",created:Date.now(),updated:Date.now()};
-  data.projects.unshift(copy);currentProjectId=copy.id;
-  $("projectName").value=copy.name;setEditor(currentEditor);
-  persist();renderProjectList();toast("Project duplicated");
-}
-
-function deleteProject(){
-  if(data.projects.length<=1){toast("Keep at least one project.");return}
-  const p=getProject(currentProjectId);if(!p)return;
-  if(!confirm('Delete project "'+p.name+'"?'))return;
-  data.projects=data.projects.filter(x=>x.id!==currentProjectId);
-  currentProjectId=data.projects[0].id;
-  loadProject(currentProjectId);persist();renderProjectList();toast("Project deleted");
-}
-
-function renderProjectList(){
-  const root=$("projectList");root.innerHTML="";
-  data.projects.forEach(p=>{
-    const b=document.createElement("button");
-    b.className="item"+(p.id===currentProjectId?" selected":"");
-    b.innerHTML='<span class="itemText"><strong></strong><small></small></span>';
-    b.querySelector("strong").textContent=p.name;
-    b.querySelector("small").textContent="Updated "+new Date(p.updated).toLocaleString();
-    b.onclick=()=>loadProject(p.id);root.appendChild(b);
-  });
-}
-
-function buildProject(shouldSave=true){
-  const p=getProject(currentProjectId);if(!p)return;
-  if(shouldSave){readEditorInto(p);p.name=$("projectName").value.trim()||"Untitled project";p.updated=Date.now();persist();renderProjectList()}
-  const html=p.html||"";
-  const css=p.css||"";
-  const js=p.js||"";
-  $("preview").srcdoc='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css.replace(/<\/style/gi,"<\\/style")+'</style></head><body>'+html+'<script>'+js.replace(/<\/script/gi,"<\\/script")+'<\/script></body></html>';
-  toast("Preview built");
-}
-
-function clearCurrentEditor(){
-  if(!confirm("Clear the current editor tab?"))return;
-  $("editor").value="";scheduleSave();
-}
-
-async function copyEditor(){
-  try{await navigator.clipboard.writeText($("editor").value);toast("Copied")}
-  catch(e){$("editor").select();toast("Select and copy the text manually")}
-}
-
-function downloadText(filename,text,type="text/plain"){
-  const blob=new Blob([text],{type});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");a.href=url;a.download=filename;a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-
-function safeFilename(name){return (name||"untitled").replace(/[^a-z0-9-_]+/gi,"_").slice(0,70)||"untitled"}
-
-function exportProject(){
-  const p=getProject(currentProjectId);if(!p)return;
-  readEditorInto(p);p.name=$("projectName").value.trim()||p.name;persist();
-  downloadText(safeFilename(p.name)+".json",JSON.stringify(p,null,2),"application/json");
-}
-
-function exportBackup(){
-  if(currentProjectId){const p=getProject(currentProjectId);if(p)readEditorInto(p)}
-  persist();
-  downloadText("tap-code-maker-backup.json",JSON.stringify({
-    app:"TAP Code Maker",version:1,exportedAt:new Date().toISOString(),
-    projects:data.projects,carts:data.carts,stats:data.stats
-  },null,2),"application/json");
-  toast("Backup exported");
-}
-
-function importBackup(event){
-  const file=event.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{
-      const obj=JSON.parse(reader.result);
-      if(!Array.isArray(obj.projects)||!Array.isArray(obj.carts))throw new Error("Invalid backup");
-      if(!confirm("Restore backup? This replaces the current saved projects and custom cartridges."))return;
-      data.projects=obj.projects.filter(p=>p&&p.id&&typeof p==="object");
-      data.carts=obj.carts.filter(c=>c&&c.id&&typeof c==="object"&&!c.builtin);
-      if(!data.projects.length)data.projects=[starterProject()];
-      currentProjectId=data.projects[0].id;
-      currentCartId=null;persist();loadProject(currentProjectId);
-      renderProjectList();renderCartList();toast("Backup restored");
-    }catch(e){toast("Could not restore: invalid backup file")}
-    event.target.value="";
-  };
-  reader.readAsText(file);
-}
-
-function convertProjectToCart(){
-  const p=getProject(currentProjectId);if(!p)return;
-  readEditorInto(p);
-  const source=`TAP_CARTRIDGE({
-  name: ${JSON.stringify(p.name.toUpperCase())},
-  description: "Converted from Code Maker project",
-  version: "1.0",
-  group: "custom"
-}, function(tap) {
-  tap.onLaunch(function() {
-    tap.ui.screen(
-      "<h2>${escapeForJSHTML(p.name)}</h2>" +
-      "<p>Project cartridge launched.</p>" +
-      "<p>HTML, CSS and JS are stored in this cartridge source.</p>"
-    );
-  });
-});`;
-  const c={id:uid("cart"),name:p.name,description:"Converted from Code Maker project",
-    category:"custom",version:"1.0",source,created:Date.now(),updated:Date.now(),builtin:false};
-  data.carts.unshift(c);currentCartId=c.id;persist();renderCartList();fillCartEditor(c);
-  showView("tap");toast("Created separate cartridge copy");
-}
-
-function escapeForJSHTML(s){
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-}
-
-/* ---------------- TAP CARTRIDGES ---------------- */
-
-function renderCartList(){
-  const root=$("cartList");root.innerHTML="";
-  const q=$("cartSearch").value.trim().toLowerCase();
-  const filter=$("cartFilter").value;
-  allCarts().filter(c=>
-    (filter==="all"||c.category===filter||(filter==="custom"&&!c.builtin))&&
-    (c.name+" "+c.description).toLowerCase().includes(q)
-  ).forEach(c=>{
-    const b=document.createElement("button");
-    b.className="item"+(c.id===currentCartId?" selected":"");
-    b.innerHTML='<span class="itemText"><strong></strong><small></small></span><span>›</span>';
-    b.querySelector("strong").textContent=c.name;
-    b.querySelector("small").textContent=(c.category||"custom").toUpperCase()+" · "+c.description;
-    b.onclick=()=>{currentCartId=c.id;fillCartEditor(c);renderCartList()};
-    root.appendChild(b);
-  });
-}
-
-function fillCartEditor(c){
-  $("cartName").value=c.name||"";
-  $("cartCategory").value=c.category||"custom";
-  $("cartVersion").value=c.version||"1.0";
-  $("cartDescription").value=c.description||"";
-  $("cartEditor").value=c.source||"";
-  $("cartEditor").readOnly=!!c.builtin;
-  $("cartName").readOnly=!!c.builtin;
-  $("cartCategory").disabled=!!c.builtin;
-  $("cartVersion").readOnly=!!c.builtin;
-  $("cartDescription").readOnly=!!c.builtin;
-}
-
-function newCart(){
-  const c={id:uid("cart"),name:"My Cartridge",description:"Custom TAP cartridge",
-    category:"custom",version:"1.0",source:starterCartSource(),created:Date.now(),
-    updated:Date.now(),builtin:false};
-  data.carts.unshift(c);currentCartId=c.id;
-  persist();renderCartList();fillCartEditor(c);toast("New cartridge ready to edit");
-}
-
-function saveCart(){
-  let c=data.carts.find(x=>x.id===currentCartId);
-  if(!c){
-    c={id:uid("cart"),created:Date.now(),builtin:false};
-    data.carts.unshift(c);currentCartId=c.id;
-  }
-  if(c.builtin){toast("Built-in cartridges cannot be overwritten.");return}
-  c.name=$("cartName").value.trim()||"Untitled Cartridge";
-  c.category=$("cartCategory").value;
-  c.version=$("cartVersion").value.trim()||"1.0";
-  c.description=$("cartDescription").value.trim();
-  c.source=$("cartEditor").value;
-  c.updated=Date.now();persist();renderCartList();toast("Cartridge saved");
-}
-
-function exportCart(){
-  let c=getCart(currentCartId);
-  if(!c){toast("Choose or create a cartridge.");return}
-  if(!c.builtin)saveCart();
-  c=getCart(currentCartId);
-  downloadText(safeFilename(c.name)+".js",c.source||builtInSource(c.id),"text/javascript");
-}
-
-function importCartFile(event){
-  const file=event.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    const c={id:uid("cart"),name:file.name.replace(/\.js$/i,""),
-      description:"Imported JavaScript cartridge",category:"custom",version:"1.0",
-      source:String(reader.result),created:Date.now(),updated:Date.now(),builtin:false};
-    data.carts.unshift(c);currentCartId=c.id;persist();renderCartList();fillCartEditor(c);
-    toast("Imported cartridge. Review its source before launching.");
-    event.target.value="";
-  };
-  reader.readAsText(file);
-}
-
-function launchEditedCart(){
-  let c=data.carts.find(x=>x.id===currentCartId);
-  if(!c){saveCart();c=getCart(currentCartId)}
-  else if(!c.builtin)saveCart();
-  launchCartridge(c);
-}
-
-function launchCartridge(c){
-  if(!c)return;
+  saveEditor();
   try{
-    stopActiveCart();
-    if(c.builtin){
-      activeCart={id:c.id,actions:[]};
-      if(c.id==="builtin_home"){home();return}
-      if(c.id==="builtin_scouter"){launchScouter();return}
-      if(c.id==="builtin_reaction"){launchReaction();return}
-      if(c.id==="builtin_code"){launchCodePad();return}
-      if(c.id==="builtin_pixel"){launchPixelQuest();return}
-    }else{
-      let registration=null;
-      const register=(meta,factory)=>{
-        registration={meta:meta||{},factory};
-      };
-      const TAP_CARTRIDGE=register;
-      new Function("TAP_CARTRIDGE",c.source)(TAP_CARTRIDGE);
-      if(!registration||typeof registration.factory!=="function"){
-        throw new Error("Cartridge did not register. Use TAP_CARTRIDGE(metadata, function(tap){...}).");
-      }
-      const runtime=createRuntime(c);
-      registration.factory(runtime);
-      if(!runtime.launchHandler)throw new Error("Cartridge must call tap.onLaunch(function(){...}).");
-      activeCart={id:c.id,actions:[],runtime};
-      runtime.launchHandler();
-      data.stats.launches=(data.stats.launches||0)+1;persist();
-    }
-    showView("tap");
-  }catch(e){
-    activeCart=null;
-    screen("<h2>CARTRIDGE ERROR</h2><p>"+escapeHTML(e.message)+"</p><button onclick='home()'>HOME</button>");
-  }
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(code));
+    return true;
+  }catch(e){return false}
 }
 
-function createRuntime(cart){
-  const runtime={
-    launchHandler:null,actions:[],storage:{},
-    onLaunch(fn){this.launchHandler=fn},
-    ui:{
-      screen(html){screen(html)},
-      html(html){screen(html)},
-      root:$("screen")
-    },
-    message(msg){screen("<h2>"+escapeHTML(String(msg))+"</h2><button onclick='home()'>HOME</button>")},
-    input:{
-      set(items){runtime.actions=Array.isArray(items)?items:[];if(activeCart)activeCart.actions=runtime.actions},
-      clear(){runtime.actions=[];if(activeCart)activeCart.actions=[]}
-    },
-    navigation:{home},
-    util:{escapeHTML},
-    every(fn,ms){const id=setInterval(fn,ms);timers.add(id);return id},
-    after(fn,ms){const id=setTimeout(fn,ms);timers.add(id);return id}
-  };
-  runtime.storage={
-    get(key){try{return JSON.parse(localStorage.getItem("tap_cart_"+cart.id+"_"+key))}catch(e){return null}},
-    set(key,value){localStorage.setItem("tap_cart_"+cart.id+"_"+key,JSON.stringify(value))},
-    remove(key){localStorage.removeItem("tap_cart_"+cart.id+"_"+key)}
-  };
-  return runtime;
+function setView(view){
+  $("makerView").hidden=view!=="maker";
+  $("tapView").hidden=view!=="tap";
+  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  setStatus(view==="tap"?"TAP CORE • READY":"CODE MAKER • READY");
 }
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
 
-const timers=new Set();
-function stopActiveCart(){
-  timers.forEach(id=>{clearTimeout(id);clearInterval(id)});timers.clear();
-  if(runningCleanup){try{runningCleanup()}catch(e){}runningCleanup=null}
-  activeCart=null;
+function setLanguage(lang){
+  saveEditor();
+  currentLanguage=lang;
+  document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
+  const lib=lang==="library";
+  $("htmlLibrary").hidden=!lib;
+  $("editorPanel").hidden=lib;
+  $("editorControls").hidden=lib;
+  if(!lib)loadEditor();
+  setStatus(lib?"HTML LIBRARY • READY":"EDITOR • "+lang.toUpperCase());
 }
+document.querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",()=>setLanguage(b.dataset.lang)));
+editor.addEventListener("input",saveEditor);
 
-function screen(html){$("screen").innerHTML=html}
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+/* HTML COMPONENT LIBRARY */
+const components=[
+{id:"heading",name:"Heading",category:"structure",description:"Title and subtitle",html:`<section><h1>YOUR TITLE</h1><p>Your description goes here.</p></section>`},
+{id:"nav",name:"Navigation",category:"structure",description:"Navigation links",html:`<nav aria-label="Main"><a href="#home">HOME</a> <a href="#library">LIBRARY</a></nav>`},
+{id:"list",name:"List",category:"structure",description:"Structured information",html:`<section><h2>ITEMS</h2><ul><li>Item one</li><li>Item two</li><li>Item three</li></ul></section>`},
+{id:"button",name:"Action Button",category:"interactive",description:"Reusable button",html:`<button type="button" class="action-btn">PRESS</button>`},
+{id:"form",name:"Input Form",category:"interactive",description:"Input and submit",html:`<form><label for="myInput">Enter value</label><input id="myInput"><button type="submit">SUBMIT</button></form>`},
+{id:"toggle",name:"Checkbox",category:"interactive",description:"Selectable option",html:`<label><input type="checkbox"> Enable option</label>`},
+{id:"card",name:"Information Card",category:"layout",description:"Text and action",html:`<article class="info-card"><h2>Card Title</h2><p>Component description.</p><button type="button">OPEN</button></article>`},
+{id:"grid",name:"Responsive Grid",category:"layout",description:"Two-column layout",html:`<section class="component-grid"><article>MODULE 01</article><article>MODULE 02</article></section>`},
+{id:"gb",name:"Game Boy Screen",category:"game",description:"Monochrome game panel",html:`<section class="gb-screen"><small>CHIBI TAP</small><h2>PLAYER 01</h2><p>STATUS: READY</p><button type="button">START</button></section>`},
+{id:"dpad",name:"D-Pad",category:"game",description:"Directional controls",html:`<div class="game-dpad"><button>↑</button><button>←</button><button>↓</button><button>→</button></div>`},
+{id:"scouter",name:"Scouter Readout",category:"tap",description:"Power level display",html:`<section class="scouter-panel"><small>SCOUTER ANALYSIS</small><h2>POWER LEVEL</h2><output>000042</output><p>STATUS: SCANNING</p></section>`},
+{id:"stats",name:"Stat Display",category:"tap",description:"Attribute bars",html:`<section class="stat-panel"><label>STR <progress value="75" max="100"></progress></label><label>SPD <progress value="77" max="100"></progress></label><label>END <progress value="81" max="100"></progress></label></section>`},
+{id:"status",name:"System Status",category:"tap",description:"Core state readout",html:`<section class="system-status"><span>CORE: ONLINE</span><span>INPUT: READY</span><span>SAVE: LOCAL</span></section>`}
+];
 
-function home(){
-  stopActiveCart();
-  activeCart={id:"builtin_home",actions:[]};
-  screen(`<h2>TAP CORE</h2>
-    <p>SELECT CARTRIDGE</p>
-    <button onclick="launchCartridge(getCart('builtin_scouter'))">SCOUTER LITE</button><br><br>
-    <button onclick="launchCartridge(getCart('builtin_reaction'))">REACTION LAB</button><br><br>
-    <button onclick="launchCartridge(getCart('builtin_code'))">CODE PAD</button><br><br>
-    <button onclick="launchCartridge(getCart('builtin_pixel'))">PIXEL QUEST</button><br><br>
-    <p>Use the cartridge library to launch custom programs.</p>`);
+function renderComponents(){
+ const q=$("librarySearch").value.toLowerCase().trim();
+ const list=components.filter(c=>(libraryCategory==="all"||c.category===libraryCategory)&&(c.name+" "+c.description+" "+c.category).toLowerCase().includes(q));
+ $("libraryGrid").replaceChildren();
+ $("libraryCount").textContent=list.length+" COMPONENTS";
+ list.forEach(c=>{
+  const b=document.createElement("button");b.className="library-item"+(selectedComponent?.id===c.id?" selected":"");
+  const n=document.createElement("strong");n.textContent=c.name;
+  const d=document.createElement("small");d.textContent=c.description;
+  b.append(n,d);b.addEventListener("click",()=>selectComponent(c));$("libraryGrid").append(b);
+ });
 }
-
-function launchScouter(){
-  activeCart={id:"builtin_scouter",actions:[]};
-  screen(`<h2>SCOUTER LITE</h2>
-    <p>LOCAL PROFILE / TRAINING LOG</p>
-    <p>STR <b>75</b> · SPD <b>77</b></p>
-    <p>END <b>81</b> · SKL <b>49</b></p>
-    <p>CTRL <b>73</b> · TAC <b>73</b></p>
-    <p>ADAPT <b>100</b></p>
-    <button onclick="screen('<h2>SCAN COMPLETE</h2><p>Log your next result in Code Maker.</p><button onclick=&quot;home()&quot;>HOME</button>')">SCAN</button>
-    <button onclick="home()">HOME</button>`);
+function selectComponent(c){
+ selectedComponent=c;$("libraryDetailTitle").textContent=c.name.toUpperCase();
+ $("librarySource").textContent=c.html;
+ $("libraryPreview").srcdoc=`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:14px system-ui;padding:12px;color:#202630}section,article{border:1px solid #bbc3cc;padding:10px;margin:6px 0}.gb-screen{background:#9bbc0f;color:#0f380f;font-family:monospace}.scouter-panel{background:#101820;color:#63d8ff;font-family:monospace}.scouter-panel output{display:block;font-size:28px}.component-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}button,input{padding:7px}nav{display:flex;gap:10px}</style>${c.html}`;
+ renderComponents();
 }
-
-function launchReaction(){
-  let score=0,round=0,waiting=false,timeout=null;
-  activeCart={id:"builtin_reaction",actions:[]};
-  function draw(){
-    screen(`<h2>REACTION LAB</h2><p>ROUND ${round+1} / 5</p>
-      <p>SCORE: ${score}</p><p>${waiting?"TARGET! PRESS A":"READY?"}</p>
-      <button onclick="reactionHit()">A / REACT</button>
-      <button onclick="home()">HOME</button>`);
-  }
-  window.reactionHit=function(){
-    if(!waiting){score=Math.max(0,score-1);draw();return}
-    waiting=false;clearTimeout(timeout);score+=2;round++;
-    if(round>=5){screen(`<h2>SESSION COMPLETE</h2><p>SCORE: ${score}</p><button onclick="home()">HOME</button>`);return}
-    startRound();
-  };
-  function startRound(){
-    waiting=false;draw();
-    timeout=setTimeout(()=>{waiting=true;draw()},700+Math.random()*1800);
-    timers.add(timeout);
-  }
-  startRound();
-  runningCleanup=()=>{clearTimeout(timeout);delete window.reactionHit};
-}
-
-function launchCodePad(){
-  activeCart={id:"builtin_code",actions:[]};
-  screen(`<h2>CODE PAD</h2><p>${data.projects.length} SAVED PROJECT(S)</p>
-    <p>Open Code Maker to edit, preview and manage projects.</p>
-    <button onclick="showView('code')">OPEN CODE MAKER</button>
-    <button onclick="home()">HOME</button>`);
-}
-
-function launchPixelQuest(){
-  let step=0;
-  const scenes=[
-    ["FOREST GATE","A path splits in two. Choose a route.","LEFT PATH","RIGHT PATH"],
-    ["OLD SHRINE","A strange machine hums in the dark.","INSPECT","MOVE ON"],
-    ["QUEST COMPLETE","You found the signal hidden in the ruins.","RESTART","HOME"]
-  ];
-  activeCart={id:"builtin_pixel",actions:[]};
-  function draw(){
-    const s=scenes[Math.min(step,2)];
-    screen(`<h2>${s[0]}</h2><p>${s[1]}</p>
-      <button onclick="questChoice(0)">${s[2]}</button><br><br>
-      <button onclick="questChoice(1)">${s[3]}</button>`);
-  }
-  window.questChoice=function(choice){
-    if(step===2){if(choice===0)step=0;else{home();return}}
-    else step++;
-    draw();
-  };
-  draw();
-  runningCleanup=()=>delete window.questChoice;
-}
-
-function builtInSource(id){
-  const c=getCart(id);
-  if(!c)return "";
-  return starterCartSource().replace("MY CUSTOM CARTRIDGE",c.name);
-}
-
-function tapInput(key){
-  if(!activeCart){home();return}
-  if(key==="B"){home();return}
-  if(key==="MENU"){home();return}
-  const actions=activeCart.actions||[];
-  if(key==="A"&&actions.length){
-    try{
-      const item=actions[0];
-      if(typeof item.action==="function")item.action();
-      else if(typeof item.onPress==="function")item.onPress();
-    }catch(e){screen("<h2>INPUT ERROR</h2><p>"+escapeHTML(e.message)+"</p>")}
-  }
-}
-
-/* Autosave editor and cartridge form separately. */
-$("editor").addEventListener("input",scheduleSave);
-$("projectName").addEventListener("input",scheduleSave);
-["cartName","cartCategory","cartVersion","cartDescription","cartEditor"].forEach(id=>{
-  $(id).addEventListener("input",()=>{
-    if(currentCartId && !getCart(currentCartId)?.builtin){
-      clearTimeout(saveTimer);
-      $("saveStatus").textContent="UNSAVED CHANGES…";
-      saveTimer=setTimeout(saveCurrentCartSilently,450);
-    }
-  });
+document.querySelectorAll("[data-category]").forEach(b=>b.addEventListener("click",()=>{libraryCategory=b.dataset.category;renderComponents()}));
+$("librarySearch").addEventListener("input",renderComponents);
+$("closeLibrary").addEventListener("click",()=>setLanguage("html"));
+$("insertComponent").addEventListener("click",()=>{
+ if(!selectedComponent)return setStatus("SELECT A COMPONENT FIRST");
+ if(currentLanguage!=="html"){currentLanguage="html";document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang==="html"))}
+ $("htmlLibrary").hidden=true;$("editorPanel").hidden=false;$("editorControls").hidden=false;
+ loadEditor();
+ const a=editor.selectionStart??editor.value.length,z=editor.selectionEnd??editor.value.length;
+ editor.setRangeText("\n"+selectedComponent.html+"\n",a,z,"end");
+ saveEditor();editor.focus();setStatus("INSERTED • "+selectedComponent.name.toUpperCase());
 });
-function saveCurrentCartSilently(){
-  const c=data.carts.find(x=>x.id===currentCartId);
-  if(!c||c.builtin)return;
-  c.name=$("cartName").value.trim()||"Untitled Cartridge";
-  c.category=$("cartCategory").value;
-  c.version=$("cartVersion").value.trim()||"1.0";
-  c.description=$("cartDescription").value.trim();
-  c.source=$("cartEditor").value;
-  c.updated=Date.now();persist();renderCartList();
+$("copyComponent").addEventListener("click",async()=>{
+ if(!selectedComponent)return setStatus("SELECT A COMPONENT");
+ try{await navigator.clipboard.writeText(selectedComponent.html);setStatus("HTML COPIED")}
+ catch{setStatus("CLIPBOARD UNAVAILABLE • COPY FROM SOURCE PANEL")}
+});
+
+/* BUILD AND EXPORT */
+function build(){
+ saveEditor();
+ const js=code.js.replace(/<\/script/gi,"<\\/script");
+ const doc=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${code.css}</style></head><body>${code.html}<script>${js}<\/script></body></html>`;
+ $("preview").srcdoc=doc;
+ setStatus(saveProject()?"BUILD COMPLETE • PROJECT SAVED":"BUILD COMPLETE • STORAGE UNAVAILABLE");
+}
+$("buildBtn").addEventListener("click",build);
+$("quantizeBtn").addEventListener("click",()=>{
+ saveEditor();editor.value=editor.value.replace(/\r\n/g,"\n").replace(/[ \t]+$/gm,"").replace(/\n{3,}/g,"\n\n");saveEditor();setStatus("QUANTIZED • WHITESPACE NORMALIZED");
+});
+$("testBtn").addEventListener("click",()=>{
+ saveEditor();
+ try{
+  if(currentLanguage==="js")new Function(editor.value);
+  else if(currentLanguage==="css"){const s=new CSSStyleSheet();s.replaceSync(editor.value)}
+  else if(currentLanguage==="html")new DOMParser().parseFromString(editor.value,"text/html");
+  setStatus("TEST PASSED • BASIC SYNTAX CHECK");
+ }catch(e){setStatus("TEST ERROR • "+e.message)}
+});
+$("exportBtn").addEventListener("click",()=>{
+ saveEditor();download("code-maker-project.json",JSON.stringify(code,null,2),"application/json");setStatus("PROJECT EXPORTED");
+});
+function download(name,content,type){
+ const u=URL.createObjectURL(new Blob([content],{type}));
+ const a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
 }
 
-/* Make the first load deterministic. */
-if(!data.projects.length)data.projects=[starterProject()];
-persist();
-renderProjectList();
-renderCartList();
-loadProject(currentProjectId);
-home();
+/* TAP CARTRIDGE API */
+const builtInCarts=[
+{id:"welcome",name:"TAP HOME",category:"system",version:"1.0",description:"Console home screen and module launcher.",launch:homeCart},
+{id:"scouter",name:"SCOUTER LITE",category:"tools",version:"1.0",description:"View editable fictional and training stats.",launch:scouterCart},
+{id:"reaction",name:"REACTION LAB",category:"training",version:"1.0",description:"A simple reaction and timing test.",launch:reactionCart},
+{id:"statlab",name:"STAT LAB",category:"tools",version:"1.0",description:"Adjust and save local attribute values.",launch:statCart},
+{id:"codepad",name:"CODE PAD",category:"tools",version:"1.0",description:"Open the Code Maker editor.",launch:codePadCart},
+{id:"pixelquest",name:"PIXEL QUEST",category:"game",version:"1.0",description:"A small choice-driven adventure.",launch:questCart}
+];
+
+function allCarts(){return [...builtInCarts,...customCartridges]}
+function cartById(id){return allCarts().find(c=>c.id===id)}
+function renderCartLibrary(){
+ const q=$("cartSearch").value.toLowerCase().trim();
+ const list=allCarts().filter(c=>(cartCategory==="all"||c.category===cartCategory)&&(c.name+" "+c.description+" "+c.category).toLowerCase().includes(q));
+ $("cartGrid").replaceChildren();
+ list.forEach(c=>{
+  const b=document.createElement("button");b.className="library-item"+(selectedCartId===c.id?" selected":"");
+  const n=document.createElement("strong");n.textContent=c.name;
+  const d=document.createElement("small");d.textContent=c.category.toUpperCase()+" • v"+c.version;
+  b.append(n,d);b.addEventListener("click",()=>selectCart(c.id));$("cartGrid").append(b);
+ });
+ if(!list.length){const e=document.createElement("div");e.className="empty";e.textContent="No matching cartridges."; $("cartGrid").append(e)}
+}
+function selectCart(id){
+ selectedCartId=id;const c=cartById(id);if(!c)return;
+ $("cartDetailTitle").textContent=c.name;
+ $("cartDescription").textContent=c.description+" • "+c.category.toUpperCase()+" • VERSION "+c.version;
+ renderCartLibrary();
+}
+$("cartSearch").addEventListener("input",renderCartLibrary);
+document.querySelectorAll("[data-cart-category]").forEach(b=>b.addEventListener("click",()=>{cartCategory=b.dataset.cartCategory;renderCartLibrary()}));
+
+function screenBase(title,body){
+ $("tapScreen").innerHTML="";
+ const top=document.createElement("div");top.className="screen-top";
+ const left=document.createElement("span");left.textContent="TAP OS 1.0";
+ const right=document.createElement("span");right.textContent="CARTRIDGE";
+ top.append(left,right);
+ const heading=document.createElement("div");heading.className="screen-title";heading.textContent=title;
+ const content=document.createElement("div");content.id="cartContent";
+ content.innerHTML=body;
+ const footer=document.createElement("div");footer.className="tap-footer";
+ footer.innerHTML="<span id='tapFooter'>CORE ONLINE</span><span>A: SELECT • B: BACK</span>";
+ $("tapScreen").append(top,heading,content,footer);
+}
+function homeCart(){
+ currentCart={id:"welcome",name:"TAP HOME"};
+ const carts=allCarts();
+ screenBase("TAP CONSOLE",`<div class="screen-sub">SELECT CARTRIDGE</div><div class="tap-menu" id="homeMenu"></div>`);
+ const menu=$("homeMenu");
+ carts.forEach((c,i)=>{
+  const b=document.createElement("button");b.textContent=(i===tapSelection?"▶ ":"  ")+c.name;
+  b.classList.toggle("selected",i===tapSelection);
+  b.addEventListener("click",()=>{tapSelection=i;launchCartridge(c.id)});
+  menu.append(b);
+ });
+ $("tapFooter").textContent=carts.length+" CARTRIDGES";
+}
+function launchCartridge(id){
+ const c=cartById(id);if(!c)return;
+ if(typeof currentCartCleanup==="function"){try{currentCartCleanup()}catch{}}
+ currentCartCleanup=null;currentCartState={};
+ selectedCartId=id;selectCart(id);setStatus("TAP • LAUNCHING "+c.name);
+ try{c.launch({screen:screenBase,setStatus,saveState:saveTapState,getState:()=>currentCartState,setCleanup:fn=>currentCartCleanup=fn,home:homeCart})}
+ catch(e){screenBase("CARTRIDGE ERROR",`<p>${escapeHTML(e.message)}</p><button id="errHome">HOME</button>`);$("errHome").onclick=homeCart;setStatus("CARTRIDGE ERROR")}
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function home(){if(typeof currentCartCleanup==="function"){try{currentCartCleanup()}catch{}}currentCartCleanup=null;homeCart();setStatus("TAP HOME • READY")}
+$("launchCart").addEventListener("click",()=>launchCartridge(selectedCartId));
+$("cartInfo").addEventListener("click",()=>{const c=cartById(selectedCartId);if(c){screenBase("CARTRIDGE INFO",`<p>${escapeHTML(c.name)}</p><p>${escapeHTML(c.description)}</p><p>VERSION ${escapeHTML(c.version)}</p><button id="infoLaunch">LAUNCH</button>`);$("infoLaunch").onclick=()=>launchCartridge(c.id)}});
+$("tapHome").addEventListener("click",home);
+$("tapReset").addEventListener("click",()=>{home();setStatus("TAP SESSION RESET")});
+$("tapSave").addEventListener("click",()=>{saveTapState();setStatus("TAP STATE SAVED")});
+$("tapA").addEventListener("click",tapSelect);
+$("tapB").addEventListener("click",home);
+
+function moveTap(dir){
+ if(currentCart?.id==="welcome"){
+  const n=allCarts().length;
+  tapSelection=(tapSelection+(dir==="up"||dir==="left"?n-1:1))%n;
+  homeCart();
+ }else if(currentCart&&typeof currentCart.onMove==="function"){
+  currentCart.onMove(dir);
+ }
+}
+document.querySelectorAll("[data-pad]").forEach(b=>b.addEventListener("click",()=>moveTap(b.dataset.pad)));
+document.addEventListener("keydown",e=>{
+ if($("tapView").hidden)return;
+ if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName))return;
+ if(e.key==="ArrowUp"){e.preventDefault();moveTap("up")}
+ if(e.key==="ArrowDown"){e.preventDefault();moveTap("down")}
+ if(e.key==="ArrowLeft"){e.preventDefault();moveTap("left")}
+ if(e.key==="ArrowRight"){e.preventDefault();moveTap("right")}
+ if(e.key.toLowerCase()==="a")tapSelect();
+ if(e.key.toLowerCase()==="b")home();
+});
+function tapSelect(){
+ if(currentCart?.id==="welcome"){
+  const c=allCarts()[tapSelection];if(c)launchCartridge(c.id);
+ }else if(currentCart&&typeof currentCart.onSelect==="function")currentCart.onSelect();
+}
+
+/* BUILT-IN CARTRIDGES */
+function homeCart(){currentCart={id:"welcome",name:"TAP HOME"};currentCart.onMove=moveHome;currentCart.onSelect=selectHome;renderHome()}
+function renderHome(){
+ const carts=allCarts();
+ screenBase("TAP CONSOLE",`<div class="screen-sub">PORTABLE APPLICATION SYSTEM<br>SELECT A CARTRIDGE</div><div class="tap-menu" id="homeMenu"></div>`);
+ const menu=$("homeMenu");
+ carts.forEach((c,i)=>{
+  const b=document.createElement("button");b.textContent=(i===tapSelection?"▶ ":"  ")+c.name;
+  b.classList.toggle("selected",i===tapSelection);
+  b.onclick=()=>{tapSelection=i;launchCartridge(c.id)};
+  menu.append(b);
+ });
+ $("tapFooter").textContent=carts.length+" CARTRIDGES";
+}
+function moveHome(dir){
+ const n=allCarts().length;
+ tapSelection=(tapSelection+(dir==="up"||dir==="left"?n-1:1))%n;
+ renderHome();
+}
+function selectHome(){const c=allCarts()[tapSelection];if(c)launchCartridge(c.id)}
+function scouterCart(api){
+ currentCart={id:"scouter",name:"SCOUTER LITE"};
+ const stats=loadStats();
+ screenBase("SCOUTER LITE",`<div class="screen-sub">LOCAL TRAINING READOUT</div><div class="tap-menu" id="statMenu"></div><p id="statHint" class="screen-sub">A: CHANGE SELECTED VALUE</p>`);
+ const keys=["STR","SPD","END","SKL","CTRL","TAC","ADAPT"];
+ let ix=0;
+ function draw(){
+  const menu=$("statMenu");menu.replaceChildren();
+  keys.forEach((k,i)=>{
+   const b=document.createElement("button");b.classList.toggle("selected",i===ix);
+   b.textContent=(i===ix?"▶ ":"  ")+k+" : "+stats[k];
+   b.onclick=()=>{ix=i;draw()};menu.append(b);
+  });
+ }
+ currentCart.onMove=dir=>{ix=(ix+(dir==="up"||dir==="left"?keys.length-1:1))%keys.length;draw()};
+ currentCart.onSelect=()=>{const k=keys[ix];stats[k]=stats[k]>=100?0:stats[k]+5;saveStats(stats);draw();setStatus("SCOUTER • "+k+" UPDATED")};
+ draw();
+}
+function loadStats(){
+ try{return {...{STR:75,SPD:77,END:81,SKL:49,CTRL:73,TAC:73,ADAPT:100},...JSON.parse(localStorage.getItem("tapStats")||"{}")}}catch{return {STR:75,SPD:77,END:81,SKL:49,CTRL:73,TAC:73,ADAPT:100}}
+}
+function saveStats(s){try{localStorage.setItem("tapStats",JSON.stringify(s))}catch{}}
+function statCart(api){
+ currentCart={id:"statlab",name:"STAT LAB"};
+ const stats=loadStats();
+ screenBase("STAT LAB",`<div class="screen-sub">ATTRIBUTE LAB • A: ADD 5</div><div class="tap-menu" id="statMenu"></div>`);
+ const keys=Object.keys(stats);let ix=0;
+ function draw(){const m=$("statMenu");m.replaceChildren();keys.forEach((k,i)=>{const b=document.createElement("button");b.classList.toggle("selected",i===ix);b.textContent=(i===ix?"▶ ":"  ")+k+" "+stats[k];b.onclick=()=>{ix=i;draw()};m.append(b)})}
+ currentCart.onMove=dir=>{ix=(ix+(dir==="up"||dir==="left"?keys.length-1:1))%keys.length;draw()};
+ currentCart.onSelect=()=>{const k=keys[ix];stats[k]=(stats[k]+5)%121;saveStats(stats);draw()};
+ draw();
+}
+function reactionCart(){
+ currentCart={id:"reaction",name:"REACTION LAB"};
+ screenBase("REACTION LAB",`<p class="screen-sub">TAP WHEN THE SIGNAL APPEARS.</p><button id="reactStart">START TEST</button><div id="reactArea"></div>`);
+ let timer=null,started=0,armed=false;
+ $("reactStart").onclick=()=>{
+  clearTimeout(timer);armed=false;
+  $("reactArea").textContent="WAIT...";
+  timer=setTimeout(()=>{
+   armed=true;started=performance.now();
+   const b=document.createElement("button");b.textContent="NOW!";b.style.background="#0f380f";b.style.color="#9bbc0f";
+   b.onclick=()=>{if(!armed)return;armed=false;$("reactArea").textContent="REACTION: "+Math.round(performance.now()-started)+" MS"};
+   $("reactArea").replaceChildren(b);
+  },1000+Math.random()*2500);
+ };
+ currentCartCleanup=()=>clearTimeout(timer);
+}
+function questCart(){
+ currentCart={id:"pixelquest",name:"PIXEL QUEST"};
+ let stage=0;
+ const scenes=[
+  ["THE CROSSROADS","A path splits ahead.","LEFT PATH","RIGHT PATH"],
+  ["THE TRIAL","A gate blocks your way.","STUDY THE GATE","PUSH FORWARD"],
+  ["QUEST COMPLETE","You reach the checkpoint.","RESTART","HOME"]
+ ];
+ function draw(){
+  const s=scenes[stage];
+  screenBase(s[0],`<p class="screen-sub">${s[1]}</p><div class="tap-menu"><button id="questA">${s[2]}</button><button id="questB">${s[3]}</button></div>`);
+  $("questA").onclick=()=>advance(1);$("questB").onclick=()=>advance(1);
+ }
+ function advance(){stage=(stage+1)%scenes.length;draw()}
+ currentCart.onSelect=advance;currentCart.onMove=dir=>advance();
+ draw();
+}
+function codePadCart(){
+ currentCart={id:"codepad",name:"CODE PAD"};
+ screenBase("CODE PAD",`<p class="screen-sub">OPEN CODE MAKER TO EDIT YOUR PROJECT.</p><button id="openMaker">OPEN EDITOR</button><button id="openHTML">HTML LIBRARY</button>`);
+ $("openMaker").onclick=()=>{setView("maker");setLanguage("html")};
+ $("openHTML").onclick=()=>{setView("maker");setLanguage("library")};
+}
+
+/* TAP SAVE STATE */
+function saveTapState(){
+ const state={selectedCartId,tapSelection,currentCartState,savedAt:new Date().toISOString()};
+ try{localStorage.setItem(STATE_STORAGE,JSON.stringify(state))}catch{}
+}
+try{
+ const s=JSON.parse(localStorage.getItem(STATE_STORAGE)||"null");
+ if(s){selectedCartId=s.selectedCartId||"welcome";tapSelection=s.tapSelection||0;currentCartState=s.currentCartState||{}}
+}catch{}
+
+/* OPTIONAL CUSTOM JS CARTRIDGES
+   Accepted shape:
+   TAP_CARTRIDGE({name,description,version,group}, function(tap) {
+     tap.onLaunch(function() { ... });
+   });
+*/
+window.TAP_CARTRIDGE=function(meta,factory){
+ if(!meta||!meta.name||typeof factory!=="function")throw new Error("Invalid TAP cartridge");
+ const id="custom-"+String(meta.name).toLowerCase().replace(/[^a-z0-9]+/g,"-");
+ let launchHandler=null;
+ const cart={
+  id,name:String(meta.name),category:String(meta.group||"tools").toLowerCase(),
+  version:String(meta.version||"1.0"),
+  description:String(meta.description||"Imported TAP cartridge."),
+  launch(api){
+   const tap={
+    onLaunch(fn){launchHandler=fn},
+    ui:{
+     screen(content){
+      screenBase(meta.name,String(content||""));
+     },
+     html(content){
+      const el=$("cartContent");if(el)el.innerHTML=String(content);
+     },
+     root:$("tapScreen")
+    },
+    message(msg){setStatus(String(msg))},
+    storage:{
+     get(key){try{return JSON.parse(localStorage.getItem("cart:"+id+":"+key))}catch{return null}},
+     set(key,value){try{localStorage.setItem("cart:"+id+":"+key,JSON.stringify(value));return true}catch{return false}},
+     remove(key){localStorage.removeItem("cart:"+id+":"+key)}
+    },
+    input:{
+     set(buttons){
+      const menu=document.createElement("div");menu.className="tap-menu";
+      buttons.forEach(item=>{
+       const b=document.createElement("button");b.textContent=item.label;
+       b.onclick=()=>{if(typeof item.action==="function")item.action()};
+       menu.append(b);
+      });
+      const content=$("cartContent");if(content)content.append(menu);
+     }
+    },
+    navigation:{home:api.home},
+    util:{escapeHTML}
+   };
+   factory(tap);
+   if(launchHandler)launchHandler();
+  }
+ };
+ customCartridges=customCartridges.filter(c=>c.id!==id);
+ customCartridges.push(cart);
+ selectedCartId=id;
+ persistCustomList();
+ renderCartLibrary();selectCart(id);
+};
+
+/* Import user-authored JS. Imported code is executable and should be trusted. */
+function persistCustomList(){
+ try{
+  const list=customCartridges.map(c=>({id:c.id,name:c.name,category:c.category,version:c.version,description:c.description,source:c.source||""}));
+  localStorage.setItem(CART_STORAGE,JSON.stringify(list));
+ }catch{}
+}
+$("importCart").addEventListener("click",async()=>{
+ const file=$("cartFile").files[0];
+ if(!file)return setStatus("CHOOSE A JAVASCRIPT FILE FIRST");
+ try{
+  const source=await file.text();
+  // Register through the documented TAP_CARTRIDGE interface.
+  const before=new Set(customCartridges.map(c=>c.id));
+  const register=window.TAP_CARTRIDGE;
+  // Isolate the registration name locally; JavaScript remains trusted executable code.
+  new Function("TAP_CARTRIDGE",source)(register);
+  const added=customCartridges.filter(c=>!before.has(c.id));
+  if(!added.length)throw new Error("No TAP_CARTRIDGE definition found");
+  added[added.length-1].source=source;
+  persistCustomList();renderCartLibrary();
+  setStatus("CARTRIDGE IMPORTED • "+added[added.length-1].name);
+ }catch(e){setStatus("IMPORT ERROR • "+e.message)}
+});
+$("exportCart").addEventListener("click",()=>{
+ const c=cartById(selectedCartId);
+ if(!c)return setStatus("SELECT A CARTRIDGE");
+ if(!c.source)return setStatus("BUILT-IN CARTRIDGE • NO STANDALONE JS SOURCE");
+ download(c.name.toLowerCase().replace(/[^a-z0-9]+/g,"-")+".js",c.source,"text/javascript");
+ setStatus("CARTRIDGE SOURCE EXPORTED");
+});
+
+/* RESTORE PROJECT */
+try{
+ const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
+ if(saved)for(const k of Object.keys(defaults))if(typeof saved[k]==="string")code[k]=saved[k];
+}catch{}
+renderComponents();
+renderCartLibrary();
+loadEditor();
+homeCart();
+selectCart(selectedCartId);
+setStatus("READY • CODE MAKER + TAP");
 </script>
 </body>
 </html>
