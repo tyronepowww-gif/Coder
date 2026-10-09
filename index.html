@@ -4,715 +4,984 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Code Maker + TAP</title>
+<title>Code Maker • TAP Cartridge Studio</title>
 <style>
 *{box-sizing:border-box}
 :root{
   --bg:#0b0d10;--panel:#12161b;--panel2:#181e25;
   --line:#303943;--text:#edf2f7;--muted:#8995a3;
   --accent:#63d8ff;--good:#78e08f;--warn:#ffd166;
-  --gb:#9bbc0f;--gb-dark:#0f380f
 }
-body{margin:0;background:var(--bg);color:var(--text);font:14px system-ui,sans-serif}
-button,input,textarea{font:inherit}
-button{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:9px 12px;border-radius:6px;cursor:pointer;font-weight:700}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-button:hover{border-color:var(--accent)}
-.app{width:min(1250px,100%);margin:auto;padding:10px}
-header,.panel,.editor,.preview,.library,.status{border:1px solid var(--line);background:var(--panel)}
+body{margin:0;background:var(--bg);color:var(--text);
+font:14px/1.4 system-ui,sans-serif}
+button,input,select,textarea{font:inherit}
+button{border:1px solid var(--line);background:var(--panel2);
+color:var(--text);padding:9px 12px;border-radius:6px;
+cursor:pointer;font-weight:700}
+button:hover,button.active{border-color:var(--accent)}
+button:disabled{opacity:.4;cursor:not-allowed}
+input,select{background:#080a0d;color:var(--text);
+border:1px solid var(--line);border-radius:6px;padding:10px;width:100%}
+.app{width:min(1200px,100%);margin:auto;padding:12px}
+header,.panel,.editor,.preview,.status{
+border:1px solid var(--line);background:var(--panel)}
 header{padding:14px}
-.logo{font-size:1.2rem;font-weight:900;letter-spacing:.1em}
-.sub{font-size:11px;color:var(--muted);margin-top:4px}
-.main-tabs,.tabs,.controls,.categories{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
-.main-tabs button{flex:1}
-.main-tabs .active{border-color:var(--accent);color:var(--accent)}
-.tabs{overflow-x:auto;flex-wrap:nowrap}
-.tab{white-space:nowrap;color:var(--muted)}
-.tab.active{border-color:var(--accent);color:var(--text)}
-.view[hidden],.library[hidden],.editor[hidden]{display:none}
+.logo{font-size:1.25rem;font-weight:900;letter-spacing:.08em}
+.sub{font-size:.75rem;color:var(--muted);margin-top:3px}
+.tabs,.controls,.row{display:flex;gap:7px;flex-wrap:wrap}
+.tabs{margin-top:12px;overflow-x:auto}
+.tab{white-space:nowrap}
+.tab.active{border-color:var(--accent);color:white}
 .editor{margin-top:8px;background:#080a0d}
-textarea{display:block;width:100%;height:230px;resize:vertical;border:0;outline:none;padding:14px;background:transparent;color:#dce7ef;font:13px/1.55 monospace}
-.controls{padding:8px 0}
+textarea{width:100%;height:240px;resize:vertical;border:0;
+outline:none;padding:14px;background:transparent;color:#dce7ef;
+font:13px/1.55 "SFMono-Regular",Consolas,monospace}
+.controls{padding:9px 0}
 #testBtn{border-color:var(--good)}
-#exportBtn{border-color:var(--warn)}
+#exportHtmlBtn{border-color:var(--warn)}
 .preview{margin-top:8px;background:white;color:black}
-.preview-title,.panel-title{padding:9px 12px;background:var(--panel);color:var(--muted);font-size:11px;letter-spacing:.08em;font-weight:800}
-iframe{display:block;width:100%;height:260px;border:0;background:white}
-.lower{display:grid;grid-template-columns:.8fr 1.2fr;gap:8px;margin-top:8px}
+.preview-title,.panel-title{padding:9px 12px;border-bottom:1px solid var(--line);
+color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em}
+.preview iframe{width:100%;height:320px;border:0;display:block;background:white}
+.lower{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .panel{min-width:0}
-.keyboard{text-align:center;padding:15px}
-.dpad{display:grid;grid-template-columns:repeat(3,48px);justify-content:center;gap:5px;margin:12px auto}
-.key{height:43px;display:flex;align-items:center;justify-content:center;padding:4px;touch-action:manipulation;user-select:none}
+.keyboard{padding:18px;text-align:center}
+.dpad{display:grid;grid-template-columns:repeat(3,55px);
+justify-content:center;gap:5px;margin-bottom:18px}
+.key{height:46px;border:1px solid var(--line);background:#202730;
+border-radius:8px;display:flex;align-items:center;justify-content:center;
+font-weight:800;touch-action:manipulation;user-select:none}
 .blank{visibility:hidden}
-.ab{display:flex;justify-content:center;gap:12px;margin:14px}
-.ab button{width:60px;height:48px;border-radius:50%}
-.small-note{font-size:11px;color:var(--muted)}
+.ab{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
+.ab .key{width:65px}
+.engine{position:relative;height:255px;overflow:hidden;
+background:linear-gradient(var(--line) 1px,transparent 1px),
+linear-gradient(90deg,var(--line) 1px,transparent 1px);
+background-size:32px 32px}
+.axis{position:absolute;opacity:.45;pointer-events:none}
+.axis.x{left:0;right:0;top:50%;border-top:1px dashed var(--accent)}
+.axis.y{top:0;bottom:0;left:50%;border-left:1px dashed var(--accent)}
+.stick{position:absolute;left:50%;top:50%;width:42px;height:85px;
+transform:translate(-50%,-50%);transition:left .08s,top .08s}
+.head{width:20px;height:20px;border:2px solid var(--accent);
+border-radius:50%;margin:auto}
+.body{width:2px;height:28px;background:var(--accent);margin:auto}
+.arm,.leg{position:absolute;width:25px;height:2px;background:var(--accent);
+left:8px;transform-origin:left center}
+.arm{top:31px}.arm.left{transform:rotate(150deg)}
+.arm.right{transform:rotate(30deg)}
+.leg{top:58px}.leg.left{transform:rotate(115deg)}
+.leg.right{transform:rotate(65deg)}
+.engine-label{position:absolute;right:10px;bottom:8px;color:var(--muted);font:11px monospace}
 .status{margin-top:8px;padding:9px 12px;color:var(--muted);font:12px monospace;overflow-wrap:anywhere}
-
-/* TAP CONSOLE */
-.tap-shell{padding:10px;background:#d9d9d2;color:#20251b;border-radius:12px;margin:10px}
-.tap-brand{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.12em;font-weight:900;padding:3px 4px 8px}
-.tap-brand span:last-child{color:#596347}
-.tap-screen{background:#11180d;padding:7px;border-radius:4px;box-shadow:inset 0 0 0 2px #6a715d}
-.tap-screen-inner{min-height:260px;background:var(--gb);color:var(--gb-dark);font-family:monospace;padding:12px;position:relative;overflow:hidden}
-.screen-top{display:flex;justify-content:space-between;font-size:10px;border-bottom:1px solid #54701a;padding-bottom:6px;margin-bottom:10px}
-.screen-title{font-size:19px;font-weight:900;letter-spacing:.04em;margin:10px 0}
-.screen-sub{font-size:11px;line-height:1.5}
-.tap-menu{display:grid;gap:5px;margin-top:12px}
-.tap-menu button{background:transparent;border:1px solid #4f681b;color:var(--gb-dark);border-radius:0;text-align:left;font:700 12px monospace;padding:9px}
-.tap-menu button.selected,.tap-menu button:focus{background:var(--gb-dark);color:var(--gb)}
-.tap-footer{display:flex;justify-content:space-between;margin-top:12px;padding-top:7px;border-top:1px solid #54701a;font-size:9px}
-.tap-hardware{display:flex;justify-content:space-between;align-items:center;padding:15px 8px 4px}
-.tap-dpad{width:112px;height:112px;position:relative}
-.tap-dpad button{position:absolute;width:36px;height:36px;padding:0;background:#30343a;color:#e6e6e6;border:0;border-radius:5px;font-size:17px;box-shadow:0 2px 0 #111}
-.tap-dpad .up{top:0;left:38px}
-.tap-dpad .down{bottom:0;left:38px}
-.tap-dpad .left{top:38px;left:0}
-.tap-dpad .right{top:38px;right:0}
-.tap-dpad .center{position:absolute;top:38px;left:38px;width:36px;height:36px;background:#24282d}
-.tap-buttons{display:flex;gap:12px;transform:rotate(-20deg)}
-.tap-buttons button{width:47px;height:47px;border-radius:50%;border:0;background:#8c243b;color:white;box-shadow:0 3px 0 #531326}
-.tap-buttons button:last-child{background:#394d82;box-shadow:0 3px 0 #202d51}
-.tap-button-labels{display:flex;gap:32px;justify-content:flex-end;padding:0 10px;color:#394047;font-size:10px;font-weight:900}
-.console-actions{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 12px}
-.console-actions button{background:#30343a;color:white;font-size:11px}
-
-/* LIBRARY */
-.library{padding:10px;margin-top:8px}
-.library-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.library-head p{font-size:10px;color:var(--muted)}
-#librarySearch{width:100%;padding:11px;margin:8px 0;background:#080a0d;color:var(--text);border:1px solid var(--line);border-radius:5px}
-.categories{margin:5px 0 10px}
-.categories button{font-size:10px;padding:7px}
-.library-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.library-item{text-align:left;min-width:0;padding:10px}
-.library-item.selected{border-color:var(--accent)}
-.library-item small{display:block;color:var(--muted);font-weight:400;font-size:10px;margin-top:5px}
-.library-detail{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
-#librarySource{white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto;padding:10px;background:#080a0d;color:var(--accent);font:12px/1.5 monospace}
-.detail-actions{display:flex;gap:6px;flex-wrap:wrap}
-#insertComponent,#launchCart{border-color:var(--good)}
-.empty{font-size:12px;color:var(--muted);padding:12px}
-@media(min-width:800px){
- .tap-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start}
- .tap-shell{margin:10px auto;max-width:480px}
- .library{margin-top:10px}
-}
-@media(max-width:600px){
- .app{padding:6px}
+.library{margin-top:10px}
+.library-inner{padding:12px}
+.field-label{display:block;margin:12px 0 6px;color:var(--muted);
+font:700 12px monospace;letter-spacing:.05em}
+.library-inner textarea{border:1px solid var(--line);border-radius:6px;
+background:#080a0d;min-height:180px;height:220px}
+.library-list{display:grid;gap:7px;margin:10px 0}
+.module{border:1px solid var(--line);padding:10px;border-radius:6px;
+background:var(--panel2);display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start}
+.module input{width:18px;height:18px;margin-top:3px}
+.module-name{font-weight:800;overflow-wrap:anywhere}
+.module-meta{font:11px monospace;color:var(--muted);margin-top:4px}
+.module-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.module-actions button{padding:6px 9px;font-size:12px}
+.hint{color:var(--muted);font-size:12px;margin:8px 0}
+.section-gap{margin-top:14px}
+@media(max-width:700px){
  .lower{grid-template-columns:1fr}
- .tap-screen-inner{min-height:250px}
- textarea{height:190px}
- .library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ textarea{height:200px}
+ .preview iframe{height:260px}
+ .app{padding:8px}
 }
 </style>
 </head>
 <body>
 <div class="app">
-<header>
-  <div class="logo">CODE MAKER <span style="color:var(--accent)">×</span> TAP</div>
-  <div class="sub">LOCAL DEVELOPMENT STATION • PORTABLE CARTRIDGE CONSOLE</div>
-  <div class="main-tabs">
-    <button class="active" data-view="maker">CODE MAKER</button>
-    <button data-view="tap">TAP CONSOLE</button>
-  </div>
-</header>
 
-<!-- CODE MAKER APP -->
-<main id="makerView" class="view">
+<header>
+  <div class="logo">CODE MAKER / TAP</div>
+  <div class="sub">LOCAL BUILD ENVIRONMENT • CARTRIDGE STUDIO</div>
   <div class="tabs">
     <button class="tab active" data-lang="html">HTML</button>
     <button class="tab" data-lang="css">CSS</button>
     <button class="tab" data-lang="js">JS</button>
-    <button class="tab" data-lang="theory">THEORY</button>
-    <button class="tab" data-lang="library">HTML LIBRARY</button>
+    <button class="tab" data-lang="theory">CODE THEORY</button>
+  </div>
+</header>
+
+<section class="editor">
+  <textarea id="editor" spellcheck="false" autocapitalize="off"
+  autocomplete="off" aria-label="Code editor"></textarea>
+</section>
+
+<div class="controls">
+  <button id="quantizeBtn">QUANTIZE</button>
+  <button id="buildBtn">BUILD / PREVIEW</button>
+  <button id="testBtn">TEST</button>
+  <button id="saveBtn">SAVE PROJECT</button>
+  <button id="exportHtmlBtn">EXPORT HTML APP</button>
+  <button id="exportProjectBtn">EXPORT PROJECT JSON</button>
+</div>
+
+<!-- CARTRIDGE LIBRARY -->
+<section class="panel library">
+  <div class="panel-title">TAP CARTRIDGE MANAGER / CODE LIBRARY</div>
+  <div class="library-inner">
+    <div class="hint">
+      Install code as text. Select modules to assemble them into a build.
+      Installing does not execute code.
+    </div>
+
+    <label class="field-label" for="moduleName">MODULE NAME</label>
+    <input id="moduleName" placeholder="e.g. Korin Tower">
+
+    <label class="field-label" for="moduleType">MODULE TYPE</label>
+    <select id="moduleType">
+      <option value="js">JS CARTRIDGE</option>
+      <option value="html">HTML APP / COMPONENT</option>
+      <option value="css">CSS STYLE MODULE</option>
+    </select>
+
+    <label class="field-label" for="moduleText">PASTE CODE TO INSTALL</label>
+    <textarea id="moduleText" spellcheck="false"
+      placeholder="Paste HTML, CSS, or JavaScript cartridge code..."></textarea>
+
+    <div class="controls">
+      <button id="installBtn">INSTALL / UPDATE MODULE</button>
+      <button id="clearInstallBtn">CLEAR FORM</button>
+      <button id="importLibraryBtn">IMPORT LIBRARY JSON</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+    </div>
+
+    <div class="section-gap panel-title">INSTALLED MODULES</div>
+    <div class="hint">
+      Select multiple modules. Build order is HTML, CSS, then JavaScript.
+      Selected modules of a type replace that editor's content for this build.
+      If none of a type are selected, the editor content is used.
+    </div>
+    <div id="moduleList" class="library-list"></div>
+
+    <div class="controls">
+      <button id="loadSelectedBtn">LOAD SELECTED INTO EDITORS</button>
+      <button id="deleteSelectedBtn">DELETE SELECTED</button>
+      <button id="exportLibraryBtn">EXPORT LIBRARY JSON</button>
+    </div>
+    <div class="controls">
+      <button id="clearSelectionBtn">CLEAR BUILD SELECTION</button>
+    </div>
+    <div id="libraryStatus" class="status">LIBRARY READY</div>
+  </div>
+</section>
+
+<section class="preview">
+  <div class="preview-title">MAIN PREVIEW • ASSEMBLED APPLICATION</div>
+  <iframe id="preview" title="Application preview"
+    sandbox="allow-scripts allow-forms"></iframe>
+</section>
+
+<section class="lower">
+  <div class="panel">
+    <div class="panel-title">KEYBOARD PREVIEW</div>
+    <div class="keyboard">
+      <div class="dpad">
+        <div class="key blank"></div><div class="key" data-key="ArrowUp">↑</div>
+        <div class="key blank"></div>
+        <div class="key" data-key="ArrowLeft">←</div>
+        <div class="key" data-key="ArrowDown">↓</div>
+        <div class="key" data-key="ArrowRight">→</div>
+      </div>
+      <div class="ab">
+        <div class="key" data-key="a">A</div>
+        <div class="key" data-key="b">B</div>
+      </div>
+      <div class="hint">INPUT TARGET: T ENGINE / MAIN APP</div>
+    </div>
   </div>
 
-  <section class="editor" id="editorPanel">
-    <textarea id="editor" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Code editor"></textarea>
-  </section>
-
-  <div class="controls" id="editorControls">
-    <button id="quantizeBtn">QUANTIZE</button>
-    <button id="buildBtn">BUILD</button>
-    <button id="testBtn">TEST</button>
-    <button id="exportBtn">EXPORT PROJECT</button>
+  <div class="panel">
+    <div class="panel-title">T ENGINE</div>
+    <div class="engine" id="engine">
+      <div class="axis x"></div><div class="axis y"></div>
+      <div class="stick" id="stick">
+        <div class="head"></div><div class="body"></div>
+        <div class="arm left"></div><div class="arm right"></div>
+        <div class="leg left"></div><div class="leg right"></div>
+      </div>
+      <div class="engine-label">X Y Z T</div>
+    </div>
   </div>
+</section>
 
-  <section class="library" id="htmlLibrary" hidden>
-    <div class="library-head">
-      <div><strong>HTML COMPONENT LIBRARY</strong><p>SELECT → PREVIEW → INSERT</p></div>
-      <button id="closeLibrary">CLOSE</button>
-    </div>
-    <input id="librarySearch" type="search" placeholder="Search HTML components...">
-    <div class="categories">
-      <button data-category="all">ALL</button>
-      <button data-category="structure">STRUCTURE</button>
-      <button data-category="interactive">INPUT</button>
-      <button data-category="layout">LAYOUT</button>
-      <button data-category="game">GAME UI</button>
-      <button data-category="tap">TAP UI</button>
-    </div>
-    <div id="libraryCount" class="small-note"></div>
-    <div class="library-grid" id="libraryGrid"></div>
-    <div class="library-detail">
-      <strong id="libraryDetailTitle">SELECT COMPONENT</strong>
-      <iframe id="libraryPreview" title="HTML component preview" sandbox=""></iframe>
-      <pre id="librarySource">Choose a component.</pre>
-      <div class="detail-actions">
-        <button id="insertComponent">INSERT INTO HTML</button>
-        <button id="copyComponent">COPY HTML</button>
-      </div>
-    </div>
-  </section>
-
-  <section class="preview">
-    <div class="preview-title">MAIN PREVIEW • YOUR APP</div>
-    <iframe id="preview" title="Application preview" sandbox="allow-scripts"></iframe>
-  </section>
-</main>
-
-<!-- TAP CONSOLE APP -->
-<main id="tapView" class="view" hidden>
-  <div class="tap-workspace">
-    <section class="panel">
-      <div class="panel-title">TAP CORE • DEVICE INTERFACE</div>
-      <div class="tap-shell">
-        <div class="tap-brand"><span>T A P / CORE</span><span>LOCAL SYSTEM</span></div>
-        <div class="tap-screen">
-          <div class="tap-screen-inner" id="tapScreen">
-            <div class="screen-top"><span>TAP OS 1.0</span><span id="tapClock">READY</span></div>
-            <div class="screen-title">TAP CONSOLE</div>
-            <div class="screen-sub">PORTABLE APPLICATION SYSTEM<br>SELECT A CARTRIDGE TO BEGIN.</div>
-            <div class="tap-menu" id="tapMenu"></div>
-            <div class="tap-footer"><span id="tapFooter">CORE ONLINE</span><span>A: SELECT • B: BACK</span></div>
-          </div>
-        </div>
-        <div class="tap-hardware">
-          <div class="tap-dpad">
-            <button class="up" data-pad="up" aria-label="Up">▲</button>
-            <button class="down" data-pad="down" aria-label="Down">▼</button>
-            <button class="left" data-pad="left" aria-label="Left">◀</button>
-            <button class="right" data-pad="right" aria-label="Right">▶</button>
-            <div class="center"></div>
-          </div>
-          <div class="tap-buttons">
-            <button id="tapB" aria-label="Back button">B</button>
-            <button id="tapA" aria-label="Select button">A</button>
-          </div>
-        </div>
-        <div class="tap-button-labels"><span>B • BACK</span><span>A • SELECT</span></div>
-      </div>
-      <div class="console-actions">
-        <button id="tapHome">HOME</button>
-        <button id="tapReset">RESET APP</button>
-        <button id="tapSave">SAVE STATE</button>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-title">CARTRIDGE LIBRARY</div>
-      <div style="padding:10px">
-        <input id="cartSearch" style="width:100%;padding:10px;background:#080a0d;color:var(--text);border:1px solid var(--line);border-radius:5px" placeholder="Search cartridges...">
-        <div class="categories">
-          <button data-cart-category="all">ALL</button>
-          <button data-cart-category="system">SYSTEM</button>
-          <button data-cart-category="game">GAMES</button>
-          <button data-cart-category="training">TRAINING</button>
-          <button data-cart-category="tools">TOOLS</button>
-        </div>
-        <div class="library-grid" id="cartGrid"></div>
-        <div class="library-detail">
-          <strong id="cartDetailTitle">SELECT A CARTRIDGE</strong>
-          <p id="cartDescription" class="small-note">Choose a cartridge to view its details.</p>
-          <div class="detail-actions">
-            <button id="launchCart">INSERT / LAUNCH</button>
-            <button id="cartInfo">DETAILS</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <section class="panel" style="margin-top:8px">
-    <div class="panel-title">CARTRIDGE DEVELOPER</div>
-    <div style="padding:12px">
-      <p class="small-note">Load a compatible TAP_CARTRIDGE JavaScript definition from a local .js file. Only load code you trust; cartridges execute in this page.</p>
-      <input type="file" id="cartFile" accept=".js,text/javascript" style="max-width:100%">
-      <div class="controls">
-        <button id="importCart">IMPORT JS CARTRIDGE</button>
-        <button id="exportCart">EXPORT SELECTED CARTRIDGE</button>
-      </div>
-      <p class="small-note">Built-in cartridges are available immediately. Imported cartridges are stored locally when browser storage permits.</p>
-    </div>
-  </section>
-</main>
-
-<div class="status" id="status" role="status" aria-live="polite">READY • LOCAL MODE</div>
+<div class="status" id="status">READY • LOCAL MODE</div>
 </div>
 
 <script>
 "use strict";
 
-/* SHARED PROJECT DATA */
-const STORAGE_KEY = "codeMakerTap.project.v1";
-const CART_STORAGE = "codeMakerTap.cartridges.v1";
-const STATE_STORAGE = "codeMakerTap.state.v1";
+/* =========================================================
+   PROJECT AND EDITORS
+   ========================================================= */
 
-const defaults = {
-html:`<div class="demo">
-  <h1>My App</h1>
-  <p>Built with Code Maker.</p>
-  <button onclick="hello()">PRESS</button>
-</div>`,
-css:`body{font-family:system-ui;padding:24px}
-h1{letter-spacing:2px}`,
-js:`function hello(){alert("Hello from Code Maker");}`,
-theory:`// CODE MAKER + TAP
-// HTML = structure
+const DEFAULT_CODE = {
+  html: `<main class="app">
+  <h1>My TAP App</h1>
+  <p>Build something.</p>
+  <button id="helloButton">PRESS</button>
+</main>`,
+  css: `body {
+  font-family: system-ui, sans-serif;
+  padding: 24px;
+}
+button {
+  padding: 10px 16px;
+  cursor: pointer;
+}`,
+  js: `document.getElementById("helloButton")?.addEventListener("click", () => {
+  alert("Hello from Code Maker");
+});`,
+  theory: `// HTML = structure
 // CSS = appearance
 // JS = behavior
-// CARTRIDGE = portable app module
-// INPUT → FUNCTION → OUTPUT`
+//
+// TAP CARTRIDGE = installable JS module
+// BUILD = assemble modules into an app
+// EXPORT HTML = create a standalone app
+// INSTALLING CODE DOES NOT EXECUTE IT`
 };
 
-let code = {...defaults};
+const PROJECT_KEY = "codeMakerProjectV2";
+const LIBRARY_KEY = "codeMakerLibraryV2";
+
+let code = {...DEFAULT_CODE};
 let currentLanguage = "html";
-let libraryCategory = "all";
-let selectedComponent = null;
-let selectedCartId = "welcome";
-let cartCategory = "all";
-let tapSelection = 0;
-let currentCart = null;
-let currentCartCleanup = null;
-let currentCartState = {};
-let customCartridges = [];
+let library = [];
+let selectedIds = new Set();
+let moduleEditingId = null;
+let lastBuild = null;
 
 const $ = id => document.getElementById(id);
 const editor = $("editor");
 const status = $("status");
+const preview = $("preview");
 
-function setStatus(s){status.textContent=s}
-function saveEditor(){if(["html","css","js","theory"].includes(currentLanguage))code[currentLanguage]=editor.value}
-function loadEditor(){editor.value=code[currentLanguage]||""}
-
-function saveProject(){
-  saveEditor();
-  try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(code));
-    return true;
-  }catch(e){return false}
+function say(message) {
+  status.textContent = message;
 }
 
-function setView(view){
-  $("makerView").hidden=view!=="maker";
-  $("tapView").hidden=view!=="tap";
-  document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-  setStatus(view==="tap"?"TAP CORE • READY":"CODE MAKER • READY");
-}
-document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
-
-function setLanguage(lang){
-  saveEditor();
-  currentLanguage=lang;
-  document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
-  const lib=lang==="library";
-  $("htmlLibrary").hidden=!lib;
-  $("editorPanel").hidden=lib;
-  $("editorControls").hidden=lib;
-  if(!lib)loadEditor();
-  setStatus(lib?"HTML LIBRARY • READY":"EDITOR • "+lang.toUpperCase());
-}
-document.querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",()=>setLanguage(b.dataset.lang)));
-editor.addEventListener("input",saveEditor);
-
-/* HTML COMPONENT LIBRARY */
-const components=[
-{id:"heading",name:"Heading",category:"structure",description:"Title and subtitle",html:`<section><h1>YOUR TITLE</h1><p>Your description goes here.</p></section>`},
-{id:"nav",name:"Navigation",category:"structure",description:"Navigation links",html:`<nav aria-label="Main"><a href="#home">HOME</a> <a href="#library">LIBRARY</a></nav>`},
-{id:"list",name:"List",category:"structure",description:"Structured information",html:`<section><h2>ITEMS</h2><ul><li>Item one</li><li>Item two</li><li>Item three</li></ul></section>`},
-{id:"button",name:"Action Button",category:"interactive",description:"Reusable button",html:`<button type="button" class="action-btn">PRESS</button>`},
-{id:"form",name:"Input Form",category:"interactive",description:"Input and submit",html:`<form><label for="myInput">Enter value</label><input id="myInput"><button type="submit">SUBMIT</button></form>`},
-{id:"toggle",name:"Checkbox",category:"interactive",description:"Selectable option",html:`<label><input type="checkbox"> Enable option</label>`},
-{id:"card",name:"Information Card",category:"layout",description:"Text and action",html:`<article class="info-card"><h2>Card Title</h2><p>Component description.</p><button type="button">OPEN</button></article>`},
-{id:"grid",name:"Responsive Grid",category:"layout",description:"Two-column layout",html:`<section class="component-grid"><article>MODULE 01</article><article>MODULE 02</article></section>`},
-{id:"gb",name:"Game Boy Screen",category:"game",description:"Monochrome game panel",html:`<section class="gb-screen"><small>CHIBI TAP</small><h2>PLAYER 01</h2><p>STATUS: READY</p><button type="button">START</button></section>`},
-{id:"dpad",name:"D-Pad",category:"game",description:"Directional controls",html:`<div class="game-dpad"><button>↑</button><button>←</button><button>↓</button><button>→</button></div>`},
-{id:"scouter",name:"Scouter Readout",category:"tap",description:"Power level display",html:`<section class="scouter-panel"><small>SCOUTER ANALYSIS</small><h2>POWER LEVEL</h2><output>000042</output><p>STATUS: SCANNING</p></section>`},
-{id:"stats",name:"Stat Display",category:"tap",description:"Attribute bars",html:`<section class="stat-panel"><label>STR <progress value="75" max="100"></progress></label><label>SPD <progress value="77" max="100"></progress></label><label>END <progress value="81" max="100"></progress></label></section>`},
-{id:"status",name:"System Status",category:"tap",description:"Core state readout",html:`<section class="system-status"><span>CORE: ONLINE</span><span>INPUT: READY</span><span>SAVE: LOCAL</span></section>`}
-];
-
-function renderComponents(){
- const q=$("librarySearch").value.toLowerCase().trim();
- const list=components.filter(c=>(libraryCategory==="all"||c.category===libraryCategory)&&(c.name+" "+c.description+" "+c.category).toLowerCase().includes(q));
- $("libraryGrid").replaceChildren();
- $("libraryCount").textContent=list.length+" COMPONENTS";
- list.forEach(c=>{
-  const b=document.createElement("button");b.className="library-item"+(selectedComponent?.id===c.id?" selected":"");
-  const n=document.createElement("strong");n.textContent=c.name;
-  const d=document.createElement("small");d.textContent=c.description;
-  b.append(n,d);b.addEventListener("click",()=>selectComponent(c));$("libraryGrid").append(b);
- });
-}
-function selectComponent(c){
- selectedComponent=c;$("libraryDetailTitle").textContent=c.name.toUpperCase();
- $("librarySource").textContent=c.html;
- $("libraryPreview").srcdoc=`<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font:14px system-ui;padding:12px;color:#202630}section,article{border:1px solid #bbc3cc;padding:10px;margin:6px 0}.gb-screen{background:#9bbc0f;color:#0f380f;font-family:monospace}.scouter-panel{background:#101820;color:#63d8ff;font-family:monospace}.scouter-panel output{display:block;font-size:28px}.component-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}button,input{padding:7px}nav{display:flex;gap:10px}</style>${c.html}`;
- renderComponents();
-}
-document.querySelectorAll("[data-category]").forEach(b=>b.addEventListener("click",()=>{libraryCategory=b.dataset.category;renderComponents()}));
-$("librarySearch").addEventListener("input",renderComponents);
-$("closeLibrary").addEventListener("click",()=>setLanguage("html"));
-$("insertComponent").addEventListener("click",()=>{
- if(!selectedComponent)return setStatus("SELECT A COMPONENT FIRST");
- if(currentLanguage!=="html"){currentLanguage="html";document.querySelectorAll("[data-lang]").forEach(b=>b.classList.toggle("active",b.dataset.lang==="html"))}
- $("htmlLibrary").hidden=true;$("editorPanel").hidden=false;$("editorControls").hidden=false;
- loadEditor();
- const a=editor.selectionStart??editor.value.length,z=editor.selectionEnd??editor.value.length;
- editor.setRangeText("\n"+selectedComponent.html+"\n",a,z,"end");
- saveEditor();editor.focus();setStatus("INSERTED • "+selectedComponent.name.toUpperCase());
-});
-$("copyComponent").addEventListener("click",async()=>{
- if(!selectedComponent)return setStatus("SELECT A COMPONENT");
- try{await navigator.clipboard.writeText(selectedComponent.html);setStatus("HTML COPIED")}
- catch{setStatus("CLIPBOARD UNAVAILABLE • COPY FROM SOURCE PANEL")}
-});
-
-/* BUILD AND EXPORT */
-function build(){
- saveEditor();
- const js=code.js.replace(/<\/script/gi,"<\\/script");
- const doc=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${code.css}</style></head><body>${code.html}<script>${js}<\/script></body></html>`;
- $("preview").srcdoc=doc;
- setStatus(saveProject()?"BUILD COMPLETE • PROJECT SAVED":"BUILD COMPLETE • STORAGE UNAVAILABLE");
-}
-$("buildBtn").addEventListener("click",build);
-$("quantizeBtn").addEventListener("click",()=>{
- saveEditor();editor.value=editor.value.replace(/\r\n/g,"\n").replace(/[ \t]+$/gm,"").replace(/\n{3,}/g,"\n\n");saveEditor();setStatus("QUANTIZED • WHITESPACE NORMALIZED");
-});
-$("testBtn").addEventListener("click",()=>{
- saveEditor();
- try{
-  if(currentLanguage==="js")new Function(editor.value);
-  else if(currentLanguage==="css"){const s=new CSSStyleSheet();s.replaceSync(editor.value)}
-  else if(currentLanguage==="html")new DOMParser().parseFromString(editor.value,"text/html");
-  setStatus("TEST PASSED • BASIC SYNTAX CHECK");
- }catch(e){setStatus("TEST ERROR • "+e.message)}
-});
-$("exportBtn").addEventListener("click",()=>{
- saveEditor();download("code-maker-project.json",JSON.stringify(code,null,2),"application/json");setStatus("PROJECT EXPORTED");
-});
-function download(name,content,type){
- const u=URL.createObjectURL(new Blob([content],{type}));
- const a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+function librarySay(message) {
+  $("libraryStatus").textContent = message;
 }
 
-/* TAP CARTRIDGE API */
-const builtInCarts=[
-{id:"welcome",name:"TAP HOME",category:"system",version:"1.0",description:"Console home screen and module launcher.",launch:homeCart},
-{id:"scouter",name:"SCOUTER LITE",category:"tools",version:"1.0",description:"View editable fictional and training stats.",launch:scouterCart},
-{id:"reaction",name:"REACTION LAB",category:"training",version:"1.0",description:"A simple reaction and timing test.",launch:reactionCart},
-{id:"statlab",name:"STAT LAB",category:"tools",version:"1.0",description:"Adjust and save local attribute values.",launch:statCart},
-{id:"codepad",name:"CODE PAD",category:"tools",version:"1.0",description:"Open the Code Maker editor.",launch:codePadCart},
-{id:"pixelquest",name:"PIXEL QUEST",category:"game",version:"1.0",description:"A small choice-driven adventure.",launch:questCart}
-];
-
-function allCarts(){return [...builtInCarts,...customCartridges]}
-function cartById(id){return allCarts().find(c=>c.id===id)}
-function renderCartLibrary(){
- const q=$("cartSearch").value.toLowerCase().trim();
- const list=allCarts().filter(c=>(cartCategory==="all"||c.category===cartCategory)&&(c.name+" "+c.description+" "+c.category).toLowerCase().includes(q));
- $("cartGrid").replaceChildren();
- list.forEach(c=>{
-  const b=document.createElement("button");b.className="library-item"+(selectedCartId===c.id?" selected":"");
-  const n=document.createElement("strong");n.textContent=c.name;
-  const d=document.createElement("small");d.textContent=c.category.toUpperCase()+" • v"+c.version;
-  b.append(n,d);b.addEventListener("click",()=>selectCart(c.id));$("cartGrid").append(b);
- });
- if(!list.length){const e=document.createElement("div");e.className="empty";e.textContent="No matching cartridges."; $("cartGrid").append(e)}
-}
-function selectCart(id){
- selectedCartId=id;const c=cartById(id);if(!c)return;
- $("cartDetailTitle").textContent=c.name;
- $("cartDescription").textContent=c.description+" • "+c.category.toUpperCase()+" • VERSION "+c.version;
- renderCartLibrary();
-}
-$("cartSearch").addEventListener("input",renderCartLibrary);
-document.querySelectorAll("[data-cart-category]").forEach(b=>b.addEventListener("click",()=>{cartCategory=b.dataset.cartCategory;renderCartLibrary()}));
-
-function screenBase(title,body){
- $("tapScreen").innerHTML="";
- const top=document.createElement("div");top.className="screen-top";
- const left=document.createElement("span");left.textContent="TAP OS 1.0";
- const right=document.createElement("span");right.textContent="CARTRIDGE";
- top.append(left,right);
- const heading=document.createElement("div");heading.className="screen-title";heading.textContent=title;
- const content=document.createElement("div");content.id="cartContent";
- content.innerHTML=body;
- const footer=document.createElement("div");footer.className="tap-footer";
- footer.innerHTML="<span id='tapFooter'>CORE ONLINE</span><span>A: SELECT • B: BACK</span>";
- $("tapScreen").append(top,heading,content,footer);
-}
-function homeCart(){
- currentCart={id:"welcome",name:"TAP HOME"};
- const carts=allCarts();
- screenBase("TAP CONSOLE",`<div class="screen-sub">SELECT CARTRIDGE</div><div class="tap-menu" id="homeMenu"></div>`);
- const menu=$("homeMenu");
- carts.forEach((c,i)=>{
-  const b=document.createElement("button");b.textContent=(i===tapSelection?"▶ ":"  ")+c.name;
-  b.classList.toggle("selected",i===tapSelection);
-  b.addEventListener("click",()=>{tapSelection=i;launchCartridge(c.id)});
-  menu.append(b);
- });
- $("tapFooter").textContent=carts.length+" CARTRIDGES";
-}
-function launchCartridge(id){
- const c=cartById(id);if(!c)return;
- if(typeof currentCartCleanup==="function"){try{currentCartCleanup()}catch{}}
- currentCartCleanup=null;currentCartState={};
- selectedCartId=id;selectCart(id);setStatus("TAP • LAUNCHING "+c.name);
- try{c.launch({screen:screenBase,setStatus,saveState:saveTapState,getState:()=>currentCartState,setCleanup:fn=>currentCartCleanup=fn,home:homeCart})}
- catch(e){screenBase("CARTRIDGE ERROR",`<p>${escapeHTML(e.message)}</p><button id="errHome">HOME</button>`);$("errHome").onclick=homeCart;setStatus("CARTRIDGE ERROR")}
-}
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function home(){if(typeof currentCartCleanup==="function"){try{currentCartCleanup()}catch{}}currentCartCleanup=null;homeCart();setStatus("TAP HOME • READY")}
-$("launchCart").addEventListener("click",()=>launchCartridge(selectedCartId));
-$("cartInfo").addEventListener("click",()=>{const c=cartById(selectedCartId);if(c){screenBase("CARTRIDGE INFO",`<p>${escapeHTML(c.name)}</p><p>${escapeHTML(c.description)}</p><p>VERSION ${escapeHTML(c.version)}</p><button id="infoLaunch">LAUNCH</button>`);$("infoLaunch").onclick=()=>launchCartridge(c.id)}});
-$("tapHome").addEventListener("click",home);
-$("tapReset").addEventListener("click",()=>{home();setStatus("TAP SESSION RESET")});
-$("tapSave").addEventListener("click",()=>{saveTapState();setStatus("TAP STATE SAVED")});
-$("tapA").addEventListener("click",tapSelect);
-$("tapB").addEventListener("click",home);
-
-function moveTap(dir){
- if(currentCart?.id==="welcome"){
-  const n=allCarts().length;
-  tapSelection=(tapSelection+(dir==="up"||dir==="left"?n-1:1))%n;
-  homeCart();
- }else if(currentCart&&typeof currentCart.onMove==="function"){
-  currentCart.onMove(dir);
- }
-}
-document.querySelectorAll("[data-pad]").forEach(b=>b.addEventListener("click",()=>moveTap(b.dataset.pad)));
-document.addEventListener("keydown",e=>{
- if($("tapView").hidden)return;
- if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName))return;
- if(e.key==="ArrowUp"){e.preventDefault();moveTap("up")}
- if(e.key==="ArrowDown"){e.preventDefault();moveTap("down")}
- if(e.key==="ArrowLeft"){e.preventDefault();moveTap("left")}
- if(e.key==="ArrowRight"){e.preventDefault();moveTap("right")}
- if(e.key.toLowerCase()==="a")tapSelect();
- if(e.key.toLowerCase()==="b")home();
-});
-function tapSelect(){
- if(currentCart?.id==="welcome"){
-  const c=allCarts()[tapSelection];if(c)launchCartridge(c.id);
- }else if(currentCart&&typeof currentCart.onSelect==="function")currentCart.onSelect();
+function loadEditor() {
+  editor.value = code[currentLanguage] ?? "";
 }
 
-/* BUILT-IN CARTRIDGES */
-function homeCart(){currentCart={id:"welcome",name:"TAP HOME"};currentCart.onMove=moveHome;currentCart.onSelect=selectHome;renderHome()}
-function renderHome(){
- const carts=allCarts();
- screenBase("TAP CONSOLE",`<div class="screen-sub">PORTABLE APPLICATION SYSTEM<br>SELECT A CARTRIDGE</div><div class="tap-menu" id="homeMenu"></div>`);
- const menu=$("homeMenu");
- carts.forEach((c,i)=>{
-  const b=document.createElement("button");b.textContent=(i===tapSelection?"▶ ":"  ")+c.name;
-  b.classList.toggle("selected",i===tapSelection);
-  b.onclick=()=>{tapSelection=i;launchCartridge(c.id)};
-  menu.append(b);
- });
- $("tapFooter").textContent=carts.length+" CARTRIDGES";
-}
-function moveHome(dir){
- const n=allCarts().length;
- tapSelection=(tapSelection+(dir==="up"||dir==="left"?n-1:1))%n;
- renderHome();
-}
-function selectHome(){const c=allCarts()[tapSelection];if(c)launchCartridge(c.id)}
-function scouterCart(api){
- currentCart={id:"scouter",name:"SCOUTER LITE"};
- const stats=loadStats();
- screenBase("SCOUTER LITE",`<div class="screen-sub">LOCAL TRAINING READOUT</div><div class="tap-menu" id="statMenu"></div><p id="statHint" class="screen-sub">A: CHANGE SELECTED VALUE</p>`);
- const keys=["STR","SPD","END","SKL","CTRL","TAC","ADAPT"];
- let ix=0;
- function draw(){
-  const menu=$("statMenu");menu.replaceChildren();
-  keys.forEach((k,i)=>{
-   const b=document.createElement("button");b.classList.toggle("selected",i===ix);
-   b.textContent=(i===ix?"▶ ":"  ")+k+" : "+stats[k];
-   b.onclick=()=>{ix=i;draw()};menu.append(b);
-  });
- }
- currentCart.onMove=dir=>{ix=(ix+(dir==="up"||dir==="left"?keys.length-1:1))%keys.length;draw()};
- currentCart.onSelect=()=>{const k=keys[ix];stats[k]=stats[k]>=100?0:stats[k]+5;saveStats(stats);draw();setStatus("SCOUTER • "+k+" UPDATED")};
- draw();
-}
-function loadStats(){
- try{return {...{STR:75,SPD:77,END:81,SKL:49,CTRL:73,TAC:73,ADAPT:100},...JSON.parse(localStorage.getItem("tapStats")||"{}")}}catch{return {STR:75,SPD:77,END:81,SKL:49,CTRL:73,TAC:73,ADAPT:100}}
-}
-function saveStats(s){try{localStorage.setItem("tapStats",JSON.stringify(s))}catch{}}
-function statCart(api){
- currentCart={id:"statlab",name:"STAT LAB"};
- const stats=loadStats();
- screenBase("STAT LAB",`<div class="screen-sub">ATTRIBUTE LAB • A: ADD 5</div><div class="tap-menu" id="statMenu"></div>`);
- const keys=Object.keys(stats);let ix=0;
- function draw(){const m=$("statMenu");m.replaceChildren();keys.forEach((k,i)=>{const b=document.createElement("button");b.classList.toggle("selected",i===ix);b.textContent=(i===ix?"▶ ":"  ")+k+" "+stats[k];b.onclick=()=>{ix=i;draw()};m.append(b)})}
- currentCart.onMove=dir=>{ix=(ix+(dir==="up"||dir==="left"?keys.length-1:1))%keys.length;draw()};
- currentCart.onSelect=()=>{const k=keys[ix];stats[k]=(stats[k]+5)%121;saveStats(stats);draw()};
- draw();
-}
-function reactionCart(){
- currentCart={id:"reaction",name:"REACTION LAB"};
- screenBase("REACTION LAB",`<p class="screen-sub">TAP WHEN THE SIGNAL APPEARS.</p><button id="reactStart">START TEST</button><div id="reactArea"></div>`);
- let timer=null,started=0,armed=false;
- $("reactStart").onclick=()=>{
-  clearTimeout(timer);armed=false;
-  $("reactArea").textContent="WAIT...";
-  timer=setTimeout(()=>{
-   armed=true;started=performance.now();
-   const b=document.createElement("button");b.textContent="NOW!";b.style.background="#0f380f";b.style.color="#9bbc0f";
-   b.onclick=()=>{if(!armed)return;armed=false;$("reactArea").textContent="REACTION: "+Math.round(performance.now()-started)+" MS"};
-   $("reactArea").replaceChildren(b);
-  },1000+Math.random()*2500);
- };
- currentCartCleanup=()=>clearTimeout(timer);
-}
-function questCart(){
- currentCart={id:"pixelquest",name:"PIXEL QUEST"};
- let stage=0;
- const scenes=[
-  ["THE CROSSROADS","A path splits ahead.","LEFT PATH","RIGHT PATH"],
-  ["THE TRIAL","A gate blocks your way.","STUDY THE GATE","PUSH FORWARD"],
-  ["QUEST COMPLETE","You reach the checkpoint.","RESTART","HOME"]
- ];
- function draw(){
-  const s=scenes[stage];
-  screenBase(s[0],`<p class="screen-sub">${s[1]}</p><div class="tap-menu"><button id="questA">${s[2]}</button><button id="questB">${s[3]}</button></div>`);
-  $("questA").onclick=()=>advance(1);$("questB").onclick=()=>advance(1);
- }
- function advance(){stage=(stage+1)%scenes.length;draw()}
- currentCart.onSelect=advance;currentCart.onMove=dir=>advance();
- draw();
-}
-function codePadCart(){
- currentCart={id:"codepad",name:"CODE PAD"};
- screenBase("CODE PAD",`<p class="screen-sub">OPEN CODE MAKER TO EDIT YOUR PROJECT.</p><button id="openMaker">OPEN EDITOR</button><button id="openHTML">HTML LIBRARY</button>`);
- $("openMaker").onclick=()=>{setView("maker");setLanguage("html")};
- $("openHTML").onclick=()=>{setView("maker");setLanguage("library")};
-}
-
-/* TAP SAVE STATE */
-function saveTapState(){
- const state={selectedCartId,tapSelection,currentCartState,savedAt:new Date().toISOString()};
- try{localStorage.setItem(STATE_STORAGE,JSON.stringify(state))}catch{}
-}
-try{
- const s=JSON.parse(localStorage.getItem(STATE_STORAGE)||"null");
- if(s){selectedCartId=s.selectedCartId||"welcome";tapSelection=s.tapSelection||0;currentCartState=s.currentCartState||{}}
-}catch{}
-
-/* OPTIONAL CUSTOM JS CARTRIDGES
-   Accepted shape:
-   TAP_CARTRIDGE({name,description,version,group}, function(tap) {
-     tap.onLaunch(function() { ... });
-   });
-*/
-window.TAP_CARTRIDGE=function(meta,factory){
- if(!meta||!meta.name||typeof factory!=="function")throw new Error("Invalid TAP cartridge");
- const id="custom-"+String(meta.name).toLowerCase().replace(/[^a-z0-9]+/g,"-");
- let launchHandler=null;
- const cart={
-  id,name:String(meta.name),category:String(meta.group||"tools").toLowerCase(),
-  version:String(meta.version||"1.0"),
-  description:String(meta.description||"Imported TAP cartridge."),
-  launch(api){
-   const tap={
-    onLaunch(fn){launchHandler=fn},
-    ui:{
-     screen(content){
-      screenBase(meta.name,String(content||""));
-     },
-     html(content){
-      const el=$("cartContent");if(el)el.innerHTML=String(content);
-     },
-     root:$("tapScreen")
-    },
-    message(msg){setStatus(String(msg))},
-    storage:{
-     get(key){try{return JSON.parse(localStorage.getItem("cart:"+id+":"+key))}catch{return null}},
-     set(key,value){try{localStorage.setItem("cart:"+id+":"+key,JSON.stringify(value));return true}catch{return false}},
-     remove(key){localStorage.removeItem("cart:"+id+":"+key)}
-    },
-    input:{
-     set(buttons){
-      const menu=document.createElement("div");menu.className="tap-menu";
-      buttons.forEach(item=>{
-       const b=document.createElement("button");b.textContent=item.label;
-       b.onclick=()=>{if(typeof item.action==="function")item.action()};
-       menu.append(b);
-      });
-      const content=$("cartContent");if(content)content.append(menu);
-     }
-    },
-    navigation:{home:api.home},
-    util:{escapeHTML}
-   };
-   factory(tap);
-   if(launchHandler)launchHandler();
+function saveEditor() {
+  if (currentLanguage !== "theory") {
+    code[currentLanguage] = editor.value;
+  } else {
+    code.theory = editor.value;
   }
- };
- customCartridges=customCartridges.filter(c=>c.id!==id);
- customCartridges.push(cart);
- selectedCartId=id;
- persistCustomList();
- renderCartLibrary();selectCart(id);
-};
-
-/* Import user-authored JS. Imported code is executable and should be trusted. */
-function persistCustomList(){
- try{
-  const list=customCartridges.map(c=>({id:c.id,name:c.name,category:c.category,version:c.version,description:c.description,source:c.source||""}));
-  localStorage.setItem(CART_STORAGE,JSON.stringify(list));
- }catch{}
 }
-$("importCart").addEventListener("click",async()=>{
- const file=$("cartFile").files[0];
- if(!file)return setStatus("CHOOSE A JAVASCRIPT FILE FIRST");
- try{
-  const source=await file.text();
-  // Register through the documented TAP_CARTRIDGE interface.
-  const before=new Set(customCartridges.map(c=>c.id));
-  const register=window.TAP_CARTRIDGE;
-  // Isolate the registration name locally; JavaScript remains trusted executable code.
-  new Function("TAP_CARTRIDGE",source)(register);
-  const added=customCartridges.filter(c=>!before.has(c.id));
-  if(!added.length)throw new Error("No TAP_CARTRIDGE definition found");
-  added[added.length-1].source=source;
-  persistCustomList();renderCartLibrary();
-  setStatus("CARTRIDGE IMPORTED • "+added[added.length-1].name);
- }catch(e){setStatus("IMPORT ERROR • "+e.message)}
-});
-$("exportCart").addEventListener("click",()=>{
- const c=cartById(selectedCartId);
- if(!c)return setStatus("SELECT A CARTRIDGE");
- if(!c.source)return setStatus("BUILT-IN CARTRIDGE • NO STANDALONE JS SOURCE");
- download(c.name.toLowerCase().replace(/[^a-z0-9]+/g,"-")+".js",c.source,"text/javascript");
- setStatus("CARTRIDGE SOURCE EXPORTED");
+
+editor.addEventListener("input", saveEditor);
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    saveEditor();
+    currentLanguage = tab.dataset.lang;
+    document.querySelectorAll(".tab").forEach(t =>
+      t.classList.toggle("active", t === tab)
+    );
+    loadEditor();
+    say("EDITOR • " + currentLanguage.toUpperCase());
+  });
 });
 
-/* RESTORE PROJECT */
-try{
- const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
- if(saved)for(const k of Object.keys(defaults))if(typeof saved[k]==="string")code[k]=saved[k];
-}catch{}
-renderComponents();
-renderCartLibrary();
+/* =========================================================
+   LOCAL PROJECT SAVE / RESTORE
+   ========================================================= */
+
+function saveProject() {
+  saveEditor();
+  try {
+    localStorage.setItem(PROJECT_KEY, JSON.stringify(code));
+    say("PROJECT SAVED • LOCAL STORAGE");
+  } catch (error) {
+    say("SAVE ERROR • " + error.message);
+  }
+}
+
+function restoreProject() {
+  try {
+    const raw = localStorage.getItem(PROJECT_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    for (const key of ["html","css","js","theory"]) {
+      if (typeof parsed[key] === "string") code[key] = parsed[key];
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+$("saveBtn").addEventListener("click", saveProject);
+
+/* =========================================================
+   LIBRARY DATA
+   ========================================================= */
+
+function persistLibrary() {
+  try {
+    localStorage.setItem(LIBRARY_KEY, JSON.stringify(library));
+    return true;
+  } catch (error) {
+    librarySay("LIBRARY SAVE ERROR • " + error.message);
+    return false;
+  }
+}
+
+function restoreLibrary() {
+  try {
+    const raw = localStorage.getItem(LIBRARY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) throw new Error("Invalid library");
+
+    library = parsed.filter(item =>
+      item &&
+      typeof item.id === "string" &&
+      typeof item.name === "string" &&
+      ["html","css","js"].includes(item.type) &&
+      typeof item.content === "string"
+    );
+  } catch {
+    library = [];
+  }
+  renderLibrary();
+}
+
+function makeId() {
+  return "mod-" + Date.now().toString(36) + "-" +
+    Math.random().toString(36).slice(2, 9);
+}
+
+function installModule() {
+  const name = $("moduleName").value.trim();
+  const type = $("moduleType").value;
+  const content = $("moduleText").value;
+
+  if (!name) {
+    librarySay("INSTALL BLOCKED • ENTER MODULE NAME");
+    return;
+  }
+  if (!content.trim()) {
+    librarySay("INSTALL BLOCKED • PASTE CODE FIRST");
+    return;
+  }
+
+  // Update the module currently being edited, or install a new module.
+  let existing = moduleEditingId
+    ? library.find(m => m.id === moduleEditingId)
+    : null;
+
+  // Avoid silently replacing another module with the same name and type.
+  if (!existing) {
+    existing = library.find(m =>
+      m.name.toLowerCase() === name.toLowerCase() &&
+      m.type === type
+    );
+  }
+
+  const item = {
+    id: existing ? existing.id : makeId(),
+    name,
+    type,
+    content,
+    updatedAt: new Date().toISOString()
+  };
+
+  if (existing) {
+    library = library.map(m => m.id === existing.id ? item : m);
+    librarySay("MODULE UPDATED • " + name);
+  } else {
+    library.push(item);
+    librarySay("MODULE INSTALLED • " + name);
+  }
+
+  moduleEditingId = item.id;
+  selectedIds.add(item.id);
+
+  if (!persistLibrary()) return;
+  renderLibrary();
+}
+
+$("installBtn").addEventListener("click", installModule);
+
+$("clearInstallBtn").addEventListener("click", () => {
+  $("moduleName").value = "";
+  $("moduleText").value = "";
+  $("moduleType").value = "js";
+  moduleEditingId = null;
+  librarySay("INSTALL FORM CLEARED");
+});
+
+function editModule(id) {
+  const item = library.find(m => m.id === id);
+  if (!item) return;
+
+  moduleEditingId = item.id;
+  $("moduleName").value = item.name;
+  $("moduleType").value = item.type;
+  $("moduleText").value = item.content;
+  librarySay("EDITING MODULE • " + item.name);
+  $("moduleName").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function renderLibrary() {
+  const list = $("moduleList");
+  list.replaceChildren();
+
+  if (!library.length) {
+    const empty = document.createElement("div");
+    empty.className = "status";
+    empty.textContent = "NO MODULES INSTALLED";
+    list.appendChild(empty);
+    return;
+  }
+
+  for (const item of library) {
+    const row = document.createElement("div");
+    row.className = "module";
+
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = selectedIds.has(item.id);
+    check.setAttribute("aria-label", "Select " + item.name);
+    check.addEventListener("change", () => {
+      if (check.checked) selectedIds.add(item.id);
+      else selectedIds.delete(item.id);
+      librarySay("BUILD SELECTION • " + selectedIds.size + " MODULES");
+    });
+
+    const info = document.createElement("div");
+    const name = document.createElement("div");
+    name.className = "module-name";
+    name.textContent = item.name;
+
+    const meta = document.createElement("div");
+    meta.className = "module-meta";
+    meta.textContent = item.type.toUpperCase() +
+      " • " + item.content.length + " CHARACTERS";
+
+    const actions = document.createElement("div");
+    actions.className = "module-actions";
+
+    const edit = document.createElement("button");
+    edit.textContent = "EDIT";
+    edit.addEventListener("click", () => editModule(item.id));
+
+    const copy = document.createElement("button");
+    copy.textContent = "COPY TO INSTALL FORM";
+    copy.addEventListener("click", () => {
+      $("moduleName").value = item.name;
+      $("moduleType").value = item.type;
+      $("moduleText").value = item.content;
+      moduleEditingId = item.id;
+      librarySay("MODULE LOADED INTO INSTALL FORM");
+    });
+
+    actions.append(edit, copy);
+    info.append(name, meta, actions);
+    row.append(check, info);
+    list.appendChild(row);
+  }
+}
+
+$("clearSelectionBtn").addEventListener("click", () => {
+  selectedIds.clear();
+  renderLibrary();
+  librarySay("BUILD SELECTION CLEARED");
+});
+
+$("deleteSelectedBtn").addEventListener("click", () => {
+  if (!selectedIds.size) {
+    librarySay("SELECT MODULES TO DELETE");
+    return;
+  }
+
+  const count = selectedIds.size;
+  library = library.filter(m => !selectedIds.has(m.id));
+  selectedIds.clear();
+  moduleEditingId = null;
+
+  if (persistLibrary()) {
+    renderLibrary();
+    librarySay("DELETED " + count + " MODULES");
+  }
+});
+
+/* =========================================================
+   MODULE ASSEMBLY
+   ========================================================= */
+
+function getBuildCode() {
+  saveEditor();
+
+  const selected = library.filter(m => selectedIds.has(m.id));
+  const result = {};
+
+  for (const type of ["html","css","js"]) {
+    const modules = selected.filter(m => m.type === type);
+    result[type] = modules.length
+      ? modules.map(m =>
+          "\n/* MODULE: " + m.name.replace(/[\r\n]/g, " ") + " */\n" +
+          m.content
+        ).join("\n\n")
+      : code[type];
+  }
+
+  return result;
+}
+
+$("loadSelectedBtn").addEventListener("click", () => {
+  const selected = library.filter(m => selectedIds.has(m.id));
+  if (!selected.length) {
+    librarySay("SELECT MODULES FIRST");
+    return;
+  }
+
+  for (const type of ["html","css","js"]) {
+    const modules = selected.filter(m => m.type === type);
+    if (modules.length) {
+      code[type] = modules.map(m => m.content).join("\n\n");
+    }
+  }
+
+  if (currentLanguage !== "theory") loadEditor();
+  saveProject();
+  librarySay("SELECTED MODULES LOADED INTO PROJECT EDITORS");
+});
+
+/* =========================================================
+   TAP COMPATIBILITY RUNTIME
+   ========================================================= */
+
+// This is a starter compatibility layer, not the full Chibi TAP API.
+// It supplies common methods for simple TAP_CARTRIDGE modules.
+
+function runtimeSource() {
+  return String.raw`
+<script>
+(function(){
+  const state = {
+    launch: [],
+    buttons: [],
+    storage: Object.create(null),
+    input: [],
+    root: null,
+    screen: null
+  };
+
+  const root = document.getElementById("tap-root") ||
+    document.body.appendChild(document.createElement("main"));
+  root.id = "tap-root";
+  state.root = root;
+  state.screen = root;
+
+  const tap = {
+    onLaunch(fn) {
+      if (typeof fn === "function") state.launch.push(fn);
+    },
+    ui: {
+      get root(){ return root; },
+      get screen(){ return state.screen; },
+      html(value) {
+        root.innerHTML = String(value ?? "");
+        state.screen = root;
+      },
+      screen(value) {
+        if (typeof value === "string") root.innerHTML = value;
+        state.screen = root;
+        return root;
+      }
+    },
+    message(value) {
+      let node = document.getElementById("tap-message");
+      if (!node) {
+        node = document.createElement("div");
+        node.id = "tap-message";
+        root.appendChild(node);
+      }
+      node.textContent = String(value);
+    },
+    storage: {
+      get(key, fallback=null) {
+        return Object.prototype.hasOwnProperty.call(state.storage,key)
+          ? state.storage[key] : fallback;
+      },
+      set(key,value) { state.storage[key] = value; return value; },
+      remove(key) { delete state.storage[key]; },
+      clear() { state.storage = Object.create(null); },
+      keys() { return Object.keys(state.storage); }
+    },
+    input: {
+      clear() { state.input = []; renderButtons(); },
+      set(items) {
+        state.input = Array.isArray(items) ? items : [];
+        renderButtons();
+      },
+      button(label, action) {
+        state.input.push({label,action});
+        renderButtons();
+      },
+      collect(options) {
+        const wrapper = document.createElement("div");
+        const field = document.createElement("input");
+        field.placeholder = options?.placeholder || "Enter value";
+        const submit = document.createElement("button");
+        submit.textContent = options?.label || "OK";
+        submit.onclick = () => {
+          if (typeof options?.onSubmit === "function")
+            options.onSubmit(field.value);
+        };
+        wrapper.append(field,submit);
+        root.appendChild(wrapper);
+        return wrapper;
+      }
+    },
+    navigation: {
+      home() {
+        root.innerHTML = "<h2>TAP HOME</h2><p>Return to cartridge start.</p>";
+      }
+    },
+    util: {
+      random(min,max) {
+        return Math.floor(Math.random() * (max-min+1)) + min;
+      },
+      clamp(value,min,max) {
+        return Math.max(min,Math.min(max,value));
+      }
+    },
+    every(fn,ms) { return setInterval(fn,ms); },
+    after(fn,ms) { return setTimeout(fn,ms); }
+  };
+
+  function renderButtons() {
+    let bar = document.getElementById("tap-input-bar");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "tap-input-bar";
+      root.appendChild(bar);
+    }
+    bar.replaceChildren();
+
+    state.input.forEach(item => {
+      const button = document.createElement("button");
+      button.textContent = String(item.label ?? "ACTION");
+      button.style.margin = "4px";
+      button.onclick = () => {
+        if (typeof item.action === "function") item.action();
+        else if (typeof item.action === "string") {
+          const fn = window[item.action];
+          if (typeof fn === "function") fn();
+        }
+      };
+      bar.appendChild(button);
+    });
+  }
+
+  window.TAP_CARTRIDGE = function(metadata, factory) {
+    if (typeof metadata === "function") {
+      factory = metadata;
+      metadata = {};
+    }
+    window.__tapMetadata = metadata || {};
+    if (typeof factory !== "function") {
+      throw new Error("TAP_CARTRIDGE requires a function");
+    }
+    factory(tap);
+  };
+
+  window.addEventListener("DOMContentLoaded", function() {
+    try {
+      state.launch.forEach(fn => fn());
+    } catch (error) {
+      root.textContent = "CARTRIDGE ERROR: " + error.message;
+      console.error(error);
+    }
+  });
+})();
+<\/script>`;
+}
+
+/* =========================================================
+   SAFE DOCUMENT ASSEMBLY
+   ========================================================= */
+
+function escapeClosingScript(source) {
+  return String(source).replace(/<\/script/gi, "<\\/script");
+}
+
+function assembleDocument(buildCode) {
+  const css = buildCode.css.replace(/<\/style/gi, "<\\/style");
+  const js = escapeClosingScript(buildCode.js);
+
+  // Escape literal closing script tags in user HTML so they cannot
+  // accidentally terminate the generated assembly script.
+  const html = buildCode.html;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TAP Application</title>
+<style>
+body{font:16px system-ui,sans-serif;margin:0;padding:16px;color:#17202a}
+button,input,select,textarea{font:inherit}
+button{padding:9px 12px;cursor:pointer}
+${css}
+</style>
+</head>
+<body>
+${html}
+<div id="tap-root"></div>
+${runtimeSource()}
+<script>
+try {
+${js}
+} catch(error) {
+  document.body.insertAdjacentHTML("beforeend",
+    '<pre style="color:#b00020;white-space:pre-wrap"></pre>');
+  document.body.lastElementChild.textContent =
+    "BUILD SCRIPT ERROR: " + error.message;
+  console.error(error);
+}
+<\/script>
+</body>
+</html>`;
+}
+
+function build() {
+  try {
+    const assembled = getBuildCode();
+    const documentText = assembleDocument(assembled);
+
+    lastBuild = documentText;
+    preview.srcdoc = documentText;
+
+    try {
+      localStorage.setItem(PROJECT_KEY, JSON.stringify(code));
+    } catch {}
+
+    say("BUILD COMPLETE • " + selectedIds.size +
+      " LIBRARY MODULES SELECTED");
+  } catch (error) {
+    say("BUILD ERROR • " + error.message);
+  }
+}
+
+$("buildBtn").addEventListener("click", build);
+
+/* =========================================================
+   TEST / QUANTIZE
+   ========================================================= */
+
+$("testBtn").addEventListener("click", () => {
+  saveEditor();
+
+  try {
+    if (currentLanguage === "js") {
+      // Syntax check only; does not execute the code.
+      new Function(editor.value);
+    } else if (currentLanguage === "html") {
+      const doc = new DOMParser().parseFromString(
+        editor.value, "text/html"
+      );
+      if (!doc.documentElement) throw new Error("Invalid HTML document");
+    } else if (currentLanguage === "css") {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(editor.value);
+    }
+
+    say("TEST PASSED • BASIC SYNTAX CHECK ONLY");
+  } catch (error) {
+    say("TEST ERROR • " + error.message);
+  }
+});
+
+$("quantizeBtn").addEventListener("click", () => {
+  saveEditor();
+  const normalized = editor.value
+    .replace(/\r\n?/g,"\n")
+    .replace(/[ \t]+$/gm,"")
+    .replace(/\n{3,}/g,"\n\n");
+
+  editor.value = normalized;
+  saveEditor();
+  say("QUANTIZED • WHITESPACE NORMALIZED");
+});
+
+/* =========================================================
+   EXPORTS
+   ========================================================= */
+
+function downloadText(filename, text, mime) {
+  const blob = new Blob([text], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+$("exportHtmlBtn").addEventListener("click", () => {
+  const documentText = lastBuild || assembleDocument(getBuildCode());
+  downloadText("tap-application.html", documentText, "text/html;charset=utf-8");
+  say("HTML EXPORT REQUESTED • STANDALONE APP");
+});
+
+$("exportProjectBtn").addEventListener("click", () => {
+  saveEditor();
+  const payload = {
+    format: "CODE_MAKER_PROJECT",
+    version: 2,
+    code,
+    selectedModuleIds: [...selectedIds]
+  };
+  downloadText("code-maker-project.json",
+    JSON.stringify(payload,null,2), "application/json");
+  say("PROJECT JSON EXPORT REQUESTED");
+});
+
+$("exportLibraryBtn").addEventListener("click", () => {
+  const payload = {
+    format: "CODE_MAKER_LIBRARY",
+    version: 2,
+    modules: library
+  };
+  downloadText("code-maker-library.json",
+    JSON.stringify(payload,null,2), "application/json");
+  librarySay("LIBRARY JSON EXPORT REQUESTED");
+});
+
+/* =========================================================
+   IMPORT LIBRARY PACKAGE
+   ========================================================= */
+
+$("importLibraryBtn").addEventListener("click", () => $("importFile").click());
+
+$("importFile").addEventListener("change", async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const payload = JSON.parse(await file.text());
+    const incoming = Array.isArray(payload) ? payload : payload.modules;
+
+    if (!Array.isArray(incoming)) {
+      throw new Error("No modules array found");
+    }
+
+    const valid = incoming.filter(m =>
+      m && typeof m.name === "string" &&
+      ["html","css","js"].includes(m.type) &&
+      typeof m.content === "string"
+    );
+
+    if (!valid.length) throw new Error("No valid modules found");
+
+    for (const module of valid) {
+      const existing = library.find(m =>
+        m.name.toLowerCase() === module.name.toLowerCase() &&
+        m.type === module.type
+      );
+
+      const entry = {
+        id: existing?.id || makeId(),
+        name: module.name,
+        type: module.type,
+        content: module.content,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (existing) {
+        library = library.map(m => m.id === existing.id ? entry : m);
+      } else {
+        library.push(entry);
+      }
+    }
+
+    if (persistLibrary()) {
+      renderLibrary();
+      librarySay("IMPORTED • " + valid.length + " MODULES");
+    }
+  } catch (error) {
+    librarySay("IMPORT ERROR • " + error.message);
+  } finally {
+    event.target.value = "";
+  }
+});
+
+/* =========================================================
+   T ENGINE / KEYBOARD
+   ========================================================= */
+
+let x = 50, y = 50;
+
+function move(dx,dy) {
+  x = Math.max(8,Math.min(92,x+dx));
+  y = Math.max(12,Math.min(88,y+dy));
+  $("stick").style.left = x + "%";
+  $("stick").style.top = y + "%";
+}
+
+function activateKey(key) {
+  const button = document.querySelector('[data-key="' + key + '"]');
+  if (button) {
+    button.classList.add("active");
+    setTimeout(() => button.classList.remove("active"),100);
+  }
+
+  switch(key) {
+    case "ArrowUp": move(0,-5); break;
+    case "ArrowDown": move(0,5); break;
+    case "ArrowLeft": move(-5,0); break;
+    case "ArrowRight": move(5,0); break;
+    case "a": say("T ENGINE • A ACTION"); break;
+    case "b": say("T ENGINE • B ACTION"); break;
+  }
+}
+
+document.addEventListener("keydown", event => {
+  if (["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)) {
+    return;
+  }
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","a","b"].includes(event.key)) {
+    event.preventDefault();
+    activateKey(event.key);
+  }
+});
+
+document.querySelectorAll("[data-key]").forEach(button => {
+  button.addEventListener("pointerdown", () => activateKey(button.dataset.key));
+});
+
+/* =========================================================
+   STARTUP
+   ========================================================= */
+
+restoreProject();
 loadEditor();
-homeCart();
-selectCart(selectedCartId);
-setStatus("READY • CODE MAKER + TAP");
+restoreLibrary();
+say("READY • LOCAL MODE • CARTRIDGE MANAGER ACTIVE");
 </script>
 </body>
 </html>
