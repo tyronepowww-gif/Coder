@@ -1,987 +1,1279 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Code Maker • TAP Cartridge Studio</title>
+<title>Code Maker + Chibi TAP</title>
+
 <style>
-*{box-sizing:border-box}
-:root{
-  --bg:#0b0d10;--panel:#12161b;--panel2:#181e25;
-  --line:#303943;--text:#edf2f7;--muted:#8995a3;
-  --accent:#63d8ff;--good:#78e08f;--warn:#ffd166;
+:root {
+  --bg:#0b0d10;
+  --panel:#12161b;
+  --panel2:#1b222b;
+  --line:#303943;
+  --text:#edf2f7;
+  --muted:#8995a3;
+  --blue:#63d8ff;
+  --green:#78e08f;
+  --yellow:#ffd166;
+  --screen:#9bbc0f;
+  --ink:#0f380f;
 }
-body{margin:0;background:var(--bg);color:var(--text);
-font:14px/1.4 system-ui,sans-serif}
-button,input,select,textarea{font:inherit}
-button{border:1px solid var(--line);background:var(--panel2);
-color:var(--text);padding:9px 12px;border-radius:6px;
-cursor:pointer;font-weight:700}
-button:hover,button.active{border-color:var(--accent)}
-button:disabled{opacity:.4;cursor:not-allowed}
-input,select{background:#080a0d;color:var(--text);
-border:1px solid var(--line);border-radius:6px;padding:10px;width:100%}
-.app{width:min(1200px,100%);margin:auto;padding:12px}
-header,.panel,.editor,.preview,.status{
-border:1px solid var(--line);background:var(--panel)}
-header{padding:14px}
-.logo{font-size:1.25rem;font-weight:900;letter-spacing:.08em}
-.sub{font-size:.75rem;color:var(--muted);margin-top:3px}
-.tabs,.controls,.row{display:flex;gap:7px;flex-wrap:wrap}
-.tabs{margin-top:12px;overflow-x:auto}
-.tab{white-space:nowrap}
-.tab.active{border-color:var(--accent);color:white}
-.editor{margin-top:8px;background:#080a0d}
-textarea{width:100%;height:240px;resize:vertical;border:0;
-outline:none;padding:14px;background:transparent;color:#dce7ef;
-font:13px/1.55 "SFMono-Regular",Consolas,monospace}
-.controls{padding:9px 0}
-#testBtn{border-color:var(--good)}
-#exportHtmlBtn{border-color:var(--warn)}
-.preview{margin-top:8px;background:white;color:black}
-.preview-title,.panel-title{padding:9px 12px;border-bottom:1px solid var(--line);
-color:var(--muted);font-size:.72rem;font-weight:800;letter-spacing:.08em}
-.preview iframe{width:100%;height:320px;border:0;display:block;background:white}
-.lower{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.panel{min-width:0}
-.keyboard{padding:18px;text-align:center}
-.dpad{display:grid;grid-template-columns:repeat(3,55px);
-justify-content:center;gap:5px;margin-bottom:18px}
-.key{height:46px;border:1px solid var(--line);background:#202730;
-border-radius:8px;display:flex;align-items:center;justify-content:center;
-font-weight:800;touch-action:manipulation;user-select:none}
-.blank{visibility:hidden}
-.ab{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
-.ab .key{width:65px}
-.engine{position:relative;height:255px;overflow:hidden;
-background:linear-gradient(var(--line) 1px,transparent 1px),
-linear-gradient(90deg,var(--line) 1px,transparent 1px);
-background-size:32px 32px}
-.axis{position:absolute;opacity:.45;pointer-events:none}
-.axis.x{left:0;right:0;top:50%;border-top:1px dashed var(--accent)}
-.axis.y{top:0;bottom:0;left:50%;border-left:1px dashed var(--accent)}
-.stick{position:absolute;left:50%;top:50%;width:42px;height:85px;
-transform:translate(-50%,-50%);transition:left .08s,top .08s}
-.head{width:20px;height:20px;border:2px solid var(--accent);
-border-radius:50%;margin:auto}
-.body{width:2px;height:28px;background:var(--accent);margin:auto}
-.arm,.leg{position:absolute;width:25px;height:2px;background:var(--accent);
-left:8px;transform-origin:left center}
-.arm{top:31px}.arm.left{transform:rotate(150deg)}
-.arm.right{transform:rotate(30deg)}
-.leg{top:58px}.leg.left{transform:rotate(115deg)}
-.leg.right{transform:rotate(65deg)}
-.engine-label{position:absolute;right:10px;bottom:8px;color:var(--muted);font:11px monospace}
-.status{margin-top:8px;padding:9px 12px;color:var(--muted);font:12px monospace;overflow-wrap:anywhere}
-.library{margin-top:10px}
-.library-inner{padding:12px}
-.field-label{display:block;margin:12px 0 6px;color:var(--muted);
-font:700 12px monospace;letter-spacing:.05em}
-.library-inner textarea{border:1px solid var(--line);border-radius:6px;
-background:#080a0d;min-height:180px;height:220px}
-.library-list{display:grid;gap:7px;margin:10px 0}
-.module{border:1px solid var(--line);padding:10px;border-radius:6px;
-background:var(--panel2);display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start}
-.module input{width:18px;height:18px;margin-top:3px}
-.module-name{font-weight:800;overflow-wrap:anywhere}
-.module-meta{font:11px monospace;color:var(--muted);margin-top:4px}
-.module-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.module-actions button{padding:6px 9px;font-size:12px}
-.hint{color:var(--muted);font-size:12px;margin:8px 0}
-.section-gap{margin-top:14px}
-@media(max-width:700px){
- .lower{grid-template-columns:1fr}
- textarea{height:200px}
- .preview iframe{height:260px}
- .app{padding:8px}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.45 system-ui,sans-serif;
+}
+
+button,input,textarea,select { font:inherit; }
+
+button {
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  padding:9px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:700;
+}
+
+button:hover,button.active {
+  border-color:var(--blue);
+}
+
+button:active { transform:translateY(1px); }
+
+input,textarea,select {
+  width:100%;
+  background:#080a0d;
+  color:var(--text);
+  border:1px solid var(--line);
+  padding:10px;
+  border-radius:6px;
+}
+
+textarea {
+  min-height:180px;
+  resize:vertical;
+  font:13px/1.5 ui-monospace,monospace;
+  tab-size:2;
+}
+
+.app {
+  width:min(1200px,100%);
+  margin:auto;
+  padding:12px;
+}
+
+header,.panel,.card {
+  border:1px solid var(--line);
+  background:var(--panel);
+  border-radius:8px;
+}
+
+header { padding:15px; }
+
+.logo {
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.sub,.muted {
+  color:var(--muted);
+  font-size:12px;
+}
+
+.nav,.row,.actions {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:7px;
+}
+
+.nav { margin-top:12px; }
+
+.nav button { flex:1; }
+
+.section { margin-top:10px; }
+
+.panel-title {
+  padding:10px 12px;
+  border-bottom:1px solid var(--line);
+  font-weight:800;
+  letter-spacing:1px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.content { padding:12px; }
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.editor {
+  width:100%;
+  min-height:260px;
+  border-radius:0;
+  border:0;
+}
+
+.preview {
+  width:100%;
+  height:320px;
+  background:white;
+  border:0;
+  display:block;
+}
+
+.pill {
+  display:inline-block;
+  border:1px solid var(--line);
+  border-radius:5px;
+  padding:5px 8px;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.good { color:var(--green); }
+.blue { color:var(--blue); }
+.yellow { color:var(--yellow); }
+
+.hidden { display:none!important; }
+
+.card {
+  padding:12px;
+  min-width:0;
+}
+
+.card h3 { margin:0 0 6px; }
+
+.list {
+  display:grid;
+  gap:7px;
+}
+
+.item {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:10px;
+  overflow-wrap:anywhere;
+}
+
+.item .actions { flex-shrink:0; }
+
+.item button { padding:6px 8px; }
+
+.device {
+  max-width:430px;
+  margin:auto;
+  padding:14px;
+  border:3px solid #53616b;
+  border-radius:22px 22px 38px 22px;
+  background:#c5cbd0;
+  color:#20252b;
+  box-shadow:inset 0 0 0 3px #e3e6e8;
+}
+
+.device-brand {
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:3px;
+  margin:2px 0 10px;
+}
+
+.device-screen {
+  background:var(--screen);
+  color:var(--ink);
+  border:5px solid #343c43;
+  border-radius:7px;
+  min-height:245px;
+  padding:12px;
+  font:13px/1.4 ui-monospace,monospace;
+  overflow:auto;
+}
+
+.device-screen button {
+  background:#306230;
+  color:#d9f0a0;
+  border-color:#0f380f;
+  padding:7px;
+}
+
+.device-screen input,.device-screen textarea {
+  background:#d0e68a;
+  color:var(--ink);
+  border-color:#306230;
+}
+
+.device-screen .item {
+  border-color:#306230;
+}
+
+.dpad {
+  display:grid;
+  grid-template-columns:repeat(3,44px);
+  gap:4px;
+  justify-content:center;
+}
+
+.key {
+  height:40px;
+  display:grid;
+  place-items:center;
+  background:#343c43;
+  color:white;
+  border-radius:6px;
+  font-weight:900;
+  user-select:none;
+  touch-action:manipulation;
+}
+
+.key.blank { visibility:hidden; }
+
+.device-controls {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  align-items:center;
+  margin:16px 0;
+}
+
+.ab {
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  transform:rotate(-18deg);
+}
+
+.ab .key {
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#8e3047;
+}
+
+.device-foot {
+  display:flex;
+  justify-content:space-around;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.component {
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:10px;
+}
+
+.component h3 { margin:0 0 5px; }
+
+.status {
+  padding:10px;
+  margin-top:10px;
+  background:#10151a;
+  border:1px solid var(--line);
+  border-radius:6px;
+  color:var(--green);
+  font:12px ui-monospace,monospace;
+  overflow-wrap:anywhere;
+}
+
+@media(max-width:650px) {
+  .grid { grid-template-columns:1fr; }
+  .editor { min-height:220px; }
+  .preview { height:260px; }
+  .app { padding:7px; }
+  header { padding:11px; }
+  .nav button { flex:1 0 28%; }
+  .item { align-items:flex-start; }
 }
 </style>
 </head>
+
 <body>
 <div class="app">
 
 <header>
-  <div class="logo">CODE MAKER / TAP</div>
-  <div class="sub">LOCAL BUILD ENVIRONMENT • CARTRIDGE STUDIO</div>
-  <div class="tabs">
-    <button class="tab active" data-lang="html">HTML</button>
-    <button class="tab" data-lang="css">CSS</button>
-    <button class="tab" data-lang="js">JS</button>
-    <button class="tab" data-lang="theory">CODE THEORY</button>
+  <div class="logo">CODE MAKER <span class="blue">+</span> TAP</div>
+  <div class="sub">LOCAL DEVELOPMENT DEVICE · COMPONENT LIBRARY · CARTRIDGE SYSTEM</div>
+
+  <div class="nav">
+    <button class="active" data-view="maker">CODE MAKER</button>
+    <button data-view="tap">CHIBI TAP</button>
+    <button data-view="library">LIBRARY</button>
+    <button data-view="install">INSTALL</button>
   </div>
 </header>
 
-<section class="editor">
-  <textarea id="editor" spellcheck="false" autocapitalize="off"
-  autocomplete="off" aria-label="Code editor"></textarea>
+<!-- CODE MAKER -->
+
+<section id="view-maker" class="section">
+
+  <div class="panel">
+    <div class="panel-title">CODE EDITOR</div>
+    <div class="content">
+      <div class="row" id="languageTabs">
+        <button class="active" data-lang="html">HTML</button>
+        <button data-lang="css">CSS</button>
+        <button data-lang="js">JS</button>
+        <button data-lang="theory">THEORY</button>
+      </div>
+
+      <textarea id="editor" class="editor"
+        spellcheck="false" autocapitalize="off"
+        autocomplete="off"></textarea>
+
+      <div class="actions section">
+        <button id="quantizeBtn">QUANTIZE</button>
+        <button id="buildBtn">BUILD</button>
+        <button id="testBtn">TEST</button>
+        <button id="saveBtn">SAVE PROJECT</button>
+        <button id="exportBtn">EXPORT</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel section">
+    <div class="panel-title">MAIN PREVIEW</div>
+    <iframe id="preview" class="preview"
+      title="Application preview"
+      sandbox="allow-scripts allow-forms"></iframe>
+  </div>
+
+  <div class="panel section">
+    <div class="panel-title">COMPONENT LIBRARY</div>
+    <div class="content">
+      <p class="muted">
+        Insert reusable HTML, CSS, or JavaScript into the current editor.
+        JavaScript components can use the TAP API.
+      </p>
+      <div id="components" class="grid"></div>
+    </div>
+  </div>
 </section>
 
-<div class="controls">
-  <button id="quantizeBtn">QUANTIZE</button>
-  <button id="buildBtn">BUILD / PREVIEW</button>
-  <button id="testBtn">TEST</button>
-  <button id="saveBtn">SAVE PROJECT</button>
-  <button id="exportHtmlBtn">EXPORT HTML APP</button>
-  <button id="exportProjectBtn">EXPORT PROJECT JSON</button>
-</div>
+<!-- CHIBI TAP -->
+
+<section id="view-tap" class="section hidden">
+  <div class="panel">
+    <div class="panel-title">CHIBI TAP · DEVICE HOME</div>
+    <div class="content">
+      <div class="device">
+        <div class="device-brand">CHIBI TAP · LOCAL SYSTEM</div>
+        <div class="device-screen" id="tapScreen"></div>
+
+        <div class="device-controls">
+          <div class="dpad">
+            <div class="key blank"></div>
+            <div class="key" data-key="ArrowUp">▲</div>
+            <div class="key blank"></div>
+            <div class="key" data-key="ArrowLeft">◀</div>
+            <div class="key" data-key="ArrowDown">▼</div>
+            <div class="key" data-key="ArrowRight">▶</div>
+          </div>
+          <div class="ab">
+            <div class="key" data-key="b">B</div>
+            <div class="key" data-key="a">A</div>
+          </div>
+        </div>
+        <div class="device-foot">
+          <span>SELECT</span><span>START</span>
+        </div>
+      </div>
+
+      <div class="actions section">
+        <button id="tapHome">HOME</button>
+        <button id="tapRun">RUN CURRENT</button>
+        <button id="tapInstall">INSTALL CODE</button>
+        <button id="tapLibrary">CARTRIDGES</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- CARTRIDGE LIBRARY -->
-<section class="panel library">
-  <div class="panel-title">TAP CARTRIDGE MANAGER / CODE LIBRARY</div>
-  <div class="library-inner">
-    <div class="hint">
-      Install code as text. Select modules to assemble them into a build.
-      Installing does not execute code.
-    </div>
 
-    <label class="field-label" for="moduleName">MODULE NAME</label>
-    <input id="moduleName" placeholder="e.g. Korin Tower">
-
-    <label class="field-label" for="moduleType">MODULE TYPE</label>
-    <select id="moduleType">
-      <option value="js">JS CARTRIDGE</option>
-      <option value="html">HTML APP / COMPONENT</option>
-      <option value="css">CSS STYLE MODULE</option>
-    </select>
-
-    <label class="field-label" for="moduleText">PASTE CODE TO INSTALL</label>
-    <textarea id="moduleText" spellcheck="false"
-      placeholder="Paste HTML, CSS, or JavaScript cartridge code..."></textarea>
-
-    <div class="controls">
-      <button id="installBtn">INSTALL / UPDATE MODULE</button>
-      <button id="clearInstallBtn">CLEAR FORM</button>
-      <button id="importLibraryBtn">IMPORT LIBRARY JSON</button>
-      <input id="importFile" type="file" accept=".json,application/json" hidden>
-    </div>
-
-    <div class="section-gap panel-title">INSTALLED MODULES</div>
-    <div class="hint">
-      Select multiple modules. Build order is HTML, CSS, then JavaScript.
-      Selected modules of a type replace that editor's content for this build.
-      If none of a type are selected, the editor content is used.
-    </div>
-    <div id="moduleList" class="library-list"></div>
-
-    <div class="controls">
-      <button id="loadSelectedBtn">LOAD SELECTED INTO EDITORS</button>
-      <button id="deleteSelectedBtn">DELETE SELECTED</button>
-      <button id="exportLibraryBtn">EXPORT LIBRARY JSON</button>
-    </div>
-    <div class="controls">
-      <button id="clearSelectionBtn">CLEAR BUILD SELECTION</button>
-    </div>
-    <div id="libraryStatus" class="status">LIBRARY READY</div>
-  </div>
-</section>
-
-<section class="preview">
-  <div class="preview-title">MAIN PREVIEW • ASSEMBLED APPLICATION</div>
-  <iframe id="preview" title="Application preview"
-    sandbox="allow-scripts allow-forms"></iframe>
-</section>
-
-<section class="lower">
+<section id="view-library" class="section hidden">
   <div class="panel">
-    <div class="panel-title">KEYBOARD PREVIEW</div>
-    <div class="keyboard">
-      <div class="dpad">
-        <div class="key blank"></div><div class="key" data-key="ArrowUp">↑</div>
-        <div class="key blank"></div>
-        <div class="key" data-key="ArrowLeft">←</div>
-        <div class="key" data-key="ArrowDown">↓</div>
-        <div class="key" data-key="ArrowRight">→</div>
+    <div class="panel-title">CARTRIDGE LIBRARY</div>
+    <div class="content">
+      <div class="row">
+        <input id="cartName" placeholder="Cartridge name">
+        <button id="saveCart">SAVE CARTRIDGE</button>
       </div>
-      <div class="ab">
-        <div class="key" data-key="a">A</div>
-        <div class="key" data-key="b">B</div>
+      <p class="muted">
+        Save the current HTML, CSS and JavaScript together as one cartridge.
+      </p>
+      <div id="cartList" class="list"></div>
+      <div class="actions section">
+        <button id="exportLibrary">EXPORT LIBRARY</button>
+        <button id="importLibrary">IMPORT JSON</button>
+        <input type="file" id="libraryFile" accept=".json,application/json"
+          class="hidden">
       </div>
-      <div class="hint">INPUT TARGET: T ENGINE / MAIN APP</div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">T ENGINE</div>
-    <div class="engine" id="engine">
-      <div class="axis x"></div><div class="axis y"></div>
-      <div class="stick" id="stick">
-        <div class="head"></div><div class="body"></div>
-        <div class="arm left"></div><div class="arm right"></div>
-        <div class="leg left"></div><div class="leg right"></div>
-      </div>
-      <div class="engine-label">X Y Z T</div>
     </div>
   </div>
 </section>
 
-<div class="status" id="status">READY • LOCAL MODE</div>
+<!-- TEXT INSTALLER -->
+
+<section id="view-install" class="section hidden">
+  <div class="panel">
+    <div class="panel-title">TEXT INSTALLER</div>
+    <div class="content">
+      <label for="installName">Cartridge name</label>
+      <input id="installName" value="My Cartridge"
+        placeholder="Name this cartridge">
+
+      <div class="row section" id="installTabs">
+        <button class="active" data-install="html">HTML INSTALL</button>
+        <button data-install="css">CSS INSTALL</button>
+        <button data-install="js">JS INSTALL</button>
+      </div>
+
+      <p class="muted" id="installDescription">
+        Paste HTML markup below, then install it into the current project.
+      </p>
+
+      <textarea id="installText" spellcheck="false"
+        autocapitalize="off" placeholder="Paste code here..."></textarea>
+
+      <div class="actions section">
+        <button id="installToEditor">INSTALL TO EDITOR</button>
+        <button id="installAsCart">INSTALL AS CARTRIDGE</button>
+        <button id="clearInstall">CLEAR</button>
+      </div>
+
+      <div class="card section">
+        <h3>Cartridge API</h3>
+        <p class="muted">A JavaScript cartridge can register itself with
+          <code>TAP_CARTRIDGE(metadata, function(tap) {...})</code>.
+          Standalone HTML/CSS/JS cartridges can also be imported separately.</p>
+        <button id="insertTemplate">INSERT TAP JS TEMPLATE</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="status" class="status">READY · LOCAL MODE</div>
 </div>
 
 <script>
 "use strict";
 
-/* =========================================================
-   PROJECT AND EDITORS
-   ========================================================= */
+/* =====================================================
+   PROJECT DATA
+   ===================================================== */
 
 const DEFAULT_CODE = {
-  html: `<main class="app">
-  <h1>My TAP App</h1>
-  <p>Build something.</p>
-  <button id="helloButton">PRESS</button>
+  html: `<main id="app">
+  <h1>My App</h1>
+  <p>A new cartridge begins here.</p>
+  <button id="hello">PRESS</button>
 </main>`,
   css: `body {
   font-family: system-ui, sans-serif;
   padding: 24px;
+  color: #20252b;
 }
-button {
-  padding: 10px 16px;
-  cursor: pointer;
-}`,
-  js: `document.getElementById("helloButton")?.addEventListener("click", () => {
-  alert("Hello from Code Maker");
+button { padding: 10px 16px; cursor: pointer; }`,
+  js: `document.getElementById("hello")?.addEventListener("click", () => {
+  document.querySelector("p").textContent = "App is running!";
 });`,
-  theory: `// HTML = structure
-// CSS = appearance
-// JS = behavior
-//
-// TAP CARTRIDGE = installable JS module
-// BUILD = assemble modules into an app
-// EXPORT HTML = create a standalone app
-// INSTALLING CODE DOES NOT EXECUTE IT`
+  theory: `HTML = structure
+CSS = appearance
+JavaScript = behavior
+
+COMPONENT -> INPUT -> FUNCTION -> OUTPUT
+
+CODE MAKER = development environment
+CHIBI TAP = device interface
+CARTRIDGE = installed application`
 };
 
-const PROJECT_KEY = "codeMakerProjectV2";
-const LIBRARY_KEY = "codeMakerLibraryV2";
-
 let code = {...DEFAULT_CODE};
-let currentLanguage = "html";
-let library = [];
-let selectedIds = new Set();
-let moduleEditingId = null;
-let lastBuild = null;
+let language = "html";
+let installLanguage = "html";
+let cartridges = [];
+let activeCartId = null;
+let tapPage = "home";
+let tapPosition = {x:50,y:50};
+let cartSequence = 0;
 
 const $ = id => document.getElementById(id);
 const editor = $("editor");
 const status = $("status");
-const preview = $("preview");
 
-function say(message) {
-  status.textContent = message;
+function message(text) {
+  status.textContent = text;
 }
 
-function librarySay(message) {
-  $("libraryStatus").textContent = message;
+function storageRead(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value === null ? fallback : JSON.parse(value);
+  } catch {
+    return fallback;
+  }
+}
+
+function storageWrite(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    message("STORAGE ERROR · EXPORT YOUR PROJECT");
+    return false;
+  }
+}
+
+function saveProject() {
+  code[language] = editor.value;
+  storageWrite("cm.tap.project", code);
 }
 
 function loadEditor() {
-  editor.value = code[currentLanguage] ?? "";
+  editor.value = code[language] || "";
 }
 
-function saveEditor() {
-  if (currentLanguage !== "theory") {
-    code[currentLanguage] = editor.value;
-  } else {
-    code.theory = editor.value;
-  }
-}
-
-editor.addEventListener("input", saveEditor);
-
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    saveEditor();
-    currentLanguage = tab.dataset.lang;
-    document.querySelectorAll(".tab").forEach(t =>
-      t.classList.toggle("active", t === tab)
-    );
-    loadEditor();
-    say("EDITOR • " + currentLanguage.toUpperCase());
-  });
-});
-
-/* =========================================================
-   LOCAL PROJECT SAVE / RESTORE
-   ========================================================= */
-
-function saveProject() {
-  saveEditor();
-  try {
-    localStorage.setItem(PROJECT_KEY, JSON.stringify(code));
-    say("PROJECT SAVED • LOCAL STORAGE");
-  } catch (error) {
-    say("SAVE ERROR • " + error.message);
-  }
-}
-
-function restoreProject() {
-  try {
-    const raw = localStorage.getItem(PROJECT_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    for (const key of ["html","css","js","theory"]) {
-      if (typeof parsed[key] === "string") code[key] = parsed[key];
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-$("saveBtn").addEventListener("click", saveProject);
-
-/* =========================================================
-   LIBRARY DATA
-   ========================================================= */
-
-function persistLibrary() {
-  try {
-    localStorage.setItem(LIBRARY_KEY, JSON.stringify(library));
-    return true;
-  } catch (error) {
-    librarySay("LIBRARY SAVE ERROR • " + error.message);
-    return false;
-  }
-}
-
-function restoreLibrary() {
-  try {
-    const raw = localStorage.getItem(LIBRARY_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(parsed)) throw new Error("Invalid library");
-
-    library = parsed.filter(item =>
-      item &&
-      typeof item.id === "string" &&
-      typeof item.name === "string" &&
-      ["html","css","js"].includes(item.type) &&
-      typeof item.content === "string"
-    );
-  } catch {
-    library = [];
-  }
-  renderLibrary();
-}
-
-function makeId() {
-  return "mod-" + Date.now().toString(36) + "-" +
-    Math.random().toString(36).slice(2, 9);
-}
-
-function installModule() {
-  const name = $("moduleName").value.trim();
-  const type = $("moduleType").value;
-  const content = $("moduleText").value;
-
-  if (!name) {
-    librarySay("INSTALL BLOCKED • ENTER MODULE NAME");
-    return;
-  }
-  if (!content.trim()) {
-    librarySay("INSTALL BLOCKED • PASTE CODE FIRST");
-    return;
-  }
-
-  // Update the module currently being edited, or install a new module.
-  let existing = moduleEditingId
-    ? library.find(m => m.id === moduleEditingId)
-    : null;
-
-  // Avoid silently replacing another module with the same name and type.
-  if (!existing) {
-    existing = library.find(m =>
-      m.name.toLowerCase() === name.toLowerCase() &&
-      m.type === type
-    );
-  }
-
-  const item = {
-    id: existing ? existing.id : makeId(),
-    name,
-    type,
-    content,
-    updatedAt: new Date().toISOString()
-  };
-
-  if (existing) {
-    library = library.map(m => m.id === existing.id ? item : m);
-    librarySay("MODULE UPDATED • " + name);
-  } else {
-    library.push(item);
-    librarySay("MODULE INSTALLED • " + name);
-  }
-
-  moduleEditingId = item.id;
-  selectedIds.add(item.id);
-
-  if (!persistLibrary()) return;
-  renderLibrary();
-}
-
-$("installBtn").addEventListener("click", installModule);
-
-$("clearInstallBtn").addEventListener("click", () => {
-  $("moduleName").value = "";
-  $("moduleText").value = "";
-  $("moduleType").value = "js";
-  moduleEditingId = null;
-  librarySay("INSTALL FORM CLEARED");
-});
-
-function editModule(id) {
-  const item = library.find(m => m.id === id);
-  if (!item) return;
-
-  moduleEditingId = item.id;
-  $("moduleName").value = item.name;
-  $("moduleType").value = item.type;
-  $("moduleText").value = item.content;
-  librarySay("EDITING MODULE • " + item.name);
-  $("moduleName").scrollIntoView({behavior:"smooth",block:"center"});
-}
-
-function renderLibrary() {
-  const list = $("moduleList");
-  list.replaceChildren();
-
-  if (!library.length) {
-    const empty = document.createElement("div");
-    empty.className = "status";
-    empty.textContent = "NO MODULES INSTALLED";
-    list.appendChild(empty);
-    return;
-  }
-
-  for (const item of library) {
-    const row = document.createElement("div");
-    row.className = "module";
-
-    const check = document.createElement("input");
-    check.type = "checkbox";
-    check.checked = selectedIds.has(item.id);
-    check.setAttribute("aria-label", "Select " + item.name);
-    check.addEventListener("change", () => {
-      if (check.checked) selectedIds.add(item.id);
-      else selectedIds.delete(item.id);
-      librarySay("BUILD SELECTION • " + selectedIds.size + " MODULES");
-    });
-
-    const info = document.createElement("div");
-    const name = document.createElement("div");
-    name.className = "module-name";
-    name.textContent = item.name;
-
-    const meta = document.createElement("div");
-    meta.className = "module-meta";
-    meta.textContent = item.type.toUpperCase() +
-      " • " + item.content.length + " CHARACTERS";
-
-    const actions = document.createElement("div");
-    actions.className = "module-actions";
-
-    const edit = document.createElement("button");
-    edit.textContent = "EDIT";
-    edit.addEventListener("click", () => editModule(item.id));
-
-    const copy = document.createElement("button");
-    copy.textContent = "COPY TO INSTALL FORM";
-    copy.addEventListener("click", () => {
-      $("moduleName").value = item.name;
-      $("moduleType").value = item.type;
-      $("moduleText").value = item.content;
-      moduleEditingId = item.id;
-      librarySay("MODULE LOADED INTO INSTALL FORM");
-    });
-
-    actions.append(edit, copy);
-    info.append(name, meta, actions);
-    row.append(check, info);
-    list.appendChild(row);
-  }
-}
-
-$("clearSelectionBtn").addEventListener("click", () => {
-  selectedIds.clear();
-  renderLibrary();
-  librarySay("BUILD SELECTION CLEARED");
-});
-
-$("deleteSelectedBtn").addEventListener("click", () => {
-  if (!selectedIds.size) {
-    librarySay("SELECT MODULES TO DELETE");
-    return;
-  }
-
-  const count = selectedIds.size;
-  library = library.filter(m => !selectedIds.has(m.id));
-  selectedIds.clear();
-  moduleEditingId = null;
-
-  if (persistLibrary()) {
-    renderLibrary();
-    librarySay("DELETED " + count + " MODULES");
-  }
-});
-
-/* =========================================================
-   MODULE ASSEMBLY
-   ========================================================= */
-
-function getBuildCode() {
-  saveEditor();
-
-  const selected = library.filter(m => selectedIds.has(m.id));
-  const result = {};
-
-  for (const type of ["html","css","js"]) {
-    const modules = selected.filter(m => m.type === type);
-    result[type] = modules.length
-      ? modules.map(m =>
-          "\n/* MODULE: " + m.name.replace(/[\r\n]/g, " ") + " */\n" +
-          m.content
-        ).join("\n\n")
-      : code[type];
-  }
-
-  return result;
-}
-
-$("loadSelectedBtn").addEventListener("click", () => {
-  const selected = library.filter(m => selectedIds.has(m.id));
-  if (!selected.length) {
-    librarySay("SELECT MODULES FIRST");
-    return;
-  }
-
-  for (const type of ["html","css","js"]) {
-    const modules = selected.filter(m => m.type === type);
-    if (modules.length) {
-      code[type] = modules.map(m => m.content).join("\n\n");
-    }
-  }
-
-  if (currentLanguage !== "theory") loadEditor();
+function setLanguage(next) {
   saveProject();
-  librarySay("SELECTED MODULES LOADED INTO PROJECT EDITORS");
+  language = next;
+
+  document.querySelectorAll("[data-lang]").forEach(button =>
+    button.classList.toggle("active", button.dataset.lang === next)
+  );
+
+  loadEditor();
+  message("EDITOR · " + next.toUpperCase());
+}
+
+document.querySelectorAll("[data-lang]").forEach(button => {
+  button.addEventListener("click", () => setLanguage(button.dataset.lang));
 });
 
-/* =========================================================
-   TAP COMPATIBILITY RUNTIME
-   ========================================================= */
+editor.addEventListener("input", () => {
+  code[language] = editor.value;
+});
 
-// This is a starter compatibility layer, not the full Chibi TAP API.
-// It supplies common methods for simple TAP_CARTRIDGE modules.
+/* =====================================================
+   SAFE PREVIEW BUILD
+   ===================================================== */
 
-function runtimeSource() {
-  return String.raw`
-<script>
-(function(){
-  const state = {
-    launch: [],
-    buttons: [],
-    storage: Object.create(null),
-    input: [],
-    root: null,
-    screen: null
-  };
+function build() {
+  saveProject();
 
-  const root = document.getElementById("tap-root") ||
-    document.body.appendChild(document.createElement("main"));
-  root.id = "tap-root";
-  state.root = root;
-  state.screen = root;
+  // Avoid closing the generated script element.
+  const safeJS = code.js.replace(/<\/script/gi, "<\\/script");
 
-  const tap = {
-    onLaunch(fn) {
-      if (typeof fn === "function") state.launch.push(fn);
-    },
-    ui: {
-      get root(){ return root; },
-      get screen(){ return state.screen; },
-      html(value) {
-        root.innerHTML = String(value ?? "");
-        state.screen = root;
-      },
-      screen(value) {
-        if (typeof value === "string") root.innerHTML = value;
-        state.screen = root;
-        return root;
-      }
-    },
-    message(value) {
-      let node = document.getElementById("tap-message");
-      if (!node) {
-        node = document.createElement("div");
-        node.id = "tap-message";
-        root.appendChild(node);
-      }
-      node.textContent = String(value);
-    },
-    storage: {
-      get(key, fallback=null) {
-        return Object.prototype.hasOwnProperty.call(state.storage,key)
-          ? state.storage[key] : fallback;
-      },
-      set(key,value) { state.storage[key] = value; return value; },
-      remove(key) { delete state.storage[key]; },
-      clear() { state.storage = Object.create(null); },
-      keys() { return Object.keys(state.storage); }
-    },
-    input: {
-      clear() { state.input = []; renderButtons(); },
-      set(items) {
-        state.input = Array.isArray(items) ? items : [];
-        renderButtons();
-      },
-      button(label, action) {
-        state.input.push({label,action});
-        renderButtons();
-      },
-      collect(options) {
-        const wrapper = document.createElement("div");
-        const field = document.createElement("input");
-        field.placeholder = options?.placeholder || "Enter value";
-        const submit = document.createElement("button");
-        submit.textContent = options?.label || "OK";
-        submit.onclick = () => {
-          if (typeof options?.onSubmit === "function")
-            options.onSubmit(field.value);
-        };
-        wrapper.append(field,submit);
-        root.appendChild(wrapper);
-        return wrapper;
-      }
-    },
-    navigation: {
-      home() {
-        root.innerHTML = "<h2>TAP HOME</h2><p>Return to cartridge start.</p>";
-      }
-    },
-    util: {
-      random(min,max) {
-        return Math.floor(Math.random() * (max-min+1)) + min;
-      },
-      clamp(value,min,max) {
-        return Math.max(min,Math.min(max,value));
-      }
-    },
-    every(fn,ms) { return setInterval(fn,ms); },
-    after(fn,ms) { return setTimeout(fn,ms); }
-  };
-
-  function renderButtons() {
-    let bar = document.getElementById("tap-input-bar");
-    if (!bar) {
-      bar = document.createElement("div");
-      bar.id = "tap-input-bar";
-      root.appendChild(bar);
-    }
-    bar.replaceChildren();
-
-    state.input.forEach(item => {
-      const button = document.createElement("button");
-      button.textContent = String(item.label ?? "ACTION");
-      button.style.margin = "4px";
-      button.onclick = () => {
-        if (typeof item.action === "function") item.action();
-        else if (typeof item.action === "string") {
-          const fn = window[item.action];
-          if (typeof fn === "function") fn();
-        }
-      };
-      bar.appendChild(button);
-    });
-  }
-
-  window.TAP_CARTRIDGE = function(metadata, factory) {
-    if (typeof metadata === "function") {
-      factory = metadata;
-      metadata = {};
-    }
-    window.__tapMetadata = metadata || {};
-    if (typeof factory !== "function") {
-      throw new Error("TAP_CARTRIDGE requires a function");
-    }
-    factory(tap);
-  };
-
-  window.addEventListener("DOMContentLoaded", function() {
-    try {
-      state.launch.forEach(fn => fn());
-    } catch (error) {
-      root.textContent = "CARTRIDGE ERROR: " + error.message;
-      console.error(error);
-    }
-  });
-})();
-<\/script>`;
-}
-
-/* =========================================================
-   SAFE DOCUMENT ASSEMBLY
-   ========================================================= */
-
-function escapeClosingScript(source) {
-  return String(source).replace(/<\/script/gi, "<\\/script");
-}
-
-function assembleDocument(buildCode) {
-  const css = buildCode.css.replace(/<\/style/gi, "<\\/style");
-  const js = escapeClosingScript(buildCode.js);
-
-  // Escape literal closing script tags in user HTML so they cannot
-  // accidentally terminate the generated assembly script.
-  const html = buildCode.html;
-
-  return `<!DOCTYPE html>
+  const output = `<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAP Application</title>
-<style>
-body{font:16px system-ui,sans-serif;margin:0;padding:16px;color:#17202a}
-button,input,select,textarea{font:inherit}
-button{padding:9px 12px;cursor:pointer}
-${css}
-</style>
+<style>${code.css}</style>
 </head>
 <body>
-${html}
-<div id="tap-root"></div>
-${runtimeSource()}
+${code.html}
 <script>
 try {
-${js}
-} catch(error) {
-  document.body.insertAdjacentHTML("beforeend",
-    '<pre style="color:#b00020;white-space:pre-wrap"></pre>');
-  document.body.lastElementChild.textContent =
-    "BUILD SCRIPT ERROR: " + error.message;
-  console.error(error);
+${safeJS}
+} catch (error) {
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    '<pre style="color:red">Runtime error: ' +
+      String(error.message).replace(/[&<>]/g, c =>
+        ({"&":"&amp;","<":"&lt;",">":"&gt;"})[c]
+      ) +
+    '</pre>'
+  );
 }
 <\/script>
 </body>
 </html>`;
-}
 
-function build() {
-  try {
-    const assembled = getBuildCode();
-    const documentText = assembleDocument(assembled);
-
-    lastBuild = documentText;
-    preview.srcdoc = documentText;
-
-    try {
-      localStorage.setItem(PROJECT_KEY, JSON.stringify(code));
-    } catch {}
-
-    say("BUILD COMPLETE • " + selectedIds.size +
-      " LIBRARY MODULES SELECTED");
-  } catch (error) {
-    say("BUILD ERROR • " + error.message);
-  }
+  $("preview").srcdoc = output;
+  message("BUILD COMPLETE · PROJECT SAVED");
 }
 
 $("buildBtn").addEventListener("click", build);
 
-/* =========================================================
-   TEST / QUANTIZE
-   ========================================================= */
+$("quantizeBtn").addEventListener("click", () => {
+  editor.value = editor.value
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+$/gm, "")
+    .replace(/\n{3,}/g, "\n\n");
+
+  code[language] = editor.value;
+  saveProject();
+  message("QUANTIZED · WHITESPACE NORMALIZED");
+});
 
 $("testBtn").addEventListener("click", () => {
-  saveEditor();
+  saveProject();
 
   try {
-    if (currentLanguage === "js") {
-      // Syntax check only; does not execute the code.
+    if (language === "js") {
+      // Syntax check only. Does not execute the code.
       new Function(editor.value);
-    } else if (currentLanguage === "html") {
-      const doc = new DOMParser().parseFromString(
+    } else if (language === "html") {
+      const parsed = new DOMParser().parseFromString(
         editor.value, "text/html"
       );
-      if (!doc.documentElement) throw new Error("Invalid HTML document");
-    } else if (currentLanguage === "css") {
+      if (!parsed.documentElement) throw new Error("Invalid HTML");
+    } else if (language === "css") {
       const sheet = new CSSStyleSheet();
       sheet.replaceSync(editor.value);
     }
-
-    say("TEST PASSED • BASIC SYNTAX CHECK ONLY");
+    message("TEST PASSED · BASIC SYNTAX CHECK");
   } catch (error) {
-    say("TEST ERROR • " + error.message);
+    message("TEST ERROR · " + error.message);
   }
 });
 
-$("quantizeBtn").addEventListener("click", () => {
-  saveEditor();
-  const normalized = editor.value
-    .replace(/\r\n?/g,"\n")
-    .replace(/[ \t]+$/gm,"")
-    .replace(/\n{3,}/g,"\n\n");
-
-  editor.value = normalized;
-  saveEditor();
-  say("QUANTIZED • WHITESPACE NORMALIZED");
+$("saveBtn").addEventListener("click", () => {
+  saveProject();
+  message("PROJECT SAVED LOCALLY");
 });
 
-/* =========================================================
-   EXPORTS
-   ========================================================= */
-
-function downloadText(filename, text, mime) {
-  const blob = new Blob([text], {type:mime});
+function downloadJSON(filename, data) {
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    {type:"application/json"}
+  );
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
-  document.body.appendChild(a);
   a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-$("exportHtmlBtn").addEventListener("click", () => {
-  const documentText = lastBuild || assembleDocument(getBuildCode());
-  downloadText("tap-application.html", documentText, "text/html;charset=utf-8");
-  say("HTML EXPORT REQUESTED • STANDALONE APP");
+$("exportBtn").addEventListener("click", () => {
+  saveProject();
+  downloadJSON("code-maker-project.json", {
+    type:"code-maker-project",
+    version:1,
+    code
+  });
+  message("PROJECT EXPORTED");
 });
 
-$("exportProjectBtn").addEventListener("click", () => {
-  saveEditor();
-  const payload = {
-    format: "CODE_MAKER_PROJECT",
-    version: 2,
-    code,
-    selectedModuleIds: [...selectedIds]
+/* =====================================================
+   COMPONENT LIBRARY
+   ===================================================== */
+
+const componentLibrary = [
+  {
+    name:"HTML Button",
+    type:"html",
+    description:"Reusable action button",
+    content:'<button id="tapAction">ACTION</button>'
+  },
+  {
+    name:"HTML Status",
+    type:"html",
+    description:"Status readout",
+    content:'<div id="appStatus" role="status">READY</div>'
+  },
+  {
+    name:"HTML Panel",
+    type:"html",
+    description:"Simple app panel",
+    content:'<section class="app-panel"><h2>Panel</h2><p>Content goes here.</p></section>'
+  },
+  {
+    name:"CSS Panel",
+    type:"css",
+    description:"Panel styling",
+    content:'.app-panel { padding:16px; border:1px solid #bbb; border-radius:8px; margin:10px 0; }'
+  },
+  {
+    name:"CSS Pixel",
+    type:"css",
+    description:"Pixel-console typography",
+    content:'body { font-family:monospace; image-rendering:pixelated; }'
+  },
+  {
+    name:"JS Action",
+    type:"js",
+    description:"Button interaction",
+    content:`document.getElementById("tapAction")?.addEventListener("click", () => {
+  const output = document.getElementById("appStatus");
+  if (output) output.textContent = "ACTION COMPLETE";
+});`
+  },
+  {
+    name:"JS TAP Cartridge",
+    type:"js",
+    description:"TAP cartridge starter",
+    content:`TAP_CARTRIDGE({
+  name: "MY CARTRIDGE",
+  description: "Custom TAP application",
+  version: "1.0",
+  group: "UTILITY"
+}, function(tap) {
+  tap.onLaunch(function() {
+    tap.ui.screen(
+      "<h2>MY CARTRIDGE</h2><p>Ready.</p>"
+    );
+  });
+});`
+  }
+];
+
+function renderComponents() {
+  $("components").replaceChildren();
+
+  componentLibrary.forEach(component => {
+    const card = document.createElement("div");
+    card.className = "component";
+
+    const title = document.createElement("h3");
+    title.textContent = component.name;
+
+    const description = document.createElement("p");
+    description.className = "muted";
+    description.textContent = component.description;
+
+    const button = document.createElement("button");
+    button.textContent = "INSERT " + component.type.toUpperCase();
+    button.addEventListener("click", () => {
+      if (language !== component.type) setLanguage(component.type);
+      const separator = editor.value.trim() ? "\n\n" : "";
+      editor.value += separator + component.content;
+      code[language] = editor.value;
+      saveProject();
+      message("COMPONENT INSERTED · " + component.name);
+    });
+
+    card.append(title, description, button);
+    $("components").append(card);
+  });
+}
+
+/* =====================================================
+   NAVIGATION
+   ===================================================== */
+
+function showView(view) {
+  document.querySelectorAll("[id^='view-']").forEach(section => {
+    section.classList.toggle("hidden", section.id !== "view-" + view);
+  });
+
+  document.querySelectorAll("[data-view]").forEach(button => {
+    button.classList.toggle("active", button.dataset.view === view);
+  });
+
+  if (view === "tap") renderTap();
+  if (view === "library") renderLibrary();
+
+  message("MODE · " + view.toUpperCase());
+}
+
+document.querySelectorAll("[data-view]").forEach(button => {
+  button.addEventListener("click", () => showView(button.dataset.view));
+});
+
+/* =====================================================
+   CARTRIDGE LIBRARY
+   ===================================================== */
+
+function makeId() {
+  cartSequence += 1;
+  return "cart-" + Date.now().toString(36) + "-" + cartSequence;
+}
+
+function validProject(project) {
+  return project &&
+    typeof project === "object" &&
+    ["html","css","js"].every(key =>
+      typeof project[key] === "string"
+    );
+}
+
+function saveCartridge(name, project, id) {
+  if (!validProject(project)) {
+    message("INSTALL ERROR · INVALID PROJECT");
+    return null;
+  }
+
+  const cart = {
+    id: id || makeId(),
+    name: String(name || "Untitled Cartridge").slice(0,80),
+    html: project.html,
+    css: project.css,
+    js: project.js,
+    created: new Date().toISOString()
   };
-  downloadText("code-maker-project.json",
-    JSON.stringify(payload,null,2), "application/json");
-  say("PROJECT JSON EXPORT REQUESTED");
+
+  const index = cartridges.findIndex(item => item.id === cart.id);
+
+  if (index >= 0) cartridges[index] = cart;
+  else cartridges.unshift(cart);
+
+  if (!storageWrite("cm.tap.cartridges", cartridges)) return null;
+
+  renderLibrary();
+  return cart;
+}
+
+function loadCartridge(cart) {
+  code.html = cart.html;
+  code.css = cart.css;
+  code.js = cart.js;
+  activeCartId = cart.id;
+  saveProject();
+  setLanguage("html");
+  build();
+  message("CARTRIDGE LOADED · " + cart.name);
+}
+
+function renderLibrary() {
+  $("cartList").replaceChildren();
+
+  if (!cartridges.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = "No cartridges installed yet.";
+    $("cartList").append(empty);
+    return;
+  }
+
+  cartridges.forEach(cart => {
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const info = document.createElement("div");
+    const title = document.createElement("strong");
+    title.textContent = cart.name;
+
+    const detail = document.createElement("div");
+    detail.className = "muted";
+    detail.textContent = "HTML + CSS + JS";
+
+    info.append(title, detail);
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const load = document.createElement("button");
+    load.textContent = "LOAD";
+    load.addEventListener("click", () => loadCartridge(cart));
+
+    const remove = document.createElement("button");
+    remove.textContent = "DELETE";
+    remove.addEventListener("click", () => {
+      cartridges = cartridges.filter(c => c.id !== cart.id);
+      storageWrite("cm.tap.cartridges", cartridges);
+      renderLibrary();
+      message("CARTRIDGE DELETED");
+    });
+
+    actions.append(load, remove);
+    item.append(info, actions);
+    $("cartList").append(item);
+  });
+}
+
+$("saveCart").addEventListener("click", () => {
+  saveProject();
+  const cart = saveCartridge(
+    $("cartName").value || "My Cartridge", code, activeCartId
+  );
+  if (cart) {
+    activeCartId = cart.id;
+    $("cartName").value = cart.name;
+    message("CARTRIDGE SAVED · " + cart.name);
+  }
 });
 
-$("exportLibraryBtn").addEventListener("click", () => {
-  const payload = {
-    format: "CODE_MAKER_LIBRARY",
-    version: 2,
-    modules: library
-  };
-  downloadText("code-maker-library.json",
-    JSON.stringify(payload,null,2), "application/json");
-  librarySay("LIBRARY JSON EXPORT REQUESTED");
+$("exportLibrary").addEventListener("click", () => {
+  downloadJSON("chibi-tap-library.json", {
+    type:"chibi-tap-library",
+    version:1,
+    cartridges
+  });
+  message("LIBRARY EXPORTED");
 });
 
-/* =========================================================
-   IMPORT LIBRARY PACKAGE
-   ========================================================= */
+$("importLibrary").addEventListener("click", () => $("libraryFile").click());
 
-$("importLibraryBtn").addEventListener("click", () => $("importFile").click());
-
-$("importFile").addEventListener("change", async event => {
-  const file = event.target.files?.[0];
+$("libraryFile").addEventListener("change", async event => {
+  const file = event.target.files[0];
   if (!file) return;
 
   try {
-    const payload = JSON.parse(await file.text());
-    const incoming = Array.isArray(payload) ? payload : payload.modules;
+    const data = JSON.parse(await file.text());
+    let imported = 0;
 
-    if (!Array.isArray(incoming)) {
-      throw new Error("No modules array found");
-    }
+    const entries = data.type === "chibi-tap-library"
+      ? data.cartridges
+      : [data];
 
-    const valid = incoming.filter(m =>
-      m && typeof m.name === "string" &&
-      ["html","css","js"].includes(m.type) &&
-      typeof m.content === "string"
-    );
+    if (!Array.isArray(entries)) throw new Error("No cartridge list");
 
-    if (!valid.length) throw new Error("No valid modules found");
-
-    for (const module of valid) {
-      const existing = library.find(m =>
-        m.name.toLowerCase() === module.name.toLowerCase() &&
-        m.type === module.type
-      );
-
-      const entry = {
-        id: existing?.id || makeId(),
-        name: module.name,
-        type: module.type,
-        content: module.content,
-        updatedAt: new Date().toISOString()
-      };
-
-      if (existing) {
-        library = library.map(m => m.id === existing.id ? entry : m);
-      } else {
-        library.push(entry);
+    entries.forEach(entry => {
+      if (validProject(entry)) {
+        saveCartridge(entry.name || "Imported Cartridge", entry, entry.id);
+        imported++;
+      } else if (validProject(entry.code)) {
+        saveCartridge(entry.name || "Imported Cartridge", entry.code);
+        imported++;
       }
-    }
+    });
 
-    if (persistLibrary()) {
-      renderLibrary();
-      librarySay("IMPORTED • " + valid.length + " MODULES");
-    }
+    message("IMPORT COMPLETE · " + imported + " CARTRIDGES");
   } catch (error) {
-    librarySay("IMPORT ERROR • " + error.message);
-  } finally {
-    event.target.value = "";
+    message("IMPORT ERROR · " + error.message);
+  }
+
+  event.target.value = "";
+});
+
+/* =====================================================
+   THREE TEXT INSTALL MODES
+   ===================================================== */
+
+const installDescriptions = {
+  html:"Paste HTML markup. This replaces the project's HTML component.",
+  css:"Paste CSS rules. This replaces the project's CSS component.",
+  js:"Paste JavaScript. This replaces the project's JavaScript component."
+};
+
+function setInstallLanguage(next) {
+  installLanguage = next;
+  document.querySelectorAll("[data-install]").forEach(button =>
+    button.classList.toggle("active", button.dataset.install === next)
+  );
+  $("installDescription").textContent = installDescriptions[next];
+  $("installText").value = code[next] || "";
+}
+
+document.querySelectorAll("[data-install]").forEach(button => {
+  button.addEventListener("click", () =>
+    setInstallLanguage(button.dataset.install)
+  );
+});
+
+$("installToEditor").addEventListener("click", () => {
+  const text = $("installText").value;
+  code[installLanguage] = text;
+  setLanguage(installLanguage);
+  editor.value = text;
+  saveProject();
+  message(installLanguage.toUpperCase() + " INSTALLED INTO EDITOR");
+});
+
+$("installAsCart").addEventListener("click", () => {
+  const project = {...code};
+  project[installLanguage] = $("installText").value;
+
+  // Preserve the other components as a complete cartridge.
+  const cart = saveCartridge($("installName").value, project);
+
+  if (cart) {
+    activeCartId = cart.id;
+    message(installLanguage.toUpperCase() + " COMPONENT INSTALLED AS CARTRIDGE");
   }
 });
 
-/* =========================================================
-   T ENGINE / KEYBOARD
-   ========================================================= */
+$("clearInstall").addEventListener("click", () => {
+  $("installText").value = "";
+  message("INSTALL BUFFER CLEARED");
+});
 
-let x = 50, y = 50;
+$("insertTemplate").addEventListener("click", () => {
+  setInstallLanguage("js");
+  $("installText").value = `TAP_CARTRIDGE({
+  name: "MY CARTRIDGE",
+  description: "Installed from Code Maker",
+  version: "1.0",
+  group: "UTILITY"
+}, function(tap) {
+  tap.onLaunch(function() {
+    tap.ui.screen("<h2>MY CARTRIDGE</h2><p>Ready.</p>");
+  });
+});`;
+  message("TAP JS TEMPLATE READY");
+});
 
-function move(dx,dy) {
-  x = Math.max(8,Math.min(92,x+dx));
-  y = Math.max(12,Math.min(88,y+dy));
-  $("stick").style.left = x + "%";
-  $("stick").style.top = y + "%";
+/* =====================================================
+   CHIBI TAP DEVICE
+   ===================================================== */
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[char]);
 }
 
-function activateKey(key) {
-  const button = document.querySelector('[data-key="' + key + '"]');
-  if (button) {
-    button.classList.add("active");
-    setTimeout(() => button.classList.remove("active"),100);
+function renderTap() {
+  const screen = $("tapScreen");
+  screen.replaceChildren();
+
+  const title = document.createElement("div");
+  title.innerHTML = "<strong>CHIBI TAP OS</strong><hr>";
+  screen.append(title);
+
+  if (tapPage === "home") {
+    const menu = [
+      ["CODE MAKER", "maker"],
+      ["CARTRIDGES", "library"],
+      ["INSTALLER", "install"],
+      ["T ENGINE", "engine"]
+    ];
+
+    menu.forEach(([label, page], index) => {
+      const button = document.createElement("button");
+      button.style.width = "100%";
+      button.style.textAlign = "left";
+      button.style.marginBottom = "6px";
+      button.textContent = (index + 1) + ". " + label;
+      button.addEventListener("click", () => {
+        if (page === "engine") {
+          tapPage = "engine";
+          renderTap();
+        } else {
+          showView(page);
+        }
+      });
+      screen.append(button);
+    });
+
+    const info = document.createElement("p");
+    info.textContent = cartridges.length + " CARTRIDGES INSTALLED";
+    screen.append(info);
   }
 
-  switch(key) {
-    case "ArrowUp": move(0,-5); break;
-    case "ArrowDown": move(0,5); break;
-    case "ArrowLeft": move(-5,0); break;
-    case "ArrowRight": move(5,0); break;
-    case "a": say("T ENGINE • A ACTION"); break;
-    case "b": say("T ENGINE • B ACTION"); break;
+  if (tapPage === "engine") {
+    const instructions = document.createElement("p");
+    instructions.textContent = "T ENGINE · D-PAD MOVEMENT";
+    screen.append(instructions);
+
+    const marker = document.createElement("div");
+    marker.style.height = "110px";
+    marker.style.position = "relative";
+    marker.style.border = "1px solid #306230";
+    marker.style.backgroundImage =
+      "linear-gradient(#30623033 1px,transparent 1px),linear-gradient(90deg,#30623033 1px,transparent 1px)";
+    marker.style.backgroundSize = "15px 15px";
+
+    const avatar = document.createElement("div");
+    avatar.textContent = "●";
+    avatar.style.position = "absolute";
+    avatar.style.left = tapPosition.x + "%";
+    avatar.style.top = tapPosition.y + "%";
+    avatar.style.transform = "translate(-50%,-50%)";
+    avatar.style.fontSize = "22px";
+
+    marker.append(avatar);
+    screen.append(marker);
+
+    const hint = document.createElement("p");
+    hint.textContent = "Use arrow keys or D-pad.";
+    screen.append(hint);
   }
 }
+
+function moveTap(key) {
+  if (tapPage !== "engine") return;
+
+  const delta = 8;
+
+  if (key === "ArrowUp") tapPosition.y -= delta;
+  if (key === "ArrowDown") tapPosition.y += delta;
+  if (key === "ArrowLeft") tapPosition.x -= delta;
+  if (key === "ArrowRight") tapPosition.x += delta;
+
+  tapPosition.x = Math.max(5, Math.min(95, tapPosition.x));
+  tapPosition.y = Math.max(10, Math.min(90, tapPosition.y));
+
+  renderTap();
+}
+
+$("tapHome").addEventListener("click", () => {
+  tapPage = "home";
+  renderTap();
+});
+
+$("tapRun").addEventListener("click", () => {
+  build();
+  showView("maker");
+});
+
+$("tapInstall").addEventListener("click", () => showView("install"));
+$("tapLibrary").addEventListener("click", () => showView("library"));
+
+document.querySelectorAll(".key[data-key]").forEach(button => {
+  button.addEventListener("pointerdown", () => {
+    const key = button.dataset.key;
+
+    if (key.startsWith("Arrow")) {
+      moveTap(key);
+    } else if (key === "a") {
+      if (tapPage === "home") {
+        tapPage = "engine";
+        renderTap();
+      } else {
+        tapPage = "home";
+        renderTap();
+      }
+    } else if (key === "b") {
+      tapPage = "home";
+      renderTap();
+    }
+  });
+});
 
 document.addEventListener("keydown", event => {
-  if (["INPUT","TEXTAREA","SELECT"].includes(document.activeElement?.tagName)) {
-    return;
-  }
-  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","a","b"].includes(event.key)) {
-    event.preventDefault();
-    activateKey(event.key);
+  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(event.key)) {
+    if (!$("view-tap").classList.contains("hidden")) {
+      event.preventDefault();
+      moveTap(event.key);
+    }
   }
 });
 
-document.querySelectorAll("[data-key]").forEach(button => {
-  button.addEventListener("pointerdown", () => activateKey(button.dataset.key));
-});
+/* =====================================================
+   BASIC TAP CARTRIDGE REGISTRY
+   ===================================================== */
 
-/* =========================================================
-   STARTUP
-   ========================================================= */
+// This is a lightweight compatibility layer for the included
+// TAP_CARTRIDGE registration style. It is not a complete clone
+// of every Chibi TAP runtime version.
 
-restoreProject();
+const TapRuntime = {
+  registry: [],
+  active: null,
+
+  install(source) {
+    let registration = null;
+
+    const register = (metadata, factory) => {
+      if (typeof factory !== "function") {
+        throw new Error("Cartridge factory must be a function");
+      }
+      registration = {metadata: metadata || {}, factory};
+    };
+
+    try {
+      // Cartridge code is executable code. Only install code you trust.
+      new Function("TAP_CARTRIDGE", source)(register);
+
+      if (!registration) {
+        throw new Error("No TAP_CARTRIDGE registration found");
+      }
+
+      this.registry.push(registration);
+      return registration;
+    } catch (error) {
+      throw new Error("Cartridge install failed: " + error.message);
+    }
+  },
+
+  launch(registration) {
+    const host = this;
+    const screen = $("tapScreen");
+
+    const api = {
+      onLaunch(callback) {
+        if (typeof callback === "function") callback();
+      },
+
+      ui: {
+        screen(markup) {
+          // Cartridge output is trusted executable-app content.
+          // Do not install untrusted cartridge code.
+          screen.innerHTML = String(markup);
+        },
+        html(markup) {
+          screen.innerHTML = String(markup);
+        }
+      },
+
+      storage: {
+        get(key) {
+          return storageRead("cart." + key, null);
+        },
+        set(key, value) {
+          return storageWrite("cart." + key, value);
+        },
+        remove(key) {
+          localStorage.removeItem("cart." + key);
+        }
+      },
+
+      message(text) {
+        message(String(text));
+      },
+
+      navigation: {
+        home() {
+          tapPage = "home";
+          renderTap();
+        }
+      },
+
+      util: {
+        random(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+      }
+    };
+
+    host.active = registration;
+    registration.factory(api);
+    return api;
+  }
+};
+
+// Optional public registration hook for compatible cartridge snippets.
+// The installer evaluates the source with its own isolated registration
+// callback, rather than exposing arbitrary globals to the editor.
+
+window.TAP_CARTRIDGE = function(metadata, factory) {
+  return TapRuntime.install(
+    "TAP_CARTRIDGE(" +
+    JSON.stringify(metadata || {}) +
+    ", function(tap) { (" + factory.toString() + ")(tap); });"
+  );
+};
+
+/* =====================================================
+   LOAD AND INITIALIZE
+   ===================================================== */
+
+const savedProject = storageRead("cm.tap.project", null);
+if (validProject(savedProject)) {
+  code = {...DEFAULT_CODE, ...savedProject};
+}
+
+cartridges = storageRead("cm.tap.cartridges", []);
+if (!Array.isArray(cartridges)) cartridges = [];
+
 loadEditor();
-restoreLibrary();
-say("READY • LOCAL MODE • CARTRIDGE MANAGER ACTIVE");
+renderComponents();
+renderLibrary();
+renderTap();
+build();
+
+setInstallLanguage("html");
+message("READY · LOCAL MODE · CODE MAKER + CHIBI TAP");
 </script>
 </body>
 </html>
